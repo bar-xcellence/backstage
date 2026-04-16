@@ -7,6 +7,7 @@ import {
   cocktailGarnishes,
   eventCocktails,
   eventContacts,
+  eventChecklists,
 } from "./schema";
 
 describe("Database Schema", () => {
@@ -105,6 +106,17 @@ describe("Database Schema", () => {
       expect(columns).toContain("contactRole");
       expect(columns).toContain("contactPhone");
       expect(columns).toContain("isPrimary");
+    });
+  });
+
+  describe("eventChecklists table", () => {
+    it("exports eventChecklists table", () => {
+      expect(eventChecklists).toBeDefined();
+      expect(eventChecklists.id).toBeDefined();
+      expect(eventChecklists.eventId).toBeDefined();
+      expect(eventChecklists.label).toBeDefined();
+      expect(eventChecklists.isCompleted).toBeDefined();
+      expect(eventChecklists.isCustom).toBeDefined();
     });
   });
 });

@@ -258,11 +258,27 @@ export const eventCocktails = pgTable("event_cocktails", {
   sortOrder: integer("sort_order").default(0),
 });
 
+// ── Event Checklists ──────────────────────────────────
+
+export const eventChecklists = pgTable("event_checklists", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  eventId: uuid("event_id")
+    .references(() => events.id, { onDelete: "cascade" })
+    .notNull(),
+  label: text("label").notNull(),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  isCustom: boolean("is_custom").default(false).notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // ── Relations ──────────────────────────────────────────
 
 export const eventsRelations = relations(events, ({ many, one }) => ({
   contacts: many(eventContacts),
   cocktails: many(eventCocktails),
+  checklists: many(eventChecklists),
   createdByUser: one(users, {
     fields: [events.createdBy],
     references: [users.id],
@@ -314,6 +330,16 @@ export const eventContactsRelations = relations(
   ({ one }) => ({
     event: one(events, {
       fields: [eventContacts.eventId],
+      references: [events.id],
+    }),
+  })
+);
+
+export const eventChecklistsRelations = relations(
+  eventChecklists,
+  ({ one }) => ({
+    event: one(events, {
+      fields: [eventChecklists.eventId],
       references: [events.id],
     }),
   })
