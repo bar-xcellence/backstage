@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { events, eventChecklists } from "@/db/schema";
 import { eq, and, ne, inArray } from "drizzle-orm";
 import { requireRole } from "@/lib/session";
+import { checkAndSendAlerts } from "./alerts";
 
 export interface DashboardData {
   userName: string;
@@ -193,6 +194,9 @@ export async function getDashboardData(): Promise<DashboardData> {
       }
     }
   }
+
+  // Fire-and-forget: check for 48-hour alerts
+  checkAndSendAlerts().catch(console.error);
 
   return {
     userName: session.name,

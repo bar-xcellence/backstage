@@ -170,6 +170,7 @@ export const events = pgTable("events", {
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  lastAlertSentAt: timestamp("last_alert_sent_at"),
 });
 
 // ── Event Contacts ─────────────────────────────────────
