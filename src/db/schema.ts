@@ -92,6 +92,13 @@ export const userRoleEnum = pgEnum("user_role", [
   "partner",
 ]);
 
+export const scalingRuleEnum = pgEnum("scaling_rule", [
+  "per_station",
+  "fixed",
+  "per_spirit",
+  "per_ingredient",
+]);
+
 // ── Users ──────────────────────────────────────────────
 
 export const users = pgTable("users", {
@@ -274,12 +281,70 @@ export const eventChecklists = pgTable("event_checklists", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// ── Equipment Templates ───────────────────────────────
+
+export const equipmentTemplates = pgTable("equipment_templates", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  description: text("description"),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const equipmentTemplateItems = pgTable("equipment_template_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  templateId: uuid("template_id")
+    .references(() => equipmentTemplates.id, { onDelete: "cascade" })
+    .notNull(),
+  itemName: text("item_name").notNull(),
+  baseQuantity: integer("base_quantity").notNull().default(1),
+  scalingRule: scalingRuleEnum("scaling_rule").notNull().default("fixed"),
+  sortOrder: integer("sort_order").default(0).notNull(),
+});
+
+// ── Event Equipment ───────────────────────────────────
+
+export const eventEquipment = pgTable("event_equipment", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  eventId: uuid("event_id")
+    .references(() => events.id, { onDelete: "cascade" })
+    .notNull(),
+  itemName: text("item_name").notNull(),
+  quantity: integer("quantity").notNull(),
+  isFromTemplate: boolean("is_from_template").default(true).notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
+});
+
+// ── Standard Notes ────────────────────────────────────
+
+export const standardNotes = pgTable("standard_notes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  label: text("label").notNull(),
+  content: text("content").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const eventStandardNotes = pgTable("event_standard_notes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  eventId: uuid("event_id")
+    .references(() => events.id, { onDelete: "cascade" })
+    .notNull(),
+  noteId: uuid("note_id")
+    .references(() => standardNotes.id)
+    .notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
+});
+
 // ── Relations ──────────────────────────────────────────
 
 export const eventsRelations = relations(events, ({ many, one }) => ({
   contacts: many(eventContacts),
   cocktails: many(eventCocktails),
   checklists: many(eventChecklists),
+  equipment: many(eventEquipment),
+  standardNotes: many(eventStandardNotes),
   createdByUser: one(users, {
     fields: [events.createdBy],
     references: [users.id],
@@ -342,6 +407,54 @@ export const eventChecklistsRelations = relations(
     event: one(events, {
       fields: [eventChecklists.eventId],
       references: [events.id],
+    }),
+  })
+);
+
+export const equipmentTemplatesRelations = relations(
+  equipmentTemplates,
+  ({ many }) => ({
+    items: many(equipmentTemplateItems),
+  })
+);
+
+export const equipmentTemplateItemsRelations = relations(
+  equipmentTemplateItems,
+  ({ one }) => ({
+    template: one(equipmentTemplates, {
+      fields: [equipmentTemplateItems.templateId],
+      references: [equipmentTemplates.id],
+    }),
+  })
+);
+
+export const eventEquipmentRelations = relations(
+  eventEquipment,
+  ({ one }) => ({
+    event: one(events, {
+      fields: [eventEquipment.eventId],
+      references: [events.id],
+    }),
+  })
+);
+
+export const standardNotesRelations = relations(
+  standardNotes,
+  ({ many }) => ({
+    eventNotes: many(eventStandardNotes),
+  })
+);
+
+export const eventStandardNotesRelations = relations(
+  eventStandardNotes,
+  ({ one }) => ({
+    event: one(events, {
+      fields: [eventStandardNotes.eventId],
+      references: [events.id],
+    }),
+    note: one(standardNotes, {
+      fields: [eventStandardNotes.noteId],
+      references: [standardNotes.id],
     }),
   })
 );
