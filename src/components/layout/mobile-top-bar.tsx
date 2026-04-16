@@ -143,7 +143,7 @@ export function MobileTopBar({ user }: { user: SessionData }) {
           id="mobile-nav-overlay"
           role="dialog"
           aria-modal="true"
-          aria-label="Navigation menu"
+          aria-label="Main navigation"
           className="md:hidden fixed inset-0 z-40"
         >
           <button
