@@ -1,5 +1,3 @@
-"use server";
-
 import { db } from "@/db";
 import { events, eventChecklists } from "@/db/schema";
 import { eq, and, ne, inArray } from "drizzle-orm";
@@ -64,7 +62,7 @@ export async function checkAndSendAlerts() {
           from: process.env.FROM_EMAIL || "onboarding@resend.dev",
           to: "murdo@bar-excellence.app",
           subject: `${event.eventName} — ${incompleteCount} checklist items incomplete`,
-          text: `${event.eventName} on ${event.eventDate} has ${incompleteCount} incomplete checklist items.\n\nReview at backstage.bar-excellence.app/events/${event.id}`,
+          text: `${event.eventName} on ${event.eventDate} has ${incompleteCount} incomplete checklist items.\n\nReview at https://backstage.bar-excellence.app/events/${event.id}`,
         });
 
         await db
