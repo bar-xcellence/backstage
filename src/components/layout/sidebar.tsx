@@ -75,7 +75,7 @@ export function Sidebar({ user }: { user: SessionData }) {
                 <span className="hidden lg:inline">{label}</span>
                 {/* Tablet tooltip (lg:hidden) — visible on hover/focus via group- modifiers */}
                 <span
-                  role="tooltip"
+                  aria-hidden="true"
                   className="lg:hidden absolute left-full ml-3 px-3 py-1 bg-charcoal text-cream text-[11px] tracking-[0.16em] whitespace-nowrap opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 pointer-events-none transition-opacity duration-150 z-50"
                 >
                   {label}
