@@ -7,6 +7,7 @@ import { requireRole } from "@/lib/session";
 import { validateEvent } from "@/lib/event-validation";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { generateChecklist } from "./checklists";
 
 export async function createEvent(
   formData: FormData
@@ -240,6 +241,11 @@ export async function updateEventStatus(id: string, status: string) {
       updatedAt: new Date(),
     })
     .where(eq(events.id, id));
+
+  // Auto-generate checklist when event moves to confirmed
+  if (status === "confirmed") {
+    await generateChecklist(id);
+  }
 
   revalidatePath("/events");
   revalidatePath(`/events/${id}`);
