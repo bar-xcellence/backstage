@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { getSession } from "@/lib/session";
 import { getEvent, updateEvent, updateEventStatus } from "@/actions/events";
 import {
   getEventCocktails,
@@ -38,13 +39,16 @@ export default async function EventDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const session = await getSession();
+  if (!session) redirect("/auth/signin");
+  const isPartner = session.role === "partner";
   const event = await getEvent(id);
 
   if (!event) notFound();
 
   const eventCocktails = await getEventCocktails(id);
   const availableCocktails = await getAvailableCocktails();
-  const checklist = await getEventChecklist(id);
+  const checklist = isPartner ? [] : await getEventChecklist(id);
 
   // Calculate stock from selected cocktails
   const stockInput = eventCocktails.map((ec) => {
@@ -90,8 +94,15 @@ export default async function EventDetailPage({
     { id: "overview", label: "Overview" },
     { id: "cocktails", label: `Cocktails (${eventCocktails.length})` },
     { id: "stock", label: "Stock List" },
-    { id: "checklist", label: `Checklist (${checklist.filter(c => c.isCompleted).length}/${checklist.length})` },
-    { id: "edit", label: "Edit" },
+    ...(!isPartner
+      ? [
+          {
+            id: "checklist",
+            label: `Checklist (${checklist.filter((c) => c.isCompleted).length}/${checklist.length})`,
+          },
+          { id: "edit", label: "Edit" },
+        ]
+      : []),
   ];
 
   return (
@@ -124,28 +135,30 @@ export default async function EventDetailPage({
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Download PDF */}
-          <DownloadPDFButton eventId={id} />
+        {!isPartner && (
+          <div className="flex items-center gap-3">
+            {/* Download PDF */}
+            <DownloadPDFButton eventId={id} />
 
-          {/* Send to LC */}
-          <SendToLCButton eventId={id} />
+            {/* Send to LC */}
+            <SendToLCButton eventId={id} />
 
-          {/* Advance status */}
-          {STATUS_ORDER.indexOf(event.status) < STATUS_ORDER.length - 1 && (
-            <form action={advanceStatus}>
-              <button
-                type="submit"
-                className="px-5 py-2.5 border border-gold text-gold font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold hover:text-cream transition-colors duration-200 min-h-[44px] cursor-pointer"
-              >
-                ADVANCE TO{" "}
-                {STATUS_ORDER[
-                  STATUS_ORDER.indexOf(event.status) + 1
-                ].toUpperCase()}
-              </button>
-            </form>
-          )}
-        </div>
+            {/* Advance status */}
+            {STATUS_ORDER.indexOf(event.status) < STATUS_ORDER.length - 1 && (
+              <form action={advanceStatus}>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 border border-gold text-gold font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold hover:text-cream transition-colors duration-200 min-h-[44px] cursor-pointer"
+                >
+                  ADVANCE TO{" "}
+                  {STATUS_ORDER[
+                    STATUS_ORDER.indexOf(event.status) + 1
+                  ].toUpperCase()}
+                </button>
+              </form>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Summary bar */}
@@ -287,23 +300,24 @@ export default async function EventDetailPage({
 
           stock: <StockList stock={stock} />,
 
-          checklist: (
-            <EventChecklist
-              eventId={id}
-              items={checklist}
-              eventStatus={event.status}
-            />
-          ),
-
-          edit: (
-            <EventForm
-              action={updateWithId}
-              defaultValues={
-                event as unknown as Record<string, string | number | null>
-              }
-              submitLabel="SAVE CHANGES"
-            />
-          ),
+          ...(!isPartner ? {
+            checklist: (
+              <EventChecklist
+                eventId={id}
+                items={checklist}
+                eventStatus={event.status}
+              />
+            ),
+            edit: (
+              <EventForm
+                action={updateWithId}
+                defaultValues={
+                  event as unknown as Record<string, string | number | null>
+                }
+                submitLabel="SAVE CHANGES"
+              />
+            ),
+          } : {}),
         }}
       </EventTabs>
     </div>
