@@ -12,6 +12,8 @@ import { CocktailSelector } from "@/components/events/cocktail-selector";
 import { StockList } from "@/components/events/stock-list";
 import { SendToLCButton } from "@/components/events/send-to-lc-button";
 import { DownloadPDFButton } from "@/components/events/download-pdf-button";
+import { getEventChecklist } from "@/actions/checklists";
+import { EventChecklist } from "@/components/events/event-checklist";
 
 const STATUS_COLORS: Record<string, string> = {
   enquiry: "bg-grey/20 text-grey",
@@ -42,6 +44,7 @@ export default async function EventDetailPage({
 
   const eventCocktails = await getEventCocktails(id);
   const availableCocktails = await getAvailableCocktails();
+  const checklist = await getEventChecklist(id);
 
   // Calculate stock from selected cocktails
   const stockInput = eventCocktails.map((ec) => {
@@ -87,6 +90,7 @@ export default async function EventDetailPage({
     { id: "overview", label: "Overview" },
     { id: "cocktails", label: `Cocktails (${eventCocktails.length})` },
     { id: "stock", label: "Stock List" },
+    { id: "checklist", label: `Checklist (${checklist.filter(c => c.isCompleted).length}/${checklist.length})` },
     { id: "edit", label: "Edit" },
   ];
 
@@ -282,6 +286,14 @@ export default async function EventDetailPage({
           ),
 
           stock: <StockList stock={stock} />,
+
+          checklist: (
+            <EventChecklist
+              eventId={id}
+              items={checklist}
+              eventStatus={event.status}
+            />
+          ),
 
           edit: (
             <EventForm
