@@ -38,6 +38,9 @@ secrets/
 # Vercel
 .vercel
 
+# Claude Code
+.claude/
+
 # IDE
 .vscode/
 .idea/
