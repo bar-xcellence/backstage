@@ -15,6 +15,10 @@ import { SendToLCButton } from "@/components/events/send-to-lc-button";
 import { DownloadPDFButton } from "@/components/events/download-pdf-button";
 import { getEventChecklist } from "@/actions/checklists";
 import { EventChecklist } from "@/components/events/event-checklist";
+import { getEventEquipment, getEquipmentTemplates } from "@/actions/equipment";
+import { getStandardNotes, getEventStandardNotes } from "@/actions/standard-notes";
+import { EventEquipment } from "@/components/events/event-equipment";
+import { EventStandardNotes } from "@/components/events/event-standard-notes";
 import { STATUS_COLORS, STATUS_ORDER } from "@/lib/constants";
 
 export default async function EventDetailPage({
@@ -33,6 +37,10 @@ export default async function EventDetailPage({
   const eventCocktails = await getEventCocktails(id);
   const availableCocktails = await getAvailableCocktails();
   const checklist = isPartner ? [] : await getEventChecklist(id);
+  const equipment = await getEventEquipment(id);
+  const templates = isPartner ? [] : await getEquipmentTemplates();
+  const allStandardNotes = await getStandardNotes();
+  const eventNotes = await getEventStandardNotes(id);
 
   // Calculate stock from selected cocktails
   const stockInput = eventCocktails.map((ec) => {
@@ -61,6 +69,20 @@ export default async function EventDetailPage({
 
   const stock = calculateStock(stockInput);
 
+  const spiritCount = new Set(
+    eventCocktails.flatMap((ec) =>
+      ec.ingredients
+        .filter((i) => i.ingredientCategory === "spirit")
+        .map((i) => i.ingredientName)
+    )
+  ).size;
+
+  const ingredientCount = new Set(
+    eventCocktails.flatMap((ec) =>
+      ec.ingredients.map((i) => i.ingredientName)
+    )
+  ).size;
+
   const updateWithId = async (formData: FormData) => {
     "use server";
     return updateEvent(id, formData);
@@ -78,6 +100,7 @@ export default async function EventDetailPage({
     { id: "overview", label: "Overview" },
     { id: "cocktails", label: `Cocktails (${eventCocktails.length})` },
     { id: "stock", label: "Stock List" },
+    { id: "equipment", label: `Equipment (${equipment.length})` },
     ...(!isPartner
       ? [
           {
@@ -271,6 +294,13 @@ export default async function EventDetailPage({
                   </p>
                 </section>
               )}
+
+              <EventStandardNotes
+                eventId={id}
+                allNotes={allStandardNotes.map((n) => ({ id: n.id, label: n.label, content: n.content }))}
+                selectedNoteIds={eventNotes.map((en) => en.noteId)}
+                isPartner={isPartner}
+              />
             </div>
           ),
 
@@ -283,6 +313,18 @@ export default async function EventDetailPage({
           ),
 
           stock: <StockList stock={stock} />,
+
+          equipment: (
+            <EventEquipment
+              eventId={id}
+              equipment={equipment}
+              templates={templates.map((t) => ({ id: t.id, name: t.name }))}
+              stationCount={event.stationCount || 1}
+              spiritCount={spiritCount}
+              ingredientCount={ingredientCount}
+              isPartner={isPartner}
+            />
+          ),
 
           ...(!isPartner ? {
             checklist: (
