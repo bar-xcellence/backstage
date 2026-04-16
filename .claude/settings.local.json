@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(plan-ceo-review)",
+      "Skill(office-hours)",
+      "Skill(plan-eng-review)",
+      "Bash(gh api *)",
+      "Bash(npx create-next-app@latest *)",
+      "Read(//Users/roberthayford/Git/bar-excellence/**)",
+      "Bash(mkdir -p backstage-temp)",
+      "Bash(cp -r backstage-temp/src backstage-temp/public backstage-temp/package.json backstage-temp/package-lock.json backstage-temp/tsconfig.json backstage-temp/next.config.ts backstage-temp/postcss.config.mjs backstage-temp/eslint.config.mjs backstage-temp/next-env.d.ts backstage/)",
+      "Bash(cp -r backstage-temp/node_modules backstage/)",
+      "Bash(rm -rf backstage-temp)",
+      "Bash(npm install *)",
+      "Bash(npx next *)",
+      "Bash(npm uninstall *)",
+      "Bash(npx vitest *)",
+      "Bash(gh auth *)",
+      "Bash(git add *)"
+    ]
+  }
+}

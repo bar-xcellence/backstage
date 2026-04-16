@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  /* Reserve Noir — colour palette */
+  --color-charcoal: #1E1F2E;
+  --color-cream: #FAF9F6;
+  --color-gold: #A4731E;
+  --color-gold-ink: #7A5416;
+  --color-grey: #6B7280;
+  --color-cognac: #B8860B;
+  --color-botanical: #8B9D83;
+  --color-error: #EF4444;
+  --color-success: #4E8A3E;
+  --color-warning: #D78B07;
+  --color-surface-low: #F4F3F1;
+  --color-surface-high: #E3E2E0;
+  --color-outline: #D4C4B2;
+
+  /* Typography */
+  --font-family-cormorant: var(--font-cormorant), "Cormorant Garamond", serif;
+  --font-family-raleway: var(--font-raleway), "Raleway", sans-serif;
+
+  /* Sharp edges — enforced globally */
+  --radius-none: 0px;
+
+  /* Luxury easing */
+  --ease-luxury: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Reserve Noir: sharp edges on everything */
+* {
+  border-radius: 0 !important;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-gold-ink);
+  font-family: var(--font-family-raleway);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
