@@ -2,21 +2,55 @@
 
 import { useState } from "react";
 import { sendToLC, confirmResendToLC } from "@/actions/send-to-lc";
+import { getBriefPreview, type BriefPreviewData } from "@/actions/brief-preview";
+import { BriefPreview } from "./brief-preview";
 
 export function SendToLCButton({ eventId }: { eventId: string }) {
   const [loading, setLoading] = useState(false);
+  const [previewData, setPreviewData] = useState<BriefPreviewData | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
   const [result, setResult] = useState<{
     success?: boolean;
     error?: string;
     needsConfirmation?: boolean;
   } | null>(null);
 
-  async function handleSend() {
+  async function handleOpenPreview() {
     setLoading(true);
     setResult(null);
-    const res = await sendToLC(eventId);
+    try {
+      const data = await getBriefPreview(eventId);
+      if (data) {
+        setPreviewData(data);
+        setShowPreview(true);
+      } else {
+        setResult({ error: "Could not load event data for preview" });
+      }
+    } catch {
+      setResult({ error: "Failed to load preview" });
+    }
     setLoading(false);
-    setResult(res);
+  }
+
+  async function handleConfirmSend() {
+    setLoading(true);
+    setResult(null);
+    try {
+      const res = await sendToLC(eventId);
+      if (res.needsConfirmation) {
+        // Close preview, show re-send dialog
+        setShowPreview(false);
+        setPreviewData(null);
+        setResult(res);
+      } else {
+        setShowPreview(false);
+        setPreviewData(null);
+        setResult(res);
+      }
+    } catch {
+      setResult({ error: "Failed to send brief" });
+    }
+    setLoading(false);
   }
 
   async function handleConfirmResend() {
@@ -29,6 +63,19 @@ export function SendToLCButton({ eventId }: { eventId: string }) {
 
   return (
     <div>
+      {/* Brief preview slide-over */}
+      {showPreview && previewData && (
+        <BriefPreview
+          data={previewData}
+          onConfirm={handleConfirmSend}
+          onCancel={() => {
+            setShowPreview(false);
+            setPreviewData(null);
+          }}
+          loading={loading}
+        />
+      )}
+
       {/* Confirmation dialog for re-send */}
       {result?.needsConfirmation && (
         <div className="bg-warning/10 border border-warning/20 p-4 mb-4">
@@ -74,11 +121,11 @@ export function SendToLCButton({ eventId }: { eventId: string }) {
       {/* Send button */}
       {!result?.needsConfirmation && (
         <button
-          onClick={handleSend}
+          onClick={handleOpenPreview}
           disabled={loading}
           className="px-8 py-3 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 disabled:opacity-50 min-h-[44px] cursor-pointer"
         >
-          {loading ? "SENDING..." : "SEND TO LC"}
+          {loading ? "LOADING..." : "SEND TO LC"}
         </button>
       )}
     </div>
