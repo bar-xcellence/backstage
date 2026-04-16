@@ -50,7 +50,8 @@ export async function sendMagicLink(
     });
 
     return { success: true };
-  } catch {
+  } catch (err) {
+    console.error("Magic link send failed:", err);
     return { error: "Failed to send login link. Please try again." };
   }
 }
