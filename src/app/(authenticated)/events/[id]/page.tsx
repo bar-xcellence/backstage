@@ -11,6 +11,7 @@ import { EventTabs } from "@/components/events/event-tabs";
 import { CocktailSelector } from "@/components/events/cocktail-selector";
 import { StockList } from "@/components/events/stock-list";
 import { SendToLCButton } from "@/components/events/send-to-lc-button";
+import { DownloadPDFButton } from "@/components/events/download-pdf-button";
 
 const STATUS_COLORS: Record<string, string> = {
   enquiry: "bg-grey/20 text-grey",
@@ -120,6 +121,9 @@ export default async function EventDetailPage({
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Download PDF */}
+          <DownloadPDFButton eventId={id} />
+
           {/* Send to LC */}
           <SendToLCButton eventId={id} />
 
