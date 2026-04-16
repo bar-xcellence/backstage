@@ -64,7 +64,7 @@ export async function toggleChecklistItem(
     .where(eq(eventChecklists.id, itemId))
     .limit(1);
 
-  if (!item) return;
+  if (!item || item.eventId !== eventId) return;
 
   await db
     .update(eventChecklists)
@@ -121,7 +121,7 @@ export async function removeCustomChecklistItem(
     .where(eq(eventChecklists.id, itemId))
     .limit(1);
 
-  if (!item || !item.isCustom) return;
+  if (!item || !item.isCustom || item.eventId !== eventId) return;
 
   await db
     .delete(eventChecklists)

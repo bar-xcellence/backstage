@@ -225,19 +225,19 @@ export async function listEvents() {
   return allEvents;
 }
 
+const VALID_STATUSES = ["enquiry", "confirmed", "preparation", "ready", "delivered", "cancelled"] as const;
+
 export async function updateEventStatus(id: string, status: string) {
   await requireRole("owner", "super_admin");
+
+  if (!VALID_STATUSES.includes(status as typeof VALID_STATUSES[number])) {
+    throw new Error("Invalid status");
+  }
 
   await db
     .update(events)
     .set({
-      status: status as
-        | "enquiry"
-        | "confirmed"
-        | "preparation"
-        | "ready"
-        | "delivered"
-        | "cancelled",
+      status: status as typeof VALID_STATUSES[number],
       updatedAt: new Date(),
     })
     .where(eq(events.id, id));

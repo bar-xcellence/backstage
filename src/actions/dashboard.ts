@@ -93,7 +93,10 @@ export async function getDashboardData(): Promise<DashboardData> {
   // Revenue this month
   const revenueThisMonth = allEvents
     .filter(
-      (e) => e.eventDate >= monthStartStr && e.eventDate <= monthEndStr
+      (e) =>
+        e.eventDate >= monthStartStr &&
+        e.eventDate <= monthEndStr &&
+        e.status === "delivered"
     )
     .reduce((sum, e) => sum + (e.invoiceAmount ? parseFloat(e.invoiceAmount) : 0), 0);
 
