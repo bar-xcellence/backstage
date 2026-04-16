@@ -11,6 +11,7 @@ import {
   createColumnHelper,
   type SortingState,
 } from "@tanstack/react-table";
+import { STATUS_COLORS } from "@/lib/constants";
 
 interface EventRow {
   id: string;
@@ -22,15 +23,6 @@ interface EventRow {
   status: string;
   lcSentAt: Date | null;
 }
-
-const STATUS_COLORS: Record<string, string> = {
-  enquiry: "bg-grey/20 text-grey",
-  confirmed: "bg-cognac/20 text-cognac",
-  preparation: "bg-gold/20 text-gold",
-  ready: "bg-botanical/20 text-botanical",
-  delivered: "bg-success/20 text-success",
-  cancelled: "bg-error/10 text-error/60",
-};
 
 const columnHelper = createColumnHelper<EventRow>();
 

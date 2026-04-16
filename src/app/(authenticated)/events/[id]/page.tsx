@@ -15,23 +15,7 @@ import { SendToLCButton } from "@/components/events/send-to-lc-button";
 import { DownloadPDFButton } from "@/components/events/download-pdf-button";
 import { getEventChecklist } from "@/actions/checklists";
 import { EventChecklist } from "@/components/events/event-checklist";
-
-const STATUS_COLORS: Record<string, string> = {
-  enquiry: "bg-grey/20 text-grey",
-  confirmed: "bg-cognac/20 text-cognac",
-  preparation: "bg-gold/20 text-gold",
-  ready: "bg-botanical/20 text-botanical",
-  delivered: "bg-success/20 text-success",
-  cancelled: "bg-error/10 text-error/60",
-};
-
-const STATUS_ORDER = [
-  "enquiry",
-  "confirmed",
-  "preparation",
-  "ready",
-  "delivered",
-];
+import { STATUS_COLORS, STATUS_ORDER } from "@/lib/constants";
 
 export default async function EventDetailPage({
   params,
