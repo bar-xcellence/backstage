@@ -12,9 +12,11 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "@neondatabase/serverless": "^1.0.2",
     "@react-email/components": "^1.0.12",
     "@react-pdf/renderer": "^4.5.1",
+    "@tanstack/react-table": "^8.21.3",
     "@vercel/blob": "^2.3.3",
     "drizzle-orm": "^0.45.2",
     "iron-session": "^8.0.4",
