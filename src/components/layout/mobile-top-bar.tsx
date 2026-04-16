@@ -49,6 +49,17 @@ export function MobileTopBar({ user }: { user: SessionData }) {
     setOpen(false);
   }, [pathname]);
 
+  // Close sheet when crossing to desktop so body scroll lock cannot persist past `md:hidden` UI
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const onChange = () => {
+      if (mq.matches) setOpen(false);
+    };
+    onChange();
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
   // Body scroll lock + ESC + focus trap while open
   useEffect(() => {
     if (!open) return;
