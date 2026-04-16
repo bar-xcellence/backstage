@@ -6,7 +6,7 @@ import type { SessionData } from "@/lib/auth-config";
 
 const PUBLIC_PATHS = ["/auth/signin", "/auth/verify", "/api/auth"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow public paths
