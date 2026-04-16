@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { events, eventChecklists } from "@/db/schema";
-import { eq, and, ne } from "drizzle-orm";
+import { eq, and, ne, inArray } from "drizzle-orm";
 import { requireRole } from "@/lib/session";
 
 export interface DashboardData {
@@ -164,27 +164,31 @@ export async function getDashboardData(): Promise<DashboardData> {
     (e) => e.eventDate >= todayStr && e.eventDate <= in48HoursStr
   );
 
-  for (const e of urgentEvents) {
+  const urgentEventIds = urgentEvents.map((e) => e.id);
+
+  if (urgentEventIds.length > 0) {
     const incompleteItems = await db
-      .select()
+      .select({ eventId: eventChecklists.eventId })
       .from(eventChecklists)
       .where(
         and(
-          eq(eventChecklists.eventId, e.id),
+          inArray(eventChecklists.eventId, urgentEventIds),
           eq(eventChecklists.isCompleted, false)
         )
       );
 
-    if (incompleteItems.length > 0) {
-      // Don't duplicate if already in actions for same event with same issue
-      const alreadyHasChecklistAction = actions.some(
-        (a) => a.eventId === e.id && a.issue.includes("checklist")
-      );
-      if (!alreadyHasChecklistAction) {
+    const countByEvent = new Map<string, number>();
+    for (const item of incompleteItems) {
+      countByEvent.set(item.eventId, (countByEvent.get(item.eventId) || 0) + 1);
+    }
+
+    for (const [eventId, count] of countByEvent) {
+      const event = urgentEvents.find((e) => e.id === eventId);
+      if (event) {
         actions.push({
-          eventId: e.id,
-          eventName: e.eventName,
-          issue: `${incompleteItems.length} incomplete checklist item${incompleteItems.length === 1 ? "" : "s"}`,
+          eventId: event.id,
+          eventName: event.eventName,
+          issue: `${count} incomplete checklist item${count === 1 ? "" : "s"}`,
         });
       }
     }
