@@ -1,8 +1,14 @@
 import Link from "next/link";
+import { getSession } from "@/lib/session";
+import { redirect } from "next/navigation";
 import { createEvent } from "@/actions/events";
 import { EventForm } from "@/components/events/event-form";
 
-export default function NewEventPage() {
+export default async function NewEventPage() {
+  const session = await getSession();
+  if (!session) redirect("/auth/signin");
+  if (session.role === "partner") redirect("/events");
+
   return (
     <div>
       {/* Header */}

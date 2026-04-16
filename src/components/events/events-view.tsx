@@ -16,7 +16,7 @@ interface EventRow {
   lcSentAt: Date | null;
 }
 
-export function EventsView({ events }: { events: EventRow[] }) {
+export function EventsView({ events, isPartner = false }: { events: EventRow[]; isPartner?: boolean }) {
   const [viewMode, setViewMode] = useViewMode();
 
   return (
@@ -28,12 +28,14 @@ export function EventsView({ events }: { events: EventRow[] }) {
         </h1>
         <div className="flex items-center gap-3">
           <ViewToggle mode={viewMode} onChange={setViewMode} />
-          <Link
-            href="/events/new"
-            className="px-6 py-2.5 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 min-h-[44px] flex items-center"
-          >
-            ADD EVENT
-          </Link>
+          {!isPartner && (
+            <Link
+              href="/events/new"
+              className="px-6 py-2.5 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 min-h-[44px] flex items-center"
+            >
+              ADD EVENT
+            </Link>
+          )}
         </div>
       </div>
 
@@ -41,17 +43,21 @@ export function EventsView({ events }: { events: EventRow[] }) {
       {events.length === 0 ? (
         <div className="text-center py-16">
           <h2 className="font-[family-name:var(--font-cormorant)] text-2xl font-light text-charcoal">
-            No events yet
+            {isPartner ? "No upcoming events" : "No events yet"}
           </h2>
           <p className="font-[family-name:var(--font-raleway)] text-sm text-grey mt-2 max-w-md mx-auto">
-            Create your first event to get started with Backstage.
+            {isPartner
+              ? "Briefs will appear here once Murdo confirms them. You\u2019ll see event details, cocktail specs, and stock lists for all confirmed events."
+              : "Create your first event to get started with Backstage."}
           </p>
-          <Link
-            href="/events/new"
-            className="inline-block mt-6 px-6 py-2.5 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 min-h-[44px]"
-          >
-            CREATE YOUR FIRST EVENT
-          </Link>
+          {!isPartner && (
+            <Link
+              href="/events/new"
+              className="inline-block mt-6 px-6 py-2.5 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 min-h-[44px]"
+            >
+              CREATE YOUR FIRST EVENT
+            </Link>
+          )}
         </div>
       ) : viewMode === "kanban" ? (
         <EventKanban events={events} />
