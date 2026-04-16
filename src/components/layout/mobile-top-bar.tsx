@@ -71,7 +71,13 @@ export function MobileTopBar({ user }: { user: SessionData }) {
       if (focusables.length === 0) return;
       const first = focusables[0];
       const last = focusables[focusables.length - 1];
-      const active = document.activeElement;
+      const active = document.activeElement as HTMLElement | null;
+
+      if (!active || !overlayRef.current.contains(active)) {
+        e.preventDefault();
+        first.focus();
+        return;
+      }
 
       if (e.shiftKey && active === first) {
         e.preventDefault();
@@ -137,7 +143,7 @@ export function MobileTopBar({ user }: { user: SessionData }) {
           id="mobile-nav-overlay"
           role="dialog"
           aria-modal="true"
-          aria-label="Main navigation"
+          aria-label="Navigation menu"
           className="md:hidden fixed inset-0 z-40"
         >
           <button
