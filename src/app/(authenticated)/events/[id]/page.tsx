@@ -287,7 +287,7 @@ export default async function EventDetailPage({
             <EventForm
               action={updateWithId}
               defaultValues={
-                event as Record<string, string | number | null>
+                event as unknown as Record<string, string | number | null>
               }
               submitLabel="SAVE CHANGES"
             />

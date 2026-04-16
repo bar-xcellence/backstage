@@ -102,9 +102,10 @@ const s = StyleSheet.create({
   },
 });
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 interface BriefPDFProps {
-  event: Record<string, unknown>;
-  contacts: Array<Record<string, unknown>>;
+  event: Record<string, any>;
+  contacts: Array<Record<string, any>>;
   cocktails: Array<{
     menuName: string;
     menuDescription: string | null;

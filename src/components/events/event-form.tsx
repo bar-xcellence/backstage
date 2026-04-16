@@ -54,7 +54,7 @@ function TextArea({
 }: {
   label: string;
   name: string;
-  defaultValue?: string | null;
+  defaultValue?: string | number | null;
   placeholder?: string;
   rows?: number;
 }) {
