@@ -1,26 +1,6 @@
 import React from "react";
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  Font,
-} from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { StockResult } from "@/lib/stock-calculator";
-
-// Register fonts (system fallbacks — Liberation Serif/Sans)
-Font.register({
-  family: "Serif",
-  src: "https://cdn.jsdelivr.net/npm/@fontsource/cormorant-garamond/files/cormorant-garamond-latin-300-normal.woff2",
-  fontWeight: 300,
-});
-
-Font.register({
-  family: "Sans",
-  src: "https://cdn.jsdelivr.net/npm/@fontsource/raleway/files/raleway-latin-400-normal.woff2",
-  fontWeight: 400,
-});
 
 const s = StyleSheet.create({
   page: {
@@ -75,6 +55,13 @@ const s = StyleSheet.create({
     marginBottom: 8,
   },
   text: { fontSize: 10, lineHeight: 1.6, color: "#7A5416" },
+  /** Secondary body — avoids fontStyle italic (extra Raleway face / resolution issues in react-pdf). */
+  menuDescription: {
+    fontSize: 10,
+    lineHeight: 1.6,
+    color: "#6B7280",
+    fontStyle: "normal",
+  },
   label: {
     fontSize: 8,
     letterSpacing: 1.5,
@@ -205,9 +192,7 @@ export function BriefPDF({ event, contacts, cocktails, stock }: BriefPDFProps) {
               <View key={i} style={{ marginBottom: 10 }}>
                 <Text style={[s.text, s.bold]}>{c.menuName}</Text>
                 {c.menuDescription && (
-                  <Text style={[s.text, { fontStyle: "italic" }]}>
-                    {c.menuDescription}
-                  </Text>
+                  <Text style={[s.text, s.menuDescription]}>{c.menuDescription}</Text>
                 )}
                 {c.ingredients.map((ing, j) => (
                   <Text key={j} style={s.text}>

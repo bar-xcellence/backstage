@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
+import { registerBriefPdfFonts } from "@/lib/pdf/register-brief-pdf-fonts";
 import { getSession } from "@/lib/session";
 import { db } from "@/db";
 import {
@@ -27,6 +28,8 @@ export async function GET(
   const { id } = await params;
 
   try {
+    registerBriefPdfFonts();
+
     // Fetch event
     const [event] = await db
       .select()
