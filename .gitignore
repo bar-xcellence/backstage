@@ -42,6 +42,9 @@ secrets/
 # Claude Code
 .claude/
 
+# Cursor agent debug logs (API may append under .cursor/)
+.cursor/*.log
+
 # IDE
 .vscode/
 .idea/

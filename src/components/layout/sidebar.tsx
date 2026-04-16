@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLayoutEffect, useRef } from "react";
 import { signOut } from "@/actions/auth";
 import type { SessionData } from "@/lib/auth-config";
 import {
@@ -30,6 +31,7 @@ const partnerNav: NavItem[] = [
 
 export function Sidebar({ user }: { user: SessionData }) {
   const pathname = usePathname();
+  const asideRef = useRef<HTMLElement>(null);
   const nav = user.role === "partner" ? partnerNav : ownerNav;
   const roleLabel =
     user.role === "partner"
@@ -38,8 +40,67 @@ export function Sidebar({ user }: { user: SessionData }) {
         ? "Owner"
         : "Admin";
 
+  // #region agent log
+  useLayoutEffect(() => {
+    const el = asideRef.current;
+    if (!el || typeof window === "undefined") return;
+    const log = (reason: string) => {
+      const cs = window.getComputedStyle(el);
+      const md768 = window.matchMedia("(min-width: 768px)");
+      const md48rem = window.matchMedia("(min-width: 48rem)");
+      const rootFontPx = parseFloat(
+        window.getComputedStyle(document.documentElement).fontSize || "16",
+      );
+      const payload = {
+        sessionId: "08f604",
+        runId: "pre-fix",
+        hypothesisId: "A_B_C_F",
+        location: "sidebar.tsx:useLayoutEffect",
+        message: "Sidebar layout probe",
+        data: {
+          reason,
+          innerWidth: window.innerWidth,
+          clientWidth: document.documentElement.clientWidth,
+          md768pxMatches: md768.matches,
+          md48remMatches: md48rem.matches,
+          rootFontPx,
+          display: cs.display,
+          visibility: cs.visibility,
+          offsetWidth: el.offsetWidth,
+          offsetHeight: el.offsetHeight,
+          className: el.className,
+        },
+        timestamp: Date.now(),
+      };
+      void fetch(
+        "http://127.0.0.1:7588/ingest/cfcee6cc-26f3-4a0a-b2b6-ad561ad9d392",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Debug-Session-Id": "08f604",
+          },
+          body: JSON.stringify(payload),
+        },
+      ).catch(() => {});
+      if (process.env.NODE_ENV === "development") {
+        void fetch("/api/debug-agent-log", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }).catch(() => {});
+      }
+    };
+    log("mount");
+    const onResize = () => log("resize");
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  // #endregion
+
   return (
     <aside
+      ref={asideRef}
       aria-label="Main navigation"
       className="hidden md:flex w-16 lg:w-64 bg-charcoal min-h-screen flex-col justify-between py-6 px-2 lg:px-4 shrink-0"
     >
