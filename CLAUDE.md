@@ -72,3 +72,5 @@ This helps future sessions avoid repeating the same mistakes.
 | 2026-04-16 | Checklist toggle/remove didn't verify item ownership | `itemId` fetched without checking `eventId` match | Added `item.eventId !== eventId` guard in both actions |
 | 2026-04-16 | `updateEventStatus` accepted arbitrary strings | `as` cast bypassed TypeScript; DB would reject but no app-level check | Added `VALID_STATUSES` allowlist check before DB call |
 | 2026-04-16 | Dashboard revenue counted all events, not just delivered | Filter missed `status === "delivered"` condition | Added delivered-only filter to revenue calculation |
+| 2026-04-16 | `"use server"` file exposed `checkAndSendAlerts` as callable action | Every export in a `"use server"` file becomes a server action | Removed `"use server"` directive — file is only imported by `dashboard.ts` |
+| 2026-04-16 | `STATUS_ORDER` with `as const` broke `indexOf(event.status)` | Readonly tuple `.indexOf()` expects literal union, not `string` | Removed `as const` — DB status comes as plain `string` |
