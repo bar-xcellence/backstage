@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Implementation status (2026-04-16):** Tasks 1–6 are implemented in the repo; Task 7 (`tsc`, Vitest, `next build`) is green; Task 9 (`TODOS.md` cleanup) is done in commit `2e227da`. **Task 8 (manual QA)** — breakpoints, keyboard-only pass, VoiceOver, axe — still needs a human pass; tick those checkboxes when verified.
+
 **Goal:** Ship three responsive layout modes (mobile top-bar + overlay, tablet icon-only sidebar, desktop sidebar) and retrofit ARIA landmarks, skip-nav, focus-visible styling, and EventTabs keyboard navigation — without introducing new runtime dependencies.
 
 **Architecture:** CSS does the bulk of the breakpoint work via Tailwind's `md:` and `lg:` prefixes — a single `Sidebar` component covers desktop (≥1024px) and tablet (768-1023px). A new `MobileTopBar` client component owns hamburger-overlay state for `<768px`, with ESC / backdrop / nav-click / route-change close behavior and a hand-rolled focus trap. Inline SVG constants replace any icon-library dependency. `EventTabs` picks up the WAI-ARIA automatic-activation tab pattern (arrow keys move focus *and* activate). A single global `*:focus-visible` rule in `globals.css` closes the focus-ring requirement for every interactive element in the app.
