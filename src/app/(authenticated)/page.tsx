@@ -1,6 +1,7 @@
-import { redirect } from "next/navigation";
+import { getDashboardData } from "@/actions/dashboard";
+import { DashboardClient } from "@/components/dashboard/dashboard-client";
 
-// Phase 1: redirect to events. Phase 2 adds the full dashboard.
-export default function DashboardPage() {
-  redirect("/events");
+export default async function DashboardPage() {
+  const data = await getDashboardData();
+  return <DashboardClient data={data} />;
 }
