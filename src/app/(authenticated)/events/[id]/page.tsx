@@ -10,6 +10,7 @@ import { EventForm } from "@/components/events/event-form";
 import { EventTabs } from "@/components/events/event-tabs";
 import { CocktailSelector } from "@/components/events/cocktail-selector";
 import { StockList } from "@/components/events/stock-list";
+import { SendToLCButton } from "@/components/events/send-to-lc-button";
 
 const STATUS_COLORS: Record<string, string> = {
   enquiry: "bg-grey/20 text-grey",
@@ -119,6 +120,9 @@ export default async function EventDetailPage({
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Send to LC */}
+          <SendToLCButton eventId={id} />
+
           {/* Advance status */}
           {STATUS_ORDER.indexOf(event.status) < STATUS_ORDER.length - 1 && (
             <form action={advanceStatus}>
