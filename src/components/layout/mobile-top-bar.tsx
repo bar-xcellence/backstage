@@ -44,10 +44,13 @@ export function MobileTopBar({ user }: { user: SessionData }) {
         ? "Owner"
         : "Admin";
 
-  // Close on route change
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+  // Close overlay on route change — render-phase state adjustment avoids the
+  // react-hooks/set-state-in-effect warning (https://react.dev/learn/you-might-not-need-an-effect)
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
+    if (open) setOpen(false);
+  }
 
   // Close sheet when crossing to desktop so body scroll lock cannot persist past `md:hidden` UI
   useEffect(() => {
