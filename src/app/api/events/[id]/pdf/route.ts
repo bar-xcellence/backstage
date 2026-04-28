@@ -14,7 +14,10 @@ import {
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { calculateStock } from "@/lib/stock-calculator";
+import { stripPartnerFinancials } from "@/lib/partner-event-sanitisation";
 import { BriefPDF } from "@/lib/pdf/brief-pdf";
+import { TextOnlyBriefPDF } from "@/lib/pdf/text-only-brief-pdf";
+import { renderBriefWithFallback } from "@/lib/pdf/render-brief-with-fallback";
 
 export async function GET(
   request: NextRequest,
@@ -106,35 +109,34 @@ export async function GET(
     }));
     const stock = calculateStock(stockInput);
 
-    // Strip financials for partner
     const safeEvent =
-      session.role === "partner"
-        ? {
-            ...event,
-            invoiceAmount: null,
-            costAmount: null,
-            stockReturnPolicy: null,
-          }
-        : event;
+      session.role === "partner" ? stripPartnerFinancials(event) : event;
 
-    // Generate PDF with memory-safe fallback
-    const pdfBuffer = await renderToBuffer(
-      BriefPDF({
-        event: safeEvent,
-        contacts,
-        cocktails: enrichedCocktails,
-        stock,
-      })
+    const { buffer: pdfBuffer, usedFallback } = await renderBriefWithFallback(
+      () =>
+        renderToBuffer(
+          BriefPDF({ event: safeEvent, contacts, cocktails: enrichedCocktails, stock })
+        ),
+      () =>
+        renderToBuffer(
+          TextOnlyBriefPDF({ event: safeEvent, contacts, cocktails: enrichedCocktails, stock })
+        )
     );
+
+    if (usedFallback) {
+      console.warn(`PDF: served text-only fallback for event ${id}`);
+    }
+
+    const filename = `brief-${event.eventName.replace(/[^a-zA-Z0-9]/g, "-")}${usedFallback ? "-text-only" : ""}.pdf`;
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `inline; filename="brief-${event.eventName.replace(/[^a-zA-Z0-9]/g, "-")}.pdf"`,
+        "Content-Disposition": `inline; filename="${filename}"`,
       },
     });
   } catch (err) {
-    console.error("PDF generation failed:", err);
+    console.error("PDF generation failed entirely:", err);
     return NextResponse.json(
       { error: "Failed to generate PDF" },
       { status: 500 }
