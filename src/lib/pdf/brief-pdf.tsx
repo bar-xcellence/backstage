@@ -256,6 +256,32 @@ export function BriefPDF({
           </>
         )}
 
+        {/* 12c. Ice */}
+        {stock.ice.length > 0 && (
+          <>
+            <Text style={s.sectionTitle}>Ice</Text>
+            {stock.ice.map((i, idx) => (
+              <View key={idx} style={s.row}>
+                <Text style={s.text}>{i.iceType}</Text>
+                <Text style={[s.text, s.bold]}>{i.totalKg} kg</Text>
+              </View>
+            ))}
+          </>
+        )}
+
+        {/* 12d. Straws */}
+        {stock.straws.length > 0 && (
+          <>
+            <Text style={s.sectionTitle}>Straws</Text>
+            {stock.straws.map((s2, idx) => (
+              <View key={idx} style={s.row}>
+                <Text style={s.text}>{s2.strawType}</Text>
+                <Text style={[s.text, s.bold]}>{s2.totalCount}</Text>
+              </View>
+            ))}
+          </>
+        )}
+
         {/* 13. Standard Notes */}
         {standardNotes.map((note) => (
           <View key={note.label} wrap={false}>

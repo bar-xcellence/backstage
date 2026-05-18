@@ -34,6 +34,10 @@ export async function getBriefPreview(
       servesAllocated:
         ec.servesAllocated ||
         (cocktailCount > 0 ? Math.floor(totalServes / cocktailCount) : 0),
+      iceAmountG: ec.cocktail?.iceAmountG ?? null,
+      iceType: ec.cocktail?.iceType ?? null,
+      straw: ec.cocktail?.straw ?? null,
+      strawType: ec.cocktail?.strawType ?? null,
       ingredients: ec.ingredients.map((ing) => ({
         ingredientName: ing.ingredientName,
         amount: Number(ing.amount),

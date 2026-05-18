@@ -118,6 +118,20 @@ export function buildBriefEmailHtml(
           .join("<br>")
       : "";
 
+  const iceContent =
+    stock.ice.length > 0
+      ? stock.ice
+          .map((i) => `${escapeHtml(i.iceType)}: ${i.totalKg} kg`)
+          .join("<br>")
+      : "";
+
+  const strawsContent =
+    stock.straws.length > 0
+      ? stock.straws
+          .map((s) => `${escapeHtml(s.strawType)}: ${s.totalCount}`)
+          .join("<br>")
+      : "";
+
   const standardNotesHtml = standardNotes
     .map((n) =>
       section(n.label, escapeHtml(n.content).replace(/\n/g, "<br>"))
@@ -155,6 +169,8 @@ export function buildBriefEmailHtml(
           ${section("Cocktails and Specs", cocktailsHtml)}
           ${section("Stock List", stockHtml + (garnishHtml ? `<br><br><strong>Garnishes:</strong><br>${garnishHtml}` : ""))}
           ${section("Manual Items", manualItemsContent)}
+          ${section("Ice", iceContent)}
+          ${section("Straws", strawsContent)}
           ${standardNotesHtml}
           ${section("Notes", notesContent)}
         </table>

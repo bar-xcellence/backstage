@@ -113,6 +113,54 @@ export function StockList({ stock }: { stock: StockResult }) {
           </div>
         </section>
       )}
+
+      {/* Ice */}
+      {stock.ice.length > 0 && (
+        <section>
+          <h3 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
+            Ice
+          </h3>
+          <div className="space-y-1">
+            {stock.ice.map((i, idx) => (
+              <div
+                key={idx}
+                className="flex items-center justify-between py-2 border-b border-outline/10"
+              >
+                <span className="font-[family-name:var(--font-raleway)] text-sm text-charcoal">
+                  {i.iceType}
+                </span>
+                <span className="font-[family-name:var(--font-raleway)] text-sm font-semibold text-gold-ink">
+                  {i.totalKg} kg
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Straws */}
+      {stock.straws.length > 0 && (
+        <section>
+          <h3 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
+            Straws
+          </h3>
+          <div className="space-y-1">
+            {stock.straws.map((s, idx) => (
+              <div
+                key={idx}
+                className="flex items-center justify-between py-2 border-b border-outline/10"
+              >
+                <span className="font-[family-name:var(--font-raleway)] text-sm text-charcoal">
+                  {s.strawType}
+                </span>
+                <span className="font-[family-name:var(--font-raleway)] text-sm font-semibold text-gold-ink">
+                  {s.totalCount}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

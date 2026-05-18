@@ -6,6 +6,8 @@ const emptyStock: StockResult = {
   ingredients: [],
   garnishes: [],
   manualItems: [],
+  ice: [],
+  straws: [],
   warnings: [],
 };
 
