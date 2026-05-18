@@ -456,6 +456,133 @@ async function seed() {
 
   console.log("  ✓ Heathrow Masterclass (2026-05-15)");
 
+  // ── Event 2: Glasgow Pinsent Masons ──
+  const [glasgow] = await db
+    .insert(events)
+    .values({
+      createdBy: murdoId,
+      eventName: "Pinsent Masons Office Social",
+      eventDate: "2026-04-23",
+      arriveTime: "15:00:00",
+      setupDeadline: "17:00:00",
+      serviceStart: "18:00:00",
+      serviceEnd: "21:00:00",
+      departTime: "21:30:00",
+      // WORKAROUND[address]: full address + caterer jammed into venueName
+      venueName:
+        "Aurora @ Pinsent Masons (catered by Lexington Catering), 120 Bothwell Street, Glasgow, G2 7JS",
+      venueHallRoom: "Aurora",
+      guestCount: 100,
+      eventType: "drinks_reception",
+      serviceType: "cocktails_mocktails",
+      prepaidServes: 200,
+      stationCount: 3,
+      stationLayoutNotes:
+        "3 bartender stations on a 3m curved pop-up bar. 40 cocktails pre-poured on bar top at 17:45 (10 of each of 4 types). All stock and glassware hidden behind bar throughout.",
+      staffCount: 3,
+      // WORKAROUND[host]: no host/lead flag — host noted inline
+      staffNames: "Murdo MacLeod (host); James McClymont; 3 LC bartenders",
+      popUpBar: true,
+      // WORKAROUND[branding]: branding text shoehorned into supplier field
+      popUpBarSupplier: "3m curved, vinyl banner front branding attached seamlessly",
+      installInstructions:
+        "Meet Murdo outside the building at 15:00. Bar in place first, vinyl attached seamlessly. All stock/glassware hidden behind bar out of sight. Loading bay access TBC (updated Tuesday before event).",
+      status: "delivered",
+      notesCustom: [
+        "WORKAROUND[pre-pour-batching]: Pre-pour 40 cocktails on bar top at 17:45 (10 of each of 4 types). Bar top must be clean and beautiful throughout service.",
+        "",
+        "Glasses to be collected from floor and returned to bar throughout service.",
+        "",
+        "WORKAROUND[substitution-stock]: Substitution stock — 1 bottle each: non-alc scotch whisky, non-alc gin, non-alc spiced rum, non-alc agave spirit.",
+        "",
+        "WORKAROUND[ice-types]: Two ice types in same event — Cubed 30kg + Crushed 10kg. Stock calculator may aggregate both as 'g'.",
+        "",
+        "Venue also serves wine + champagne from a separate bar (not our responsibility).",
+      ].join("\n"),
+      lcRecipient: "Rory",
+    })
+    .returning({ id: events.id });
+
+  await db.insert(eventContacts).values([
+    {
+      eventId: glasgow.id,
+      contactName: "Murdo MacLeod",
+      contactRole: "Host (Bar Excellence)",
+      contactPhone: "07882084422",
+      isPrimary: true,
+      sortOrder: 0,
+    },
+    {
+      eventId: glasgow.id,
+      contactName: "James McClymont",
+      contactPhone: "07916857416",
+      sortOrder: 1,
+    },
+  ]);
+
+  await db.insert(eventCocktails).values([
+    {
+      eventId: glasgow.id,
+      cocktailId: cocktailIdByName.get("Clydeport Celebration")!,
+      menuName: "Clydeport Celebration",
+      menuDescription:
+        "Drambuie, freshly squeezed lemon, cloudy apple & citrus foam, garnished with heather",
+      servesAllocated: 50,
+      sortOrder: 0,
+    },
+    {
+      eventId: glasgow.id,
+      cocktailId: cocktailIdByName.get("Wellingtons Gin Club")!,
+      menuName: "Wellingtons Gin Club",
+      menuDescription: "Gin, raspberry, mint, freshly squeezed lemon & elderflower",
+      servesAllocated: 50,
+      sortOrder: 1,
+    },
+    {
+      eventId: glasgow.id,
+      cocktailId: cocktailIdByName.get("Barrowlands Stars")!,
+      menuName: "Barrowlands Stars",
+      menuDescription:
+        "Spiced rum, passionfruit, freshly squeezed lemon & pineapple, with edible gold dust",
+      servesAllocated: 50,
+      sortOrder: 2,
+    },
+    {
+      eventId: glasgow.id,
+      cocktailId: cocktailIdByName.get("Clockwork Orange Margarita")!,
+      menuName: "Clockwork Orange Margarita",
+      menuDescription:
+        "Tequila, triple sec, mango, freshly squeezed lime, orange blossom, agave & hibiscus rim",
+      servesAllocated: 50,
+      sortOrder: 3,
+    },
+  ]);
+
+  // WORKAROUND[per-guest-equipment]: 100 rocks/coupes = exact guest count.
+  await db.insert(eventEquipment).values([
+    { eventId: glasgow.id, itemName: "Etched rocks glass", quantity: 100, isFromTemplate: false, sortOrder: 0 },
+    { eventId: glasgow.id, itemName: "Coupe glass", quantity: 100, isFromTemplate: false, sortOrder: 1 },
+    { eventId: glasgow.id, itemName: "Bin (back of bar)", quantity: 2, isFromTemplate: true, sortOrder: 2 },
+    { eventId: glasgow.id, itemName: "Bin liners (pack)", quantity: 1, isFromTemplate: true, sortOrder: 3 },
+    { eventId: glasgow.id, itemName: "Ice bucket", quantity: 3, isFromTemplate: true, sortOrder: 4 },
+    { eventId: glasgow.id, itemName: "Ice scoop", quantity: 3, isFromTemplate: true, sortOrder: 5 },
+    { eventId: glasgow.id, itemName: "Large box (cubed ice)", quantity: 1, isFromTemplate: false, sortOrder: 6 },
+    { eventId: glasgow.id, itemName: "Large box (crushed ice)", quantity: 1, isFromTemplate: false, sortOrder: 7 },
+    { eventId: glasgow.id, itemName: "Bartender kit (full set: speedpours, knives, boards, shakers, hawthorns, fine strainers, squeeze bottles, bar spoons)", quantity: 3, isFromTemplate: false, sortOrder: 8 },
+    { eventId: glasgow.id, itemName: "First aid kit", quantity: 1, isFromTemplate: true, sortOrder: 9 },
+    { eventId: glasgow.id, itemName: "Brush and dustpan", quantity: 1, isFromTemplate: true, sortOrder: 10 },
+    { eventId: glasgow.id, itemName: "Menu in holder", quantity: 1, isFromTemplate: true, sortOrder: 11 },
+  ]);
+
+  await db.insert(eventStandardNotes).values([
+    { eventId: glasgow.id, noteId: noteIdByLabel.get("Attire")!, sortOrder: 0 },
+    { eventId: glasgow.id, noteId: noteIdByLabel.get("Problem Escalation")!, sortOrder: 1 },
+    { eventId: glasgow.id, noteId: noteIdByLabel.get("Stock Movement")!, sortOrder: 2 },
+    { eventId: glasgow.id, noteId: noteIdByLabel.get("On-Site Washing")!, sortOrder: 3 },
+  ]);
+
+  console.log("  ✓ Pinsent Masons Office Social (2026-04-23)");
+
   console.log("\nSeed complete!");
 }
 
