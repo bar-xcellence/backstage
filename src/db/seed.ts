@@ -5,12 +5,36 @@ import {
   cocktails,
   cocktailIngredients,
   cocktailGarnishes,
+  events,
+  eventContacts,
+  eventCocktails,
+  eventEquipment,
+  eventStandardNotes,
+  standardNotes,
+  equipmentTemplates,
+  equipmentTemplateItems,
 } from "./schema";
 
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql);
 
+async function cleanup() {
+  console.log("Cleaning existing seed data...");
+  await db.delete(eventEquipment);
+  await db.delete(eventCocktails);
+  await db.delete(eventContacts);
+  await db.delete(eventStandardNotes);
+  await db.delete(events);
+  await db.delete(cocktailIngredients);
+  await db.delete(cocktailGarnishes);
+  await db.delete(cocktails);
+  await db.delete(equipmentTemplateItems);
+  await db.delete(equipmentTemplates);
+  await db.delete(standardNotes);
+}
+
 async function seed() {
+  await cleanup();
   console.log("Seeding database...");
 
   // ── Users ──────────────────────────────────────────
