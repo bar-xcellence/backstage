@@ -1,6 +1,8 @@
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { StockResult } from "@/lib/stock-calculator";
+import { stripWorkaroundMarkers } from "@/lib/notes-sanitization";
+import type { EventStandardNote } from "@/lib/event-standard-notes-query";
 
 const s = StyleSheet.create({
   page: { padding: 40, fontFamily: "Helvetica", fontSize: 10, color: "#1E1F2E" },
@@ -40,6 +42,7 @@ interface TextOnlyBriefPDFProps {
     garnishes: Array<Record<string, unknown>>;
   }>;
   stock: StockResult;
+  standardNotes: EventStandardNote[];
 }
 
 /**
@@ -48,7 +51,13 @@ interface TextOnlyBriefPDFProps {
  * Vercel serverless). Includes cocktail specs and stock list so the
  * bartending team has the operational data they need even in fallback mode.
  */
-export function TextOnlyBriefPDF({ event, contacts, cocktails, stock }: TextOnlyBriefPDFProps) {
+export function TextOnlyBriefPDF({
+  event,
+  contacts,
+  cocktails,
+  stock,
+  standardNotes,
+}: TextOnlyBriefPDFProps) {
   return (
     <Document>
       <Page size="A4" style={s.page}>
@@ -114,10 +123,17 @@ export function TextOnlyBriefPDF({ event, contacts, cocktails, stock }: TextOnly
           </>
         )}
 
+        {standardNotes.map((note) => (
+          <View key={note.label} wrap={false}>
+            <Text style={s.heading}>{note.label}</Text>
+            <Text style={s.text}>{note.content}</Text>
+          </View>
+        ))}
+
         {event.notesCustom ? (
           <>
             <Text style={s.heading}>Notes</Text>
-            <Text style={s.text}>{event.notesCustom as string}</Text>
+            <Text style={s.text}>{stripWorkaroundMarkers(event.notesCustom as string)}</Text>
           </>
         ) : null}
 

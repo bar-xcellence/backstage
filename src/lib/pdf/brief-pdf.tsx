@@ -1,6 +1,8 @@
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { StockResult } from "@/lib/stock-calculator";
+import { stripWorkaroundMarkers } from "@/lib/notes-sanitization";
+import type { EventStandardNote } from "@/lib/event-standard-notes-query";
 
 const s = StyleSheet.create({
   page: {
@@ -101,12 +103,16 @@ interface BriefPDFProps {
     garnishes: Array<Record<string, unknown>>;
   }>;
   stock: StockResult;
+  standardNotes: EventStandardNote[];
 }
 
-export function BriefPDF({ event, contacts, cocktails, stock }: BriefPDFProps) {
-  const attire =
-    "Black waistcoat, black bow tie, white ironed shirt, smart black trousers, polished black leather shoes. Arrive in serving attire.";
-
+export function BriefPDF({
+  event,
+  contacts,
+  cocktails,
+  stock,
+  standardNotes,
+}: BriefPDFProps) {
   return (
     <Document>
       <Page size="A4" style={s.page}>
@@ -232,15 +238,19 @@ export function BriefPDF({ event, contacts, cocktails, stock }: BriefPDFProps) {
           </>
         )}
 
-        {/* 13. Attire */}
-        <Text style={s.sectionTitle}>Attire</Text>
-        <Text style={s.text}>{attire}</Text>
+        {/* 13. Standard Notes */}
+        {standardNotes.map((note) => (
+          <View key={note.label} wrap={false}>
+            <Text style={s.sectionTitle}>{note.label}</Text>
+            <Text style={s.text}>{note.content}</Text>
+          </View>
+        ))}
 
         {/* 14. Notes */}
         {event.notesCustom && (
           <>
             <Text style={s.sectionTitle}>Notes</Text>
-            <Text style={s.text}>{event.notesCustom as string}</Text>
+            <Text style={s.text}>{stripWorkaroundMarkers(event.notesCustom as string)}</Text>
           </>
         )}
 
