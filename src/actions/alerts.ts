@@ -2,6 +2,7 @@ import { db } from "@/db";
 import { events, eventChecklists } from "@/db/schema";
 import { eq, and, ne, inArray } from "drizzle-orm";
 import { shouldSendAlert } from "@/lib/alert-logic";
+import { getFromEmail } from "@/lib/lc-email";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -31,6 +32,12 @@ export async function checkAndSendAlerts() {
 
   if (within48.length === 0) return;
 
+  const from = getFromEmail();
+  if ("error" in from) {
+    console.error("checkAndSendAlerts: FROM_EMAIL invalid, skipping alerts:", from.error);
+    return;
+  }
+
   const eventIds = within48.map((e) => e.id);
   const incompleteItems = await db
     .select({ eventId: eventChecklists.eventId })
@@ -59,7 +66,7 @@ export async function checkAndSendAlerts() {
     ) {
       try {
         await resend.emails.send({
-          from: process.env.FROM_EMAIL || "onboarding@resend.dev",
+          from: from.email,
           to: "murdo@bar-excellence.app",
           subject: `${event.eventName} — ${incompleteCount} checklist items incomplete`,
           text: `${event.eventName} on ${event.eventDate} has ${incompleteCount} incomplete checklist items.\n\nReview at https://backstage.bar-excellence.app/events/${event.id}`,
