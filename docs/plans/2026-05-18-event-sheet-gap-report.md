@@ -360,7 +360,7 @@ Cluster related gaps into the smallest sensible specs:
 
 - **Spec A: Stock-list completeness (foamer, ice, straws, substitutes, per-station consumables)** — closes `per-station-stock`, `ice-types`, `substitution-stock`, and the straws part of `per-guest-equipment`. Phased into A.1/A.2/A.3 per roadmap `~/.claude/plans/hidden-shimmying-pumpkin.md`:
   - ✓ **A.1** — render `manualItems` in both brief PDFs. Closes the silent PDF gap (foamer drops now visible; quantity-unit mismatch still pending A.3). **Done** in commit `8944ad7`.
-  - **A.2** — derive ice + straws from cocktail metadata (`iceAmountG`, `iceType`, `strawType`) and feed the stock calculator. Pending.
+  - ✓ **A.2** — derive ice + straws from cocktail metadata. Stock calculator now reads `iceAmountG`/`iceType`/`straw`/`strawType`; new `ice` + `straws` outputs render in all 4 brief surfaces. Heathrow: 52kg cubed + 143 straws; Glasgow: 30kg cubed + 10kg crushed + 110 straws (matches Murdo's PDF within his manual buffer). **Done** in commits `1a3155b` → `f348d8c`.
   - **A.3** — new `event_stock` table for substitution stock + per-station consumables (foamer bottles, gold duster, hibiscus tub). Pending.
 
   *(Highest blocker concentration — 5+ blockers across both events.)*
@@ -383,7 +383,7 @@ Cluster related gaps into the smallest sensible specs:
 
 - **Spec J (deferred):** `tbc-fields`, `plastic-box-qty` — accept as-is for now; revisit only if Murdo asks for provisional UX.
 
-Recommended order: ~~B~~ ✓ → ~~F~~ ✓ → ~~A.1~~ ✓ → A.2 → A.3 → C, D, E, G in parallel by domain.
+Recommended order: ~~B~~ ✓ → ~~F~~ ✓ → ~~A.1~~ ✓ → ~~A.2~~ ✓ → A.3 → C, D, E, G in parallel by domain.
 
 ## Source PDF discrepancies noted in cocktail recipes
 
