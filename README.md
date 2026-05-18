@@ -26,7 +26,7 @@ Backstage is Bar Excellence's internal events management tool for the Liquor Col
 | Email | Resend |
 | PDF | @react-pdf/renderer |
 | UI Components | shadcn/ui (restyled to Reserve Noir design system) |
-| Testing | Vitest |
+| Testing | Vitest (unit) + Playwright (E2E) |
 | Hosting | Vercel |
 
 ## Design System: Reserve Noir
@@ -94,7 +94,8 @@ backstage/
 │   ├── lib/              # Auth, email templates, PDF templates, utilities (*.test.ts alongside)
 │   └── components/       # UI components (shadcn/ui + custom)
 ├── docs/                 # Project documentation
-└── drizzle/              # Generated migrations
+├── drizzle/              # Generated migrations
+└── e2e/                  # Playwright E2E specs (run via npm run test:e2e)
 ```
 
 ## Documentation

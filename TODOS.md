@@ -25,9 +25,11 @@ All Phases 1–3 code is implemented on `main`. The items below are the remainin
 
 ## Manual QA (pre-launch)
 
+E2E coverage (Playwright, `npm run test:e2e`) now covers the partner role boundary and the owner happy path through event creation. The items below still need a human run-through.
+
 - [ ] Responsive breakpoints: mobile top bar, tablet icon-only sidebar, desktop full sidebar
 - [ ] Keyboard-only navigation: all interactive elements reachable and operable
 - [ ] VoiceOver spot check: landmarks, headings, button labels
 - [ ] axe audit: no critical or serious violations
-- [ ] Owner/super_admin flow: create event → add cocktails → view stock → Send to LC → download PDF
-- [ ] Partner flow: only confirmed+ events visible, event detail loads without errors, no edit/checklist/actions shown, no financial fields
+- [ ] Owner/super_admin full flow: create event → add cocktails → view stock → Send to LC (actual email send) → download PDF (E2E covers create + Send-to-LC button visibility but not the email send or PDF render)
+- [x] Partner flow: only confirmed+ events visible, event detail loads without errors, no edit/checklist/actions shown, no financial fields — covered by `e2e/partner-read-only.spec.ts`

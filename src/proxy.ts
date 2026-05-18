@@ -4,7 +4,12 @@ import { getIronSession } from "iron-session";
 import { sessionOptions } from "@/lib/auth-config";
 import type { SessionData } from "@/lib/auth-config";
 
-const PUBLIC_PATHS = ["/auth/signin", "/auth/verify", "/api/auth"];
+const PUBLIC_PATHS = [
+  "/auth/signin",
+  "/auth/verify",
+  "/auth/test-signin",
+  "/api/auth",
+];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
