@@ -228,6 +228,32 @@ describe("buildBriefEmailHtml", () => {
     expect(html).toContain("Specsavers Conference");
   });
 
+  it("renders batchingInstructions in its own section when set (Spec E)", () => {
+    const html = buildBriefEmailHtml(
+      {
+        ...baseEvent,
+        batchingInstructions: "Pre-pour 40 cocktails on bar top at 17:45.",
+      } as unknown as Parameters<typeof buildBriefEmailHtml>[0],
+      [],
+      emptyStock,
+      []
+    );
+    expect(html).toContain("Pre-pour 40 cocktails on bar top at 17:45.");
+    expect(html.toLowerCase()).toContain("batching");
+  });
+
+  it("omits batching section when batchingInstructions is null (Spec E)", () => {
+    const html = buildBriefEmailHtml(
+      { ...baseEvent, batchingInstructions: null } as unknown as Parameters<
+        typeof buildBriefEmailHtml
+      >[0],
+      [],
+      emptyStock,
+      []
+    );
+    expect(html.toLowerCase()).not.toContain("batching");
+  });
+
   it("renders pop-up bar size + branding when set (Spec D)", () => {
     const html = buildBriefEmailHtml(
       {

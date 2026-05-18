@@ -249,6 +249,18 @@ export default async function EventDetailPage({
                 </section>
               )}
 
+              {/* Batching */}
+              {event.batchingInstructions && (
+                <section>
+                  <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
+                    Batching
+                  </h2>
+                  <p className="font-[family-name:var(--font-raleway)] text-sm text-gold-ink leading-relaxed whitespace-pre-wrap">
+                    {event.batchingInstructions}
+                  </p>
+                </section>
+              )}
+
               {/* Pop-up bar */}
               {event.popUpBar && (event.popUpBarSize || event.popUpBarBranding) && (
                 <section>

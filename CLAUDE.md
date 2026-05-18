@@ -33,6 +33,14 @@ Bar Excellence's events preparation and dispatch system. Bespoke tool for 3 user
 - Touch targets: minimum 44px height on all interactive elements
 - Colours: use Tailwind tokens (`text-gold`, `bg-charcoal`, `text-cream`, etc.) defined in `globals.css`
 
+### Batching instructions (Spec E)
+`events.batchingInstructions` was previously read only by `brief-preview.tsx`. Now surfaced on:
+- Event detail Overview (Batching section above Pop-up Bar)
+- Brief email (Batching section between Times and Site Contacts)
+- Both PDFs
+
+Glasgow seed moved pre-pour text from `notesCustom` (where it carried a `WORKAROUND[pre-pour-batching]:` marker) into `batchingInstructions`. No schema change — Option A.
+
 ### Pop-up bar (Spec D)
 When `events.popUpBar` is true, `popUpBarSize` (e.g. "3m curved") and `popUpBarBranding` (e.g. "Vinyl banner front branding...") are surfaced on:
 - Event detail summary bar (`page.tsx` — `Pop-up bar · 3m curved`)

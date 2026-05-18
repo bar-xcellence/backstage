@@ -176,6 +176,10 @@ export function buildBriefEmailHtml(
     ? escapeHtml(stripWorkaroundMarkers(event.notesCustom)).replace(/\n/g, "<br>")
     : "";
 
+  const batchingContent = event.batchingInstructions
+    ? escapeHtml(event.batchingInstructions).replace(/\n/g, "<br>")
+    : "";
+
   return `
 <!DOCTYPE html>
 <html>
@@ -198,6 +202,7 @@ export function buildBriefEmailHtml(
           ${section("Location", locationContent)}
           ${section("What", whatContent)}
           ${section("Times", timesContent)}
+          ${section("Batching", batchingContent)}
           ${section("Site Contacts", contactsHtml)}
           ${section("Install", installContent)}
           ${section("Cocktails and Specs", cocktailsHtml)}

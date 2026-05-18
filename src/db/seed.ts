@@ -491,10 +491,10 @@ async function seed() {
       popUpBarBranding: "Vinyl banner front branding, attached seamlessly to the bar",
       installInstructions:
         "Meet Murdo outside the building at 15:00. Bar in place first, vinyl attached seamlessly. All stock/glassware hidden behind bar out of sight. Loading bay access TBC (updated Tuesday before event).",
+      batchingInstructions:
+        "Pre-pour 40 cocktails on bar top at 17:45 (10 of each of 4 types). Bar top must be clean and beautiful throughout service.",
       status: "delivered",
       notesCustom: [
-        "WORKAROUND[pre-pour-batching]: Pre-pour 40 cocktails on bar top at 17:45 (10 of each of 4 types). Bar top must be clean and beautiful throughout service.",
-        "",
         "Glasses to be collected from floor and returned to bar throughout service.",
         "",
         "Venue also serves wine + champagne from a separate bar (not our responsibility).",

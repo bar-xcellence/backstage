@@ -182,6 +182,14 @@ export function BriefPDF({
           </>
         )}
 
+        {/* 4b. Batching */}
+        {event.batchingInstructions && (
+          <>
+            <Text style={s.sectionTitle}>Batching</Text>
+            <Text style={s.text}>{event.batchingInstructions as string}</Text>
+          </>
+        )}
+
         {/* 5. Site Contacts */}
         {contacts.length > 0 && (
           <>

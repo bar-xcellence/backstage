@@ -122,6 +122,13 @@ export function TextOnlyBriefPDF({
           </>
         )}
 
+        {event.batchingInstructions ? (
+          <>
+            <Text style={s.heading}>Batching</Text>
+            <Text style={s.text}>{event.batchingInstructions as string}</Text>
+          </>
+        ) : null}
+
         {event.installInstructions ? (
           <>
             <Text style={s.heading}>Install Instructions</Text>
