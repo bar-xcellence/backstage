@@ -92,6 +92,11 @@ export const userRoleEnum = pgEnum("user_role", [
   "partner",
 ]);
 
+export const eventStockScalingRuleEnum = pgEnum("event_stock_scaling_rule", [
+  "per_event",
+  "per_station",
+]);
+
 export const scalingRuleEnum = pgEnum("scaling_rule", [
   "per_station",
   "fixed",
@@ -337,6 +342,25 @@ export const eventStandardNotes = pgTable("event_standard_notes", {
   sortOrder: integer("sort_order").default(0).notNull(),
 });
 
+// ── Event Stock (per-event procurement extras) ────────
+
+export const eventStock = pgTable("event_stock", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  eventId: uuid("event_id")
+    .references(() => events.id, { onDelete: "cascade" })
+    .notNull(),
+  itemName: text("item_name").notNull(),
+  category: ingredientCategoryEnum("category").default("other"),
+  quantity: decimal("quantity").notNull(),
+  unit: text("unit").notNull(),
+  brand: text("brand"),
+  scalingRule: eventStockScalingRuleEnum("scaling_rule")
+    .default("per_event")
+    .notNull(),
+  notes: text("notes"),
+  sortOrder: integer("sort_order").default(0).notNull(),
+});
+
 // ── Relations ──────────────────────────────────────────
 
 export const eventsRelations = relations(events, ({ many, one }) => ({
@@ -345,9 +369,17 @@ export const eventsRelations = relations(events, ({ many, one }) => ({
   checklists: many(eventChecklists),
   equipment: many(eventEquipment),
   standardNotes: many(eventStandardNotes),
+  stock: many(eventStock),
   createdByUser: one(users, {
     fields: [events.createdBy],
     references: [users.id],
+  }),
+}));
+
+export const eventStockRelations = relations(eventStock, ({ one }) => ({
+  event: one(events, {
+    fields: [eventStock.eventId],
+    references: [events.id],
   }),
 }));
 
