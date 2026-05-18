@@ -201,6 +201,129 @@ describe("Stock Calculator", () => {
     expect(vodkas).toHaveLength(2);
   });
 
+  it("aggregates ice by type and rounds up to nearest kg (no buffer)", () => {
+    // Heathrow shape: 2 cocktails, 130 serves each, 200g cubed ice
+    const result = calculateStock([
+      {
+        servesAllocated: 130,
+        iceAmountG: 200,
+        iceType: "Cubed",
+        ingredients: [],
+        garnishes: [],
+      },
+      {
+        servesAllocated: 130,
+        iceAmountG: 200,
+        iceType: "Cubed",
+        ingredients: [],
+        garnishes: [],
+      },
+    ]);
+    // 260 × 200g = 52000g → 52kg
+    expect(result.ice).toHaveLength(1);
+    expect(result.ice[0]).toEqual({ iceType: "Cubed", totalKg: 52 });
+  });
+
+  it("separates ice into rows by type (Glasgow mixed-ice scenario)", () => {
+    const result = calculateStock([
+      {
+        servesAllocated: 50,
+        iceAmountG: 200,
+        iceType: "Crushed",
+        ingredients: [],
+        garnishes: [],
+      },
+      {
+        servesAllocated: 50,
+        iceAmountG: 200,
+        iceType: "Cubed",
+        ingredients: [],
+        garnishes: [],
+      },
+      {
+        servesAllocated: 50,
+        iceAmountG: 200,
+        iceType: "Cubed",
+        ingredients: [],
+        garnishes: [],
+      },
+      {
+        servesAllocated: 50,
+        iceAmountG: 200,
+        iceType: "Cubed",
+        ingredients: [],
+        garnishes: [],
+      },
+    ]);
+    expect(result.ice).toHaveLength(2);
+    // Cubed: 150 × 200g = 30000g → 30kg
+    expect(result.ice.find((i) => i.iceType === "Cubed")?.totalKg).toBe(30);
+    // Crushed: 50 × 200g = 10000g → 10kg
+    expect(result.ice.find((i) => i.iceType === "Crushed")?.totalKg).toBe(10);
+  });
+
+  it("skips cocktails without ice data", () => {
+    const result = calculateStock([
+      {
+        servesAllocated: 50,
+        ingredients: [],
+        garnishes: [],
+      },
+    ]);
+    expect(result.ice).toHaveLength(0);
+  });
+
+  it("aggregates straws by type with 10% buffer", () => {
+    const result = calculateStock([
+      {
+        servesAllocated: 130,
+        straw: true,
+        strawType: "Black short cardboard",
+        ingredients: [],
+        garnishes: [],
+      },
+    ]);
+    // 130 × 1.10 = 143 (ceil)
+    expect(result.straws).toHaveLength(1);
+    expect(result.straws[0]).toEqual({
+      strawType: "Black short cardboard",
+      totalCount: 143,
+    });
+  });
+
+  it("ignores cocktails with straw=false even if strawType is set", () => {
+    const result = calculateStock([
+      {
+        servesAllocated: 50,
+        straw: false,
+        strawType: "Black short cardboard",
+        ingredients: [],
+        garnishes: [],
+      },
+    ]);
+    expect(result.straws).toHaveLength(0);
+  });
+
+  it("separates straws into rows by type", () => {
+    const result = calculateStock([
+      {
+        servesAllocated: 50,
+        straw: true,
+        strawType: "Black short cardboard",
+        ingredients: [],
+        garnishes: [],
+      },
+      {
+        servesAllocated: 50,
+        straw: true,
+        strawType: "Paper striped",
+        ingredients: [],
+        garnishes: [],
+      },
+    ]);
+    expect(result.straws).toHaveLength(2);
+  });
+
   it("rounds purchase units UP (ceiling)", () => {
     const result = calculateStock([
       {

@@ -18,6 +18,10 @@ const GARNISH_BUFFER = 1.1; // 10% for garnishes
 
 interface CocktailInput {
   servesAllocated: number;
+  iceAmountG?: number | null;
+  iceType?: string | null;
+  straw?: boolean | null;
+  strawType?: string | null;
   ingredients: {
     ingredientName: string;
     amount: number;
@@ -55,10 +59,22 @@ export interface ManualItem {
   brand: string | null;
 }
 
+export interface IceResult {
+  iceType: string;
+  totalKg: number;
+}
+
+export interface StrawResult {
+  strawType: string;
+  totalCount: number;
+}
+
 export interface StockResult {
   ingredients: IngredientResult[];
   garnishes: GarnishResult[];
   manualItems: ManualItem[];
+  ice: IceResult[];
+  straws: StrawResult[];
   warnings: string[];
 }
 
@@ -70,6 +86,8 @@ export function calculateStock(cocktails: CocktailInput[]): StockResult {
       ingredients: [],
       garnishes: [],
       manualItems: [],
+      ice: [],
+      straws: [],
       warnings: ["No cocktails selected"],
     };
   }
@@ -166,6 +184,32 @@ export function calculateStock(cocktails: CocktailInput[]): StockResult {
     });
   }
 
+  // Aggregate ice by type (no buffer — ice numbers stay close to recipe; Murdo can pad)
+  const iceMap = new Map<string, number>();
+  for (const cocktail of cocktails) {
+    if (!cocktail.iceAmountG || !cocktail.iceType) continue;
+    const totalG = cocktail.servesAllocated * cocktail.iceAmountG;
+    iceMap.set(cocktail.iceType, (iceMap.get(cocktail.iceType) || 0) + totalG);
+  }
+  const ice: IceResult[] = Array.from(iceMap, ([iceType, totalG]) => ({
+    iceType,
+    totalKg: Math.ceil(totalG / 1000),
+  }));
+
+  // Aggregate straws by type (with garnish buffer — disposable consumable)
+  const strawMap = new Map<string, number>();
+  for (const cocktail of cocktails) {
+    if (!cocktail.straw || !cocktail.strawType) continue;
+    strawMap.set(
+      cocktail.strawType,
+      (strawMap.get(cocktail.strawType) || 0) + cocktail.servesAllocated
+    );
+  }
+  const straws: StrawResult[] = Array.from(strawMap, ([strawType, count]) => ({
+    strawType,
+    totalCount: Math.ceil(count * GARNISH_BUFFER),
+  }));
+
   // Sort by category then name
   ingredients.sort(
     (a, b) =>
@@ -173,6 +217,8 @@ export function calculateStock(cocktails: CocktailInput[]): StockResult {
       a.ingredientName.localeCompare(b.ingredientName)
   );
   garnishes.sort((a, b) => a.garnishName.localeCompare(b.garnishName));
+  ice.sort((a, b) => a.iceType.localeCompare(b.iceType));
+  straws.sort((a, b) => a.strawType.localeCompare(b.strawType));
 
-  return { ingredients, garnishes, manualItems, warnings };
+  return { ingredients, garnishes, manualItems, ice, straws, warnings };
 }
