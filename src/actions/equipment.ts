@@ -39,7 +39,8 @@ export async function applyTemplate(
   templateId: string,
   stationCount: number,
   spiritCount: number,
-  ingredientCount: number
+  ingredientCount: number,
+  guestCount: number
 ) {
   await requireRole("owner", "super_admin");
 
@@ -57,6 +58,7 @@ export async function applyTemplate(
     stationCount,
     spiritCount,
     ingredientCount,
+    guestCount,
   });
 
   // Get current highest sortOrder for this event

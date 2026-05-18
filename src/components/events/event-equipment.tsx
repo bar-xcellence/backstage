@@ -24,6 +24,7 @@ interface EventEquipmentProps {
   stationCount: number;
   spiritCount: number;
   ingredientCount: number;
+  guestCount: number;
   isPartner: boolean;
 }
 
@@ -34,6 +35,7 @@ export function EventEquipment({
   stationCount,
   spiritCount,
   ingredientCount,
+  guestCount,
   isPartner,
 }: EventEquipmentProps) {
   const [newItemName, setNewItemName] = useState("");
@@ -41,7 +43,7 @@ export function EventEquipment({
   const [adding, setAdding] = useState(false);
 
   async function handleApplyTemplate(templateId: string) {
-    await applyTemplate(eventId, templateId, stationCount, spiritCount, ingredientCount);
+    await applyTemplate(eventId, templateId, stationCount, spiritCount, ingredientCount, guestCount);
   }
 
   async function handleUpdateQuantity(itemId: string, quantity: number) {

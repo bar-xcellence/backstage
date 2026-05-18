@@ -326,6 +326,7 @@ export default async function EventDetailPage({
               stationCount={event.stationCount || 1}
               spiritCount={spiritCount}
               ingredientCount={ingredientCount}
+              guestCount={event.guestCount || 0}
               isPartner={isPartner}
             />
           ),

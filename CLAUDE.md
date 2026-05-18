@@ -33,6 +33,16 @@ Bar Excellence's events preparation and dispatch system. Bespoke tool for 3 user
 - Touch targets: minimum 44px height on all interactive elements
 - Colours: use Tailwind tokens (`text-gold`, `bg-charcoal`, `text-cream`, etc.) defined in `globals.css`
 
+### Equipment scaling rules
+`scalingRuleEnum` (in `src/db/schema.ts`) drives per-template-item scaling via `scaleEquipment()` (`src/lib/equipment-scaler.ts`):
+- `per_station` — multiplied by `stationCount`
+- `per_spirit` — multiplied by distinct spirit count
+- `per_ingredient` — multiplied by distinct ingredient count
+- `per_guest` — multiplied by `guestCount` (e.g. 130 rocks glasses for 130 guests)
+- `fixed` — no multiplication
+
+Callers must pass `{ stationCount, spiritCount, ingredientCount, guestCount }`. `applyTemplate()` (`src/actions/equipment.ts`) takes guestCount as a 6th positional arg.
+
 ### Empty States
 Never show "No items found." — every empty state needs:
 1. Warm heading (Cormorant Garamond)

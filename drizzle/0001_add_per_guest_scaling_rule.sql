@@ -1,0 +1,1 @@
+ALTER TYPE "public"."scaling_rule" ADD VALUE 'per_guest';

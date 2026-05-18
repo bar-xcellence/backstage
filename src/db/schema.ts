@@ -102,6 +102,7 @@ export const scalingRuleEnum = pgEnum("scaling_rule", [
   "fixed",
   "per_spirit",
   "per_ingredient",
+  "per_guest",
 ]);
 
 // ── Users ──────────────────────────────────────────────

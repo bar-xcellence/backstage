@@ -7,9 +7,10 @@ describe("scaleEquipment", () => {
     { itemName: "First Aid Kit", baseQuantity: 1, scalingRule: "fixed" as const },
     { itemName: "Store N Pour", baseQuantity: 1, scalingRule: "per_spirit" as const },
     { itemName: "Garnish Box", baseQuantity: 1, scalingRule: "per_ingredient" as const },
+    { itemName: "Rocks Glass", baseQuantity: 1, scalingRule: "per_guest" as const },
   ];
 
-  const context = { stationCount: 4, spiritCount: 3, ingredientCount: 8 };
+  const context = { stationCount: 4, spiritCount: 3, ingredientCount: 8, guestCount: 130 };
 
   it("scales per_station items by station count", () => {
     const result = scaleEquipment(baseItems, context);
@@ -31,14 +32,24 @@ describe("scaleEquipment", () => {
     expect(result.find((r) => r.itemName === "Garnish Box")?.quantity).toBe(8);
   });
 
+  it("scales per_guest items by guest count", () => {
+    const result = scaleEquipment(baseItems, context);
+    expect(result.find((r) => r.itemName === "Rocks Glass")?.quantity).toBe(130);
+  });
+
   it("defaults to 1 when stationCount is 0", () => {
-    const result = scaleEquipment(baseItems, { stationCount: 0, spiritCount: 3, ingredientCount: 8 });
+    const result = scaleEquipment(baseItems, { stationCount: 0, spiritCount: 3, ingredientCount: 8, guestCount: 130 });
     expect(result.find((r) => r.itemName === "Boston Shaker")?.quantity).toBe(1);
+  });
+
+  it("defaults to 1 when guestCount is 0", () => {
+    const result = scaleEquipment(baseItems, { stationCount: 4, spiritCount: 3, ingredientCount: 8, guestCount: 0 });
+    expect(result.find((r) => r.itemName === "Rocks Glass")?.quantity).toBe(1);
   });
 
   it("scales baseQuantity > 1 correctly", () => {
     const items = [{ itemName: "Ice Scoop", baseQuantity: 2, scalingRule: "per_station" as const }];
-    const result = scaleEquipment(items, { stationCount: 3, spiritCount: 0, ingredientCount: 0 });
+    const result = scaleEquipment(items, { stationCount: 3, spiritCount: 0, ingredientCount: 0, guestCount: 0 });
     expect(result.find((r) => r.itemName === "Ice Scoop")?.quantity).toBe(6);
   });
 
