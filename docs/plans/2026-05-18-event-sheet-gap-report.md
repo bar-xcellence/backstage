@@ -358,7 +358,12 @@ Total findings: **41**. Tally adds up (14 + 21 + 6 = 41).
 
 Cluster related gaps into the smallest sensible specs:
 
-- **Spec A: Stock-list completeness (foamer, ice, straws, substitutes, per-station consumables)** — closes `per-station-stock`, `ice-types`, `substitution-stock`, and the straws part of `per-guest-equipment`. Introduces (a) `scalingRule: per_station | per_event | fixed` for stock items, (b) `cocktails.iceAmountG` aggregated into stock with type breakdown, (c) `eventStock` table or per-recipe sub-stock for substitution bottles, and (d) `strawType` feeding a stock garnish row. Estimated scope: **L**. *(Highest blocker concentration — 5+ blockers across both events.)*
+- **Spec A: Stock-list completeness (foamer, ice, straws, substitutes, per-station consumables)** — closes `per-station-stock`, `ice-types`, `substitution-stock`, and the straws part of `per-guest-equipment`. Phased into A.1/A.2/A.3 per roadmap `~/.claude/plans/hidden-shimmying-pumpkin.md`:
+  - ✓ **A.1** — render `manualItems` in both brief PDFs. Closes the silent PDF gap (foamer drops now visible; quantity-unit mismatch still pending A.3). **Done** in commit `8944ad7`.
+  - **A.2** — derive ice + straws from cocktail metadata (`iceAmountG`, `iceType`, `strawType`) and feed the stock calculator. Pending.
+  - **A.3** — new `event_stock` table for substitution stock + per-station consumables (foamer bottles, gold duster, hibiscus tub). Pending.
+
+  *(Highest blocker concentration — 5+ blockers across both events.)*
 
 - ✓ **Spec B: Standard notes + attire reach LC** — closes the "standard notes not rendered in email/PDF" + "attire hard-coded" blockers. Refactored `brief-email-template.ts`, `brief-pdf.tsx`, `text-only-brief-pdf.tsx`, and `brief-preview.tsx` to read the linked `eventStandardNotes` set (label + content); hard-coded attire string removed. **Done** on `feat/real-event-seed-and-gap-report` (commits `f98019b` → `dea951d`; spec `docs/superpowers/specs/2026-05-18-brief-notes-standardization-design.md`).
 
@@ -378,7 +383,7 @@ Cluster related gaps into the smallest sensible specs:
 
 - **Spec J (deferred):** `tbc-fields`, `plastic-box-qty` — accept as-is for now; revisit only if Murdo asks for provisional UX.
 
-Recommended order: ~~B~~ ✓ → ~~F~~ ✓ → A (the big stock spec) → C, D, E, G in parallel by domain.
+Recommended order: ~~B~~ ✓ → ~~F~~ ✓ → ~~A.1~~ ✓ → A.2 → A.3 → C, D, E, G in parallel by domain.
 
 ## Source PDF discrepancies noted in cocktail recipes
 
