@@ -6,6 +6,9 @@ const emptyStock: StockResult = {
   ingredients: [],
   garnishes: [],
   manualItems: [],
+  ice: [],
+  straws: [],
+  consumables: [],
   warnings: [],
 };
 
@@ -41,7 +44,8 @@ describe("buildBriefEmailHtml", () => {
     const html = buildBriefEmailHtml(
       { ...baseEvent, eventName: "Johnson & Johnson Gala" },
       [],
-      emptyStock
+      emptyStock,
+      []
     );
     expect(html).toContain("Johnson &amp; Johnson Gala");
     expect(html).not.toContain("Johnson & Johnson Gala");
@@ -54,7 +58,8 @@ describe("buildBriefEmailHtml", () => {
         venueName: `O'Hara <"Catering"> & Sons`,
       },
       [],
-      emptyStock
+      emptyStock,
+      []
     );
     expect(html).toContain("O&#39;Hara &lt;&quot;Catering&quot;&gt; &amp; Sons");
   });
@@ -66,7 +71,8 @@ describe("buildBriefEmailHtml", () => {
         notesCustom: "Line 1 <b>bold</b>\nLine 2 & more",
       },
       [],
-      emptyStock
+      emptyStock,
+      []
     );
     expect(html).toContain(
       "Line 1 &lt;b&gt;bold&lt;/b&gt;<br>Line 2 &amp; more"
@@ -88,7 +94,8 @@ describe("buildBriefEmailHtml", () => {
         ],
       },
       [],
-      emptyStock
+      emptyStock,
+      []
     );
     expect(html).toContain("Alice &lt;admin&gt;");
     expect(html).toContain("Chef &amp; Owner");
@@ -117,7 +124,8 @@ describe("buildBriefEmailHtml", () => {
           garnishes: [],
         },
       ] as unknown as Parameters<typeof buildBriefEmailHtml>[1],
-      emptyStock
+      emptyStock,
+      []
     );
     expect(html).toContain("G&amp;T Special");
     expect(html).toContain("Refreshing &lt;twist&gt;");
@@ -125,12 +133,296 @@ describe("buildBriefEmailHtml", () => {
     expect(html).toContain("Brand &lt;test&gt;");
   });
 
+  it("renders per-cocktail ice type when set (Spec H)", () => {
+    const html = buildBriefEmailHtml(
+      baseEvent,
+      [
+        {
+          id: "ec1",
+          menuName: "Clydeport Celebration",
+          menuDescription: null,
+          stationNumber: 1,
+          servesAllocated: 50,
+          cocktail: {
+            iceType: "Crushed",
+            iceAmountG: 200,
+            straw: true,
+            strawType: "Black short cardboard",
+            referenceImageUrl: null,
+          },
+          ingredients: [],
+          garnishes: [],
+        },
+      ] as unknown as Parameters<typeof buildBriefEmailHtml>[1],
+      emptyStock,
+      []
+    );
+    expect(html).toContain("Crushed");
+    expect(html).toContain("Black short cardboard");
+  });
+
+  it("renders per-cocktail reference image when URL set (Spec H)", () => {
+    const html = buildBriefEmailHtml(
+      baseEvent,
+      [
+        {
+          id: "ec1",
+          menuName: "Clockwork Orange",
+          menuDescription: null,
+          stationNumber: null,
+          servesAllocated: 50,
+          cocktail: {
+            iceType: null,
+            iceAmountG: null,
+            straw: false,
+            strawType: null,
+            referenceImageUrl: "https://example.com/clockwork.jpg",
+          },
+          ingredients: [],
+          garnishes: [],
+        },
+      ] as unknown as Parameters<typeof buildBriefEmailHtml>[1],
+      emptyStock,
+      []
+    );
+    expect(html).toContain("https://example.com/clockwork.jpg");
+    expect(html).toContain("<img");
+  });
+
+  it("omits ice/straw lines when fields are absent (Spec H)", () => {
+    const html = buildBriefEmailHtml(
+      baseEvent,
+      [
+        {
+          id: "ec1",
+          menuName: "No-frills Cocktail",
+          menuDescription: null,
+          stationNumber: null,
+          servesAllocated: 50,
+          cocktail: {
+            iceType: null,
+            iceAmountG: null,
+            straw: false,
+            strawType: null,
+            referenceImageUrl: null,
+          },
+          ingredients: [],
+          garnishes: [],
+        },
+      ] as unknown as Parameters<typeof buildBriefEmailHtml>[1],
+      emptyStock,
+      []
+    );
+    expect(html).not.toContain("Ice:");
+    expect(html).not.toContain("Straw:");
+    expect(html).not.toContain("<img");
+  });
+
   it("still includes safe strings verbatim (sanity check)", () => {
     const html = buildBriefEmailHtml(
       { ...baseEvent, eventName: "Specsavers Conference" },
       [],
-      emptyStock
+      emptyStock,
+      []
     );
     expect(html).toContain("Specsavers Conference");
+  });
+
+  it("renders multi-line address with line breaks when address fields set (Spec G)", () => {
+    const html = buildBriefEmailHtml(
+      {
+        ...baseEvent,
+        venueName: "London Hilton Heathrow",
+        venueHallRoom: "Terminal 5",
+        addressLine1: "Poole Rd",
+        addressLine2: "Colnbrook",
+        city: "Heathrow",
+        postcode: "SL3 0FF",
+        venueTenant: "Hexaware",
+        cateringPartner: "Lexington Catering",
+      } as unknown as Parameters<typeof buildBriefEmailHtml>[0],
+      [],
+      emptyStock,
+      []
+    );
+    expect(html).toContain("London Hilton Heathrow");
+    expect(html).toContain("Terminal 5");
+    expect(html).toContain("Poole Rd");
+    expect(html).toContain("Colnbrook");
+    expect(html).toContain("Heathrow");
+    expect(html).toContain("SL3 0FF");
+    expect(html).toContain("Hexaware");
+    expect(html).toContain("Lexington Catering");
+  });
+
+  it("falls back to venueName only when address fields missing (Spec G)", () => {
+    const html = buildBriefEmailHtml(
+      {
+        ...baseEvent,
+        venueName: "The Old Pub",
+      } as unknown as Parameters<typeof buildBriefEmailHtml>[0],
+      [],
+      emptyStock,
+      []
+    );
+    expect(html).toContain("The Old Pub");
+  });
+
+  it("renders batchingInstructions in its own section when set (Spec E)", () => {
+    const html = buildBriefEmailHtml(
+      {
+        ...baseEvent,
+        batchingInstructions: "Pre-pour 40 cocktails on bar top at 17:45.",
+      } as unknown as Parameters<typeof buildBriefEmailHtml>[0],
+      [],
+      emptyStock,
+      []
+    );
+    expect(html).toContain("Pre-pour 40 cocktails on bar top at 17:45.");
+    expect(html.toLowerCase()).toContain("batching");
+  });
+
+  it("omits batching section when batchingInstructions is null (Spec E)", () => {
+    const html = buildBriefEmailHtml(
+      { ...baseEvent, batchingInstructions: null } as unknown as Parameters<
+        typeof buildBriefEmailHtml
+      >[0],
+      [],
+      emptyStock,
+      []
+    );
+    expect(html.toLowerCase()).not.toContain("batching");
+  });
+
+  it("renders pop-up bar size + branding when set (Spec D)", () => {
+    const html = buildBriefEmailHtml(
+      {
+        ...baseEvent,
+        popUpBar: true,
+        popUpBarSize: "3m curved",
+        popUpBarBranding: "Vinyl banner front branding attached seamlessly",
+      } as unknown as Parameters<typeof buildBriefEmailHtml>[0],
+      [],
+      emptyStock,
+      []
+    );
+    expect(html).toContain("3m curved");
+    expect(html).toContain("Vinyl banner front branding attached seamlessly");
+  });
+
+  it("does not render pop-up bar size/branding when popUpBar is false (Spec D)", () => {
+    const html = buildBriefEmailHtml(
+      {
+        ...baseEvent,
+        popUpBar: false,
+        popUpBarSize: "3m curved",
+        popUpBarBranding: "Should not appear",
+      } as unknown as Parameters<typeof buildBriefEmailHtml>[0],
+      [],
+      emptyStock,
+      []
+    );
+    expect(html).not.toContain("3m curved");
+    expect(html).not.toContain("Should not appear");
+  });
+
+  it("renders Host: <name> prominently when a contact has isHost=true (Spec C)", () => {
+    const html = buildBriefEmailHtml(
+      {
+        ...baseEvent,
+        contacts: [
+          {
+            id: "c1",
+            contactName: "Murdo MacLeod",
+            contactRole: "Host (Bar Excellence)",
+            contactPhone: "07882084422",
+            contactEmail: null,
+            isHost: true,
+            isPrimary: true,
+            sortOrder: 0,
+          },
+          {
+            id: "c2",
+            contactName: "Nafisa Ali",
+            contactRole: "Venue",
+            contactPhone: null,
+            contactEmail: "nafisa@example.com",
+            isHost: false,
+            isPrimary: false,
+            sortOrder: 1,
+          },
+        ],
+      } as unknown as Parameters<typeof buildBriefEmailHtml>[0],
+      [],
+      emptyStock,
+      []
+    );
+    expect(html).toContain("Host:");
+    expect(html).toContain("Murdo MacLeod");
+  });
+
+  it("omits Host line when no contact has isHost=true (Spec C)", () => {
+    const html = buildBriefEmailHtml(
+      {
+        ...baseEvent,
+        contacts: [
+          {
+            id: "c1",
+            contactName: "Nafisa Ali",
+            contactRole: "Venue",
+            contactPhone: null,
+            contactEmail: null,
+            isHost: false,
+            isPrimary: false,
+            sortOrder: 0,
+          },
+        ],
+      } as unknown as Parameters<typeof buildBriefEmailHtml>[0],
+      [],
+      emptyStock,
+      []
+    );
+    expect(html).not.toContain("Host:");
+  });
+
+  it("renders standard notes as Attire-style sections when provided", () => {
+    const html = buildBriefEmailHtml(
+      baseEvent,
+      [],
+      emptyStock,
+      [
+        {
+          label: "Attire",
+          content:
+            "All extended team must arrive to site already in set attire:\n- Black bow ties\n- Black waistcoats",
+        },
+        {
+          label: "Problem Escalation",
+          content: "Call Murdo first, not the venue.",
+        },
+      ]
+    );
+    expect(html).toContain("Attire");
+    expect(html).toContain("Black bow ties");
+    expect(html).toContain("Black waistcoats");
+    expect(html).toContain("Problem Escalation");
+    expect(html).toContain("Call Murdo first");
+  });
+
+  it("omits the standard notes block entirely when none are attached", () => {
+    const html = buildBriefEmailHtml(baseEvent, [], emptyStock, []);
+    expect(html).not.toContain("Black waistcoat, black bow tie");
+  });
+
+  it("strips WORKAROUND[id]: prefixes from notesCustom before rendering", () => {
+    const eventWithMarkers = {
+      ...baseEvent,
+      notesCustom:
+        "Real note for LC.\n\nWORKAROUND[substitution-stock]: 4 bottles non-alc gin.",
+    };
+    const html = buildBriefEmailHtml(eventWithMarkers, [], emptyStock, []);
+    expect(html).not.toContain("WORKAROUND[");
+    expect(html).toContain("Real note for LC.");
+    expect(html).toContain("4 bottles non-alc gin.");
   });
 });

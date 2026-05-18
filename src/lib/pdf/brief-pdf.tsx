@@ -1,6 +1,9 @@
 import React from "react";
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 import type { StockResult } from "@/lib/stock-calculator";
+import { stripWorkaroundMarkers } from "@/lib/notes-sanitization";
+import { formatAddressLines } from "@/lib/address-format";
+import type { EventStandardNote } from "@/lib/event-standard-notes-query";
 
 const s = StyleSheet.create({
   page: {
@@ -99,14 +102,25 @@ interface BriefPDFProps {
     stationNumber: number | null;
     ingredients: Array<Record<string, unknown>>;
     garnishes: Array<Record<string, unknown>>;
+    cocktail?: {
+      iceType?: string | null;
+      iceAmountG?: number | null;
+      straw?: boolean | null;
+      strawType?: string | null;
+      referenceImageUrl?: string | null;
+    } | null;
   }>;
   stock: StockResult;
+  standardNotes: EventStandardNote[];
 }
 
-export function BriefPDF({ event, contacts, cocktails, stock }: BriefPDFProps) {
-  const attire =
-    "Black waistcoat, black bow tie, white ironed shirt, smart black trousers, polished black leather shoes. Arrive in serving attire.";
-
+export function BriefPDF({
+  event,
+  contacts,
+  cocktails,
+  stock,
+  standardNotes,
+}: BriefPDFProps) {
   return (
     <Document>
       <Page size="A4" style={s.page}>
@@ -129,8 +143,7 @@ export function BriefPDF({ event, contacts, cocktails, stock }: BriefPDFProps) {
         {/* 2. Location */}
         <Text style={s.sectionTitle}>Location</Text>
         <Text style={s.text}>
-          {event.venueName as string}
-          {event.venueHallRoom ? `, ${event.venueHallRoom}` : ""}
+          {formatAddressLines(event).join("\n")}
           {"\n"}
           {event.guestCount as number} guests
         </Text>
@@ -142,6 +155,15 @@ export function BriefPDF({ event, contacts, cocktails, stock }: BriefPDFProps) {
           {(event.prepaidServes as number) || "TBC"} serves,{" "}
           {(event.stationCount as number) || "TBC"} stations
         </Text>
+        {event.popUpBar && (
+          <Text style={s.text}>
+            Pop-up bar
+            {event.popUpBarSize ? ` — ${event.popUpBarSize as string}` : ""}
+            {event.popUpBarBranding
+              ? `\nBranding: ${event.popUpBarBranding as string}`
+              : ""}
+          </Text>
+        )}
 
         {/* 4. Times */}
         {(event.arriveTime || event.serviceStart) && (
@@ -160,10 +182,27 @@ export function BriefPDF({ event, contacts, cocktails, stock }: BriefPDFProps) {
           </>
         )}
 
+        {/* 4b. Batching */}
+        {event.batchingInstructions && (
+          <>
+            <Text style={s.sectionTitle}>Batching</Text>
+            <Text style={s.text}>{event.batchingInstructions as string}</Text>
+          </>
+        )}
+
         {/* 5. Site Contacts */}
         {contacts.length > 0 && (
           <>
             <Text style={s.sectionTitle}>Site Contacts</Text>
+            {(() => {
+              const host = contacts.find((c) => c.isHost);
+              return host ? (
+                <Text style={[s.text, s.bold]}>
+                  Host: {host.contactName as string}
+                  {host.contactPhone ? ` — ${host.contactPhone}` : ""}
+                </Text>
+              ) : null;
+            })()}
             {contacts.map((c, i) => (
               <Text key={i} style={s.text}>
                 {c.contactName as string}
@@ -201,6 +240,21 @@ export function BriefPDF({ event, contacts, cocktails, stock }: BriefPDFProps) {
                     {ing.brand ? ` (${ing.brand})` : ""}
                   </Text>
                 ))}
+                {c.cocktail?.iceType && (
+                  <Text style={s.text}>
+                    Ice: {c.cocktail.iceType}
+                    {c.cocktail.iceAmountG ? ` (${c.cocktail.iceAmountG}g)` : ""}
+                  </Text>
+                )}
+                {c.cocktail?.straw && c.cocktail.strawType && (
+                  <Text style={s.text}>Straw: {c.cocktail.strawType}</Text>
+                )}
+                {c.cocktail?.referenceImageUrl && (
+                  <Image
+                    src={c.cocktail.referenceImageUrl}
+                    style={{ width: 120, height: 120, marginTop: 4 }}
+                  />
+                )}
               </View>
             ))}
           </>
@@ -232,15 +286,82 @@ export function BriefPDF({ event, contacts, cocktails, stock }: BriefPDFProps) {
           </>
         )}
 
-        {/* 13. Attire */}
-        <Text style={s.sectionTitle}>Attire</Text>
-        <Text style={s.text}>{attire}</Text>
+        {/* 12b. Manual Items */}
+        {stock.manualItems.length > 0 && (
+          <>
+            <Text style={s.sectionTitle}>Manual Items</Text>
+            {stock.manualItems.map((m, i) => (
+              <View key={i} style={s.row}>
+                <Text style={s.text}>
+                  {m.ingredientName}
+                  {m.brand ? ` (${m.brand})` : ""}
+                </Text>
+                <Text style={[s.text, s.bold]}>
+                  {m.totalQuantity} {m.unit}
+                </Text>
+              </View>
+            ))}
+          </>
+        )}
+
+        {/* 12c. Ice */}
+        {stock.ice.length > 0 && (
+          <>
+            <Text style={s.sectionTitle}>Ice</Text>
+            {stock.ice.map((i, idx) => (
+              <View key={idx} style={s.row}>
+                <Text style={s.text}>{i.iceType}</Text>
+                <Text style={[s.text, s.bold]}>{i.totalKg} kg</Text>
+              </View>
+            ))}
+          </>
+        )}
+
+        {/* 12d. Straws */}
+        {stock.straws.length > 0 && (
+          <>
+            <Text style={s.sectionTitle}>Straws</Text>
+            {stock.straws.map((s2, idx) => (
+              <View key={idx} style={s.row}>
+                <Text style={s.text}>{s2.strawType}</Text>
+                <Text style={[s.text, s.bold]}>{s2.totalCount}</Text>
+              </View>
+            ))}
+          </>
+        )}
+
+        {/* 12e. Per-Event Stock (substitutions, per-station consumables) */}
+        {stock.consumables.length > 0 && (
+          <>
+            <Text style={s.sectionTitle}>Per-Event Stock</Text>
+            {stock.consumables.map((c, idx) => (
+              <View key={idx} style={s.row}>
+                <Text style={s.text}>
+                  {c.itemName}
+                  {c.brand ? ` (${c.brand})` : ""}
+                </Text>
+                <Text style={[s.text, s.bold]}>
+                  {c.totalQuantity} {c.unit}
+                  {c.totalQuantity === 1 ? "" : "s"}
+                </Text>
+              </View>
+            ))}
+          </>
+        )}
+
+        {/* 13. Standard Notes */}
+        {standardNotes.map((note) => (
+          <View key={note.label} wrap={false}>
+            <Text style={s.sectionTitle}>{note.label}</Text>
+            <Text style={s.text}>{note.content}</Text>
+          </View>
+        ))}
 
         {/* 14. Notes */}
         {event.notesCustom && (
           <>
             <Text style={s.sectionTitle}>Notes</Text>
-            <Text style={s.text}>{event.notesCustom as string}</Text>
+            <Text style={s.text}>{stripWorkaroundMarkers(event.notesCustom as string)}</Text>
           </>
         )}
 

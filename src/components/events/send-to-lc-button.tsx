@@ -67,6 +67,7 @@ export function SendToLCButton({ eventId }: { eventId: string }) {
       {showPreview && previewData && (
         <BriefPreview
           data={previewData}
+          standardNotes={previewData.standardNotes}
           onConfirm={handleConfirmSend}
           onCancel={() => {
             setShowPreview(false);

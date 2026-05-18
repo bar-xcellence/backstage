@@ -92,11 +92,17 @@ export const userRoleEnum = pgEnum("user_role", [
   "partner",
 ]);
 
+export const eventStockScalingRuleEnum = pgEnum("event_stock_scaling_rule", [
+  "per_event",
+  "per_station",
+]);
+
 export const scalingRuleEnum = pgEnum("scaling_rule", [
   "per_station",
   "fixed",
   "per_spirit",
   "per_ingredient",
+  "per_guest",
 ]);
 
 // ── Users ──────────────────────────────────────────────
@@ -126,6 +132,12 @@ export const events = pgTable("events", {
   departTime: time("depart_time"),
   venueName: text("venue_name").notNull(),
   venueHallRoom: text("venue_hall_room"),
+  addressLine1: text("address_line_1"),
+  addressLine2: text("address_line_2"),
+  city: text("city"),
+  postcode: text("postcode"),
+  venueTenant: text("venue_tenant"),
+  cateringPartner: text("catering_partner"),
   guestCount: integer("guest_count").notNull(),
 
   // Service configuration
@@ -144,6 +156,8 @@ export const events = pgTable("events", {
   // Equipment and setup
   popUpBar: boolean("pop_up_bar").default(false),
   popUpBarSupplier: text("pop_up_bar_supplier"),
+  popUpBarSize: text("pop_up_bar_size"),
+  popUpBarBranding: text("pop_up_bar_branding"),
   dryIce: boolean("dry_ice").default(false),
   menuFrameCount: integer("menu_frame_count"),
   menuNotes: text("menu_notes"),
@@ -192,6 +206,7 @@ export const eventContacts = pgTable("event_contacts", {
   contactPhone: text("contact_phone"),
   contactEmail: text("contact_email"),
   isPrimary: boolean("is_primary").default(false),
+  isHost: boolean("is_host").default(false).notNull(),
   sortOrder: integer("sort_order").default(0),
 });
 
@@ -337,6 +352,25 @@ export const eventStandardNotes = pgTable("event_standard_notes", {
   sortOrder: integer("sort_order").default(0).notNull(),
 });
 
+// ── Event Stock (per-event procurement extras) ────────
+
+export const eventStock = pgTable("event_stock", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  eventId: uuid("event_id")
+    .references(() => events.id, { onDelete: "cascade" })
+    .notNull(),
+  itemName: text("item_name").notNull(),
+  category: ingredientCategoryEnum("category").default("other"),
+  quantity: decimal("quantity").notNull(),
+  unit: text("unit").notNull(),
+  brand: text("brand"),
+  scalingRule: eventStockScalingRuleEnum("scaling_rule")
+    .default("per_event")
+    .notNull(),
+  notes: text("notes"),
+  sortOrder: integer("sort_order").default(0).notNull(),
+});
+
 // ── Relations ──────────────────────────────────────────
 
 export const eventsRelations = relations(events, ({ many, one }) => ({
@@ -345,9 +379,17 @@ export const eventsRelations = relations(events, ({ many, one }) => ({
   checklists: many(eventChecklists),
   equipment: many(eventEquipment),
   standardNotes: many(eventStandardNotes),
+  stock: many(eventStock),
   createdByUser: one(users, {
     fields: [events.createdBy],
     references: [users.id],
+  }),
+}));
+
+export const eventStockRelations = relations(eventStock, ({ one }) => ({
+  event: one(events, {
+    fields: [eventStock.eventId],
+    references: [events.id],
   }),
 }));
 

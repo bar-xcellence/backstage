@@ -201,6 +201,259 @@ describe("Stock Calculator", () => {
     expect(vodkas).toHaveLength(2);
   });
 
+  it("aggregates ice by type and rounds up to nearest kg (no buffer)", () => {
+    // Heathrow shape: 2 cocktails, 130 serves each, 200g cubed ice
+    const result = calculateStock([
+      {
+        servesAllocated: 130,
+        iceAmountG: 200,
+        iceType: "Cubed",
+        ingredients: [],
+        garnishes: [],
+      },
+      {
+        servesAllocated: 130,
+        iceAmountG: 200,
+        iceType: "Cubed",
+        ingredients: [],
+        garnishes: [],
+      },
+    ]);
+    // 260 × 200g = 52000g → 52kg
+    expect(result.ice).toHaveLength(1);
+    expect(result.ice[0]).toEqual({ iceType: "Cubed", totalKg: 52 });
+  });
+
+  it("separates ice into rows by type (Glasgow mixed-ice scenario)", () => {
+    const result = calculateStock([
+      {
+        servesAllocated: 50,
+        iceAmountG: 200,
+        iceType: "Crushed",
+        ingredients: [],
+        garnishes: [],
+      },
+      {
+        servesAllocated: 50,
+        iceAmountG: 200,
+        iceType: "Cubed",
+        ingredients: [],
+        garnishes: [],
+      },
+      {
+        servesAllocated: 50,
+        iceAmountG: 200,
+        iceType: "Cubed",
+        ingredients: [],
+        garnishes: [],
+      },
+      {
+        servesAllocated: 50,
+        iceAmountG: 200,
+        iceType: "Cubed",
+        ingredients: [],
+        garnishes: [],
+      },
+    ]);
+    expect(result.ice).toHaveLength(2);
+    // Cubed: 150 × 200g = 30000g → 30kg
+    expect(result.ice.find((i) => i.iceType === "Cubed")?.totalKg).toBe(30);
+    // Crushed: 50 × 200g = 10000g → 10kg
+    expect(result.ice.find((i) => i.iceType === "Crushed")?.totalKg).toBe(10);
+  });
+
+  it("skips cocktails without ice data", () => {
+    const result = calculateStock([
+      {
+        servesAllocated: 50,
+        ingredients: [],
+        garnishes: [],
+      },
+    ]);
+    expect(result.ice).toHaveLength(0);
+  });
+
+  it("aggregates straws by type with 10% buffer", () => {
+    const result = calculateStock([
+      {
+        servesAllocated: 130,
+        straw: true,
+        strawType: "Black short cardboard",
+        ingredients: [],
+        garnishes: [],
+      },
+    ]);
+    // 130 × 1.10 = 143 (ceil)
+    expect(result.straws).toHaveLength(1);
+    expect(result.straws[0]).toEqual({
+      strawType: "Black short cardboard",
+      totalCount: 143,
+    });
+  });
+
+  it("ignores cocktails with straw=false even if strawType is set", () => {
+    const result = calculateStock([
+      {
+        servesAllocated: 50,
+        straw: false,
+        strawType: "Black short cardboard",
+        ingredients: [],
+        garnishes: [],
+      },
+    ]);
+    expect(result.straws).toHaveLength(0);
+  });
+
+  it("separates straws into rows by type", () => {
+    const result = calculateStock([
+      {
+        servesAllocated: 50,
+        straw: true,
+        strawType: "Black short cardboard",
+        ingredients: [],
+        garnishes: [],
+      },
+      {
+        servesAllocated: 50,
+        straw: true,
+        strawType: "Paper striped",
+        ingredients: [],
+        garnishes: [],
+      },
+    ]);
+    expect(result.straws).toHaveLength(2);
+  });
+
+  it("resolves per_event eventStockItems with no multiplier", () => {
+    const result = calculateStock([espressoMartini], {
+      eventStockItems: [
+        {
+          itemName: "Non-alcoholic Gin",
+          category: "spirit",
+          quantity: 4,
+          unit: "bottle",
+          brand: null,
+          scalingRule: "per_event",
+        },
+      ],
+    });
+    expect(result.consumables).toHaveLength(1);
+    expect(result.consumables[0]).toEqual({
+      itemName: "Non-alcoholic Gin",
+      brand: null,
+      category: "spirit",
+      totalQuantity: 4,
+      unit: "bottle",
+    });
+  });
+
+  it("multiplies per_station eventStockItems by stationCount", () => {
+    const result = calculateStock([espressoMartini], {
+      eventStockItems: [
+        {
+          itemName: "Miraculous Foamer",
+          category: "foamer",
+          quantity: 1,
+          unit: "bottle",
+          brand: null,
+          scalingRule: "per_station",
+        },
+      ],
+      stationCount: 13,
+    });
+    expect(result.consumables[0].totalQuantity).toBe(13);
+  });
+
+  it("warns when per_station eventStock has null stationCount", () => {
+    const result = calculateStock([espressoMartini], {
+      eventStockItems: [
+        {
+          itemName: "Miraculous Foamer",
+          category: "foamer",
+          quantity: 1,
+          unit: "bottle",
+          brand: null,
+          scalingRule: "per_station",
+        },
+      ],
+    });
+    expect(result.warnings).toContain(
+      "'Miraculous Foamer' is per_station but stationCount is null — treating as per_event"
+    );
+    expect(result.consumables[0].totalQuantity).toBe(1);
+  });
+
+  it("suppresses manualItems whose name matches an eventStock entry", () => {
+    const result = calculateStock(
+      [
+        {
+          servesAllocated: 130,
+          ingredients: [
+            {
+              ingredientName: "Miraculous Foamer",
+              amount: 3,
+              unit: "drops" as const,
+              brand: null,
+              ingredientCategory: "foamer" as const,
+            },
+          ],
+          garnishes: [],
+        },
+      ],
+      {
+        eventStockItems: [
+          {
+            itemName: "Miraculous Foamer",
+            category: "foamer",
+            quantity: 1,
+            unit: "bottle",
+            brand: null,
+            scalingRule: "per_station",
+          },
+        ],
+        stationCount: 13,
+      }
+    );
+    // Foamer as drops gets suppressed; only the consumable row remains
+    expect(result.manualItems).toHaveLength(0);
+    expect(result.consumables).toHaveLength(1);
+    expect(result.consumables[0].totalQuantity).toBe(13);
+  });
+
+  it("suppresses garnishes whose name matches an eventStock entry", () => {
+    const result = calculateStock(
+      [
+        {
+          servesAllocated: 130,
+          ingredients: [],
+          garnishes: [
+            {
+              garnishName: "Edible Gold Duster Spray",
+              quantity: 1,
+              quantityUnit: "spray",
+            },
+          ],
+        },
+      ],
+      {
+        eventStockItems: [
+          {
+            itemName: "Edible Gold Duster Spray",
+            category: "other",
+            quantity: 1,
+            unit: "pack",
+            brand: null,
+            scalingRule: "per_station",
+          },
+        ],
+        stationCount: 13,
+      }
+    );
+    expect(result.garnishes).toHaveLength(0);
+    expect(result.consumables[0].unit).toBe("pack");
+    expect(result.consumables[0].totalQuantity).toBe(13);
+  });
+
   it("rounds purchase units UP (ceiling)", () => {
     const result = calculateStock([
       {

@@ -6,11 +6,12 @@ All Phases 1–3 code is implemented on `main`. The items below are the remainin
 
 ## Content
 
-### Get Murdo's cocktail recipes
+### Get Murdo's cocktail recipes ✓ partial (6 of ~20)
 **What:** Collect ~20 cocktail recipes in spreadsheet format (name, ingredients with exact measurements, garnishes). Replace the seeded placeholder cocktails.
 **Why:** Stock calculator depends on accurate recipe data.
-**Depends on:** Murdo providing the data.
+**Status:** 6 real recipes seeded from Heathrow + Glasgow PDFs (Spiced Passionstar, Springtime Clover Club, Clydeport Celebration, Barrowlands Stars, Wellingtons Gin Club, Clockwork Orange Margarita). Placeholder cocktails removed. ~14 more recipes still pending from Murdo.
 **Added:** 2026-04-16
+**Updated:** 2026-05-18
 
 ---
 

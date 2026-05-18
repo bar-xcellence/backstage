@@ -2,6 +2,9 @@
 
 import { useEffect } from "react";
 import type { BriefPreviewData } from "@/actions/brief-preview";
+import { stripWorkaroundMarkers } from "@/lib/notes-sanitization";
+import { formatAddressLines } from "@/lib/address-format";
+import type { EventStandardNote } from "@/lib/event-standard-notes-query";
 
 function Section({
   title,
@@ -24,6 +27,7 @@ function Section({
 
 interface BriefPreviewProps {
   data: BriefPreviewData;
+  standardNotes: EventStandardNote[];
   onConfirm: () => void;
   onCancel: () => void;
   loading: boolean;
@@ -31,6 +35,7 @@ interface BriefPreviewProps {
 
 export function BriefPreview({
   data,
+  standardNotes,
   onConfirm,
   onCancel,
   loading,
@@ -121,11 +126,24 @@ export function BriefPreview({
 
           {/* Location */}
           <Section title="Location">
-            <p>{event.venueName}</p>
-            {event.venueHallRoom && (
-              <p className="text-cream/50">{event.venueHallRoom}</p>
-            )}
+            {formatAddressLines(event).map((line, i) => (
+              <p key={i} className={i === 0 ? "" : "text-cream/70"}>
+                {line}
+              </p>
+            ))}
           </Section>
+
+          {/* Pop-up bar */}
+          {event.popUpBar && (
+            <Section title="Pop-up Bar">
+              {event.popUpBarSize && <p>Size: {event.popUpBarSize}</p>}
+              {event.popUpBarBranding && (
+                <p className="text-cream/70 mt-1">
+                  Branding: {event.popUpBarBranding}
+                </p>
+              )}
+            </Section>
+          )}
 
           {/* Times */}
           {hasTimes && (
@@ -148,6 +166,16 @@ export function BriefPreview({
           {hasContacts && (
             <Section title="Site Contacts">
               <div className="space-y-2">
+                {event.contacts.find((c) => c.isHost) && (
+                  <p className="text-gold font-bold">
+                    Host: {event.contacts.find((c) => c.isHost)?.contactName}
+                    {event.contacts.find((c) => c.isHost)?.contactPhone && (
+                      <span className="text-cream/70 font-normal ml-2">
+                        {event.contacts.find((c) => c.isHost)?.contactPhone}
+                      </span>
+                    )}
+                  </p>
+                )}
                 {event.contacts.map((c) => (
                   <div key={c.id}>
                     <p className="text-cream font-medium">
@@ -235,6 +263,27 @@ export function BriefPreview({
                         ))}
                       </ul>
                     )}
+                    {ec.cocktail?.iceType && (
+                      <p className="text-cream/50 text-xs mt-1">
+                        Ice: {ec.cocktail.iceType}
+                        {ec.cocktail.iceAmountG
+                          ? ` (${ec.cocktail.iceAmountG}g)`
+                          : ""}
+                      </p>
+                    )}
+                    {ec.cocktail?.straw && ec.cocktail.strawType && (
+                      <p className="text-cream/50 text-xs">
+                        Straw: {ec.cocktail.strawType}
+                      </p>
+                    )}
+                    {ec.cocktail?.referenceImageUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={ec.cocktail.referenceImageUrl}
+                        alt={`${ec.menuName} reference`}
+                        className="mt-2 max-w-[200px] border border-cream/10"
+                      />
+                    )}
                   </div>
                 ))}
               </div>
@@ -313,7 +362,9 @@ export function BriefPreview({
           {hasNotes && (
             <Section title="Notes">
               <div className="space-y-2">
-                {event.notesCustom && <p>{event.notesCustom}</p>}
+                {event.notesCustom && (
+                  <p>{stripWorkaroundMarkers(event.notesCustom)}</p>
+                )}
                 {event.stationLayoutNotes && (
                   <p>
                     <span className="text-cream/50">Station layout:</span>{" "}
@@ -332,6 +383,22 @@ export function BriefPreview({
                     {event.menuNotes}
                   </p>
                 )}
+              </div>
+            </Section>
+          )}
+
+          {/* Standard Notes */}
+          {standardNotes.length > 0 && (
+            <Section title="Standard Notes">
+              <div className="space-y-3">
+                {standardNotes.map((note) => (
+                  <div key={note.label}>
+                    <p className="text-[11px] font-medium tracking-[0.16em] uppercase text-gold">
+                      {note.label}
+                    </p>
+                    <p className="whitespace-pre-line">{note.content}</p>
+                  </div>
+                ))}
               </div>
             </Section>
           )}

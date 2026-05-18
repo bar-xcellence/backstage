@@ -2,6 +2,9 @@ import type { getEvent } from "@/actions/events";
 import type { getEventCocktails } from "@/actions/event-cocktails";
 import type { calculateStock } from "@/lib/stock-calculator";
 import { escapeHtml } from "./lc-email";
+import { stripWorkaroundMarkers } from "./notes-sanitization";
+import { formatAddressLines } from "./address-format";
+import type { EventStandardNote } from "./event-standard-notes-query";
 
 type EventWithContacts = NonNullable<Awaited<ReturnType<typeof getEvent>>>;
 type EventCocktails = Awaited<ReturnType<typeof getEventCocktails>>;
@@ -10,7 +13,8 @@ type Stock = ReturnType<typeof calculateStock>;
 export function buildBriefEmailHtml(
   event: EventWithContacts,
   eventCocktails: EventCocktails,
-  stock: Stock
+  stock: Stock,
+  standardNotes: EventStandardNote[]
 ): string {
   const section = (title: string, content: string) =>
     content
@@ -46,6 +50,17 @@ export function buildBriefEmailHtml(
               .join(", ")}</em>`
           : "";
 
+      const c = ec.cocktail;
+      const iceLine = c?.iceType
+        ? `<br><span style="font-size: 12px; color: #6B7280;">Ice: ${escapeHtml(c.iceType)}${c.iceAmountG ? ` (${escapeHtml(c.iceAmountG)}g)` : ""}</span>`
+        : "";
+      const strawLine = c?.straw && c.strawType
+        ? `<br><span style="font-size: 12px; color: #6B7280;">Straw: ${escapeHtml(c.strawType)}</span>`
+        : "";
+      const refImage = c?.referenceImageUrl
+        ? `<br><img src="${escapeHtml(c.referenceImageUrl)}" alt="${escapeHtml(ec.menuName)} reference" style="max-width: 240px; margin-top: 8px;">`
+        : "";
+
       return `
     <div style="margin-bottom: 16px;">
       <strong>${escapeHtml(ec.menuName)}</strong>
@@ -54,6 +69,9 @@ export function buildBriefEmailHtml(
       <br>
       ${ingredients}
       ${garnishes}
+      ${iceLine}
+      ${strawLine}
+      ${refImage}
     </div>`;
     })
     .join("");
@@ -72,12 +90,15 @@ export function buildBriefEmailHtml(
     )
     .join("<br>");
 
-  const attireDefault =
-    "Black waistcoat, black bow tie, white ironed shirt, smart black trousers, polished black leather shoes. Arrive in serving attire.";
+  const hostContact = event.contacts?.find((c) => c.isHost);
+  const hostLine = hostContact
+    ? `<strong>Host:</strong> ${escapeHtml(hostContact.contactName)}${hostContact.contactPhone ? ` — ${escapeHtml(hostContact.contactPhone)}` : ""}<br><br>`
+    : "";
 
   const contactsHtml =
     event.contacts && event.contacts.length > 0
-      ? event.contacts
+      ? hostLine +
+        event.contacts
           .map(
             (c) =>
               `${escapeHtml(c.contactName)}${c.contactRole ? ` (${escapeHtml(c.contactRole)})` : ""}${c.contactPhone ? ` — ${escapeHtml(c.contactPhone)}` : ""}`
@@ -104,9 +125,14 @@ export function buildBriefEmailHtml(
     .filter(Boolean)
     .join("<br>");
 
-  const whatContent = `${escapeHtml(event.eventType?.replace("_", " ") ?? "")} — ${escapeHtml(event.serviceType?.replace("_", " / ") ?? "")}<br>${escapeHtml(event.staffCount ?? "TBC")} staff, ${escapeHtml(event.prepaidServes ?? "TBC")} serves, ${escapeHtml(event.stationCount ?? "TBC")} stations${event.popUpBar ? "<br>Pop-up bar required" : ""}${event.flairRequired ? "<br>Flair bartending required" : ""}${event.dryIce ? "<br>Dry ice required" : ""}`;
+  const popUpBarLine = event.popUpBar
+    ? `<br>Pop-up bar required${event.popUpBarSize ? ` — ${escapeHtml(event.popUpBarSize)}` : ""}${event.popUpBarBranding ? `<br>Branding: ${escapeHtml(event.popUpBarBranding)}` : ""}`
+    : "";
 
-  const locationContent = `${escapeHtml(event.venueName)}${event.venueHallRoom ? `, ${escapeHtml(event.venueHallRoom)}` : ""}<br>${escapeHtml(event.guestCount)} guests`;
+  const whatContent = `${escapeHtml(event.eventType?.replace("_", " ") ?? "")} — ${escapeHtml(event.serviceType?.replace("_", " / ") ?? "")}<br>${escapeHtml(event.staffCount ?? "TBC")} staff, ${escapeHtml(event.prepaidServes ?? "TBC")} serves, ${escapeHtml(event.stationCount ?? "TBC")} stations${popUpBarLine}${event.flairRequired ? "<br>Flair bartending required" : ""}${event.dryIce ? "<br>Dry ice required" : ""}`;
+
+  const addressLines = formatAddressLines(event);
+  const locationContent = `${addressLines.map((l) => escapeHtml(l)).join("<br>")}<br>${escapeHtml(event.guestCount)} guests`;
 
   const manualItemsContent =
     stock.manualItems.length > 0
@@ -118,8 +144,42 @@ export function buildBriefEmailHtml(
           .join("<br>")
       : "";
 
+  const iceContent =
+    stock.ice.length > 0
+      ? stock.ice
+          .map((i) => `${escapeHtml(i.iceType)}: ${i.totalKg} kg`)
+          .join("<br>")
+      : "";
+
+  const strawsContent =
+    stock.straws.length > 0
+      ? stock.straws
+          .map((s) => `${escapeHtml(s.strawType)}: ${s.totalCount}`)
+          .join("<br>")
+      : "";
+
+  const consumablesContent =
+    stock.consumables.length > 0
+      ? stock.consumables
+          .map(
+            (c) =>
+              `${escapeHtml(c.itemName)}${c.brand ? ` (${escapeHtml(c.brand)})` : ""}: ${c.totalQuantity} ${escapeHtml(c.unit)}${c.totalQuantity === 1 ? "" : "s"}`
+          )
+          .join("<br>")
+      : "";
+
+  const standardNotesHtml = standardNotes
+    .map((n) =>
+      section(n.label, escapeHtml(n.content).replace(/\n/g, "<br>"))
+    )
+    .join("");
+
   const notesContent = event.notesCustom
-    ? escapeHtml(event.notesCustom).replace(/\n/g, "<br>")
+    ? escapeHtml(stripWorkaroundMarkers(event.notesCustom)).replace(/\n/g, "<br>")
+    : "";
+
+  const batchingContent = event.batchingInstructions
+    ? escapeHtml(event.batchingInstructions).replace(/\n/g, "<br>")
     : "";
 
   return `
@@ -144,12 +204,16 @@ export function buildBriefEmailHtml(
           ${section("Location", locationContent)}
           ${section("What", whatContent)}
           ${section("Times", timesContent)}
+          ${section("Batching", batchingContent)}
           ${section("Site Contacts", contactsHtml)}
           ${section("Install", installContent)}
           ${section("Cocktails and Specs", cocktailsHtml)}
           ${section("Stock List", stockHtml + (garnishHtml ? `<br><br><strong>Garnishes:</strong><br>${garnishHtml}` : ""))}
           ${section("Manual Items", manualItemsContent)}
-          ${section("Attire", attireDefault)}
+          ${section("Ice", iceContent)}
+          ${section("Straws", strawsContent)}
+          ${section("Per-Event Stock", consumablesContent)}
+          ${standardNotesHtml}
           ${section("Notes", notesContent)}
         </table>
       </td>

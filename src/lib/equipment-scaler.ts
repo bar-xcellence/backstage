@@ -1,13 +1,14 @@
 interface TemplateItem {
   itemName: string;
   baseQuantity: number;
-  scalingRule: "per_station" | "fixed" | "per_spirit" | "per_ingredient";
+  scalingRule: "per_station" | "fixed" | "per_spirit" | "per_ingredient" | "per_guest";
 }
 
 interface EventContext {
   stationCount: number;
   spiritCount: number;
   ingredientCount: number;
+  guestCount: number;
 }
 
 interface ScaledItem {
@@ -32,6 +33,9 @@ export function scaleEquipment(
         break;
       case "per_ingredient":
         multiplier = Math.max(context.ingredientCount, 1);
+        break;
+      case "per_guest":
+        multiplier = Math.max(context.guestCount, 1);
         break;
       case "fixed":
       default:

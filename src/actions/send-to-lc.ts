@@ -8,9 +8,11 @@ import { requireRole } from "@/lib/session";
 import { getEventCocktails } from "./event-cocktails";
 import { getEvent } from "./events";
 import { calculateStock } from "@/lib/stock-calculator";
+import { fetchEventStock } from "@/lib/event-stock-query";
 import { validateSendToLC } from "@/lib/event-validation";
 import { resolveLCEmail, getFromEmail } from "@/lib/lc-email";
 import { buildBriefEmailHtml } from "@/lib/brief-email-template";
+import { fetchEventStandardNotes } from "@/lib/event-standard-notes-query";
 import { revalidatePath } from "next/cache";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -94,6 +96,10 @@ export async function sendToLC(
       servesAllocated:
         ec.servesAllocated ||
         (cocktailCount > 0 ? Math.floor(totalServes / cocktailCount) : 0),
+      iceAmountG: ec.cocktail?.iceAmountG ?? null,
+      iceType: ec.cocktail?.iceType ?? null,
+      straw: ec.cocktail?.straw ?? null,
+      strawType: ec.cocktail?.strawType ?? null,
       ingredients: ec.ingredients.map((ing) => ({
         ingredientName: ing.ingredientName,
         amount: Number(ing.amount),
@@ -108,9 +114,15 @@ export async function sendToLC(
       })),
     };
   });
-  const stock = calculateStock(stockInput);
+  const eventStockItems = await fetchEventStock(eventId);
+  const stock = calculateStock(stockInput, {
+    eventStockItems,
+    stationCount: event.stationCount,
+  });
 
-  const html = buildBriefEmailHtml(event, eventCocktails, stock);
+  const standardNotes = await fetchEventStandardNotes(eventId);
+
+  const html = buildBriefEmailHtml(event, eventCocktails, stock, standardNotes);
 
   const result = await sendWithRetry({
     from: from.email,

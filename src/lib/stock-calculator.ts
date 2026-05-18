@@ -18,6 +18,10 @@ const GARNISH_BUFFER = 1.1; // 10% for garnishes
 
 interface CocktailInput {
   servesAllocated: number;
+  iceAmountG?: number | null;
+  iceType?: string | null;
+  straw?: boolean | null;
+  strawType?: string | null;
   ingredients: {
     ingredientName: string;
     amount: number;
@@ -55,22 +59,85 @@ export interface ManualItem {
   brand: string | null;
 }
 
+export interface IceResult {
+  iceType: string;
+  totalKg: number;
+}
+
+export interface StrawResult {
+  strawType: string;
+  totalCount: number;
+}
+
+export interface EventStockItem {
+  itemName: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  brand: string | null;
+  scalingRule: "per_event" | "per_station";
+}
+
+export interface ConsumableResult {
+  itemName: string;
+  brand: string | null;
+  category: string;
+  totalQuantity: number;
+  unit: string;
+}
+
+export interface CalculateStockOptions {
+  eventStockItems?: EventStockItem[];
+  stationCount?: number | null;
+}
+
 export interface StockResult {
   ingredients: IngredientResult[];
   garnishes: GarnishResult[];
   manualItems: ManualItem[];
+  ice: IceResult[];
+  straws: StrawResult[];
+  consumables: ConsumableResult[];
   warnings: string[];
 }
 
-export function calculateStock(cocktails: CocktailInput[]): StockResult {
+export function calculateStock(
+  cocktails: CocktailInput[],
+  options: CalculateStockOptions = {}
+): StockResult {
   const warnings: string[] = [];
+  const { eventStockItems = [], stationCount = null } = options;
+
+  // Resolve consumables first — we need their names to de-dupe later.
+  const consumables: ConsumableResult[] = eventStockItems.map((item) => {
+    const multiplier =
+      item.scalingRule === "per_station" ? stationCount ?? 1 : 1;
+    if (item.scalingRule === "per_station" && stationCount == null) {
+      warnings.push(
+        `'${item.itemName}' is per_station but stationCount is null — treating as per_event`
+      );
+    }
+    return {
+      itemName: item.itemName,
+      brand: item.brand,
+      category: item.category,
+      totalQuantity: item.quantity * multiplier,
+      unit: item.unit,
+    };
+  });
+  const consumableNames = new Set(
+    consumables.map((c) => c.itemName.toLowerCase())
+  );
 
   if (cocktails.length === 0) {
     return {
       ingredients: [],
       garnishes: [],
       manualItems: [],
-      warnings: ["No cocktails selected"],
+      ice: [],
+      straws: [],
+      consumables,
+      warnings: warnings.concat("No cocktails selected"),
     };
   }
 
@@ -95,7 +162,10 @@ export function calculateStock(cocktails: CocktailInput[]): StockResult {
       if (ing.amount === 0) continue;
 
       if (!ML_UNITS.has(ing.unit)) {
-        // Non-ml units go to manual items (drops, dash, piece, etc.)
+        // Non-ml units go to manual items (drops, dash, piece, etc.) —
+        // unless an eventStock entry already covers this item by name,
+        // in which case the consumable row is the procurement truth.
+        if (consumableNames.has(ing.ingredientName.toLowerCase())) continue;
         const total = cocktail.servesAllocated * ing.amount;
         manualItems.push({
           ingredientName: ing.ingredientName,
@@ -145,6 +215,9 @@ export function calculateStock(cocktails: CocktailInput[]): StockResult {
   >();
   for (const cocktail of cocktails) {
     for (const g of cocktail.garnishes) {
+      // Suppress garnish rows that are already covered by an eventStock entry
+      // (e.g. gold duster lives in consumables, not as a per-serve garnish count).
+      if (consumableNames.has(g.garnishName.toLowerCase())) continue;
       const key = g.garnishName;
       const total = cocktail.servesAllocated * g.quantity;
       const existing = garnishMap.get(key);
@@ -166,6 +239,32 @@ export function calculateStock(cocktails: CocktailInput[]): StockResult {
     });
   }
 
+  // Aggregate ice by type (no buffer — ice numbers stay close to recipe; Murdo can pad)
+  const iceMap = new Map<string, number>();
+  for (const cocktail of cocktails) {
+    if (!cocktail.iceAmountG || !cocktail.iceType) continue;
+    const totalG = cocktail.servesAllocated * cocktail.iceAmountG;
+    iceMap.set(cocktail.iceType, (iceMap.get(cocktail.iceType) || 0) + totalG);
+  }
+  const ice: IceResult[] = Array.from(iceMap, ([iceType, totalG]) => ({
+    iceType,
+    totalKg: Math.ceil(totalG / 1000),
+  }));
+
+  // Aggregate straws by type (with garnish buffer — disposable consumable)
+  const strawMap = new Map<string, number>();
+  for (const cocktail of cocktails) {
+    if (!cocktail.straw || !cocktail.strawType) continue;
+    strawMap.set(
+      cocktail.strawType,
+      (strawMap.get(cocktail.strawType) || 0) + cocktail.servesAllocated
+    );
+  }
+  const straws: StrawResult[] = Array.from(strawMap, ([strawType, count]) => ({
+    strawType,
+    totalCount: Math.ceil(count * GARNISH_BUFFER),
+  }));
+
   // Sort by category then name
   ingredients.sort(
     (a, b) =>
@@ -173,6 +272,21 @@ export function calculateStock(cocktails: CocktailInput[]): StockResult {
       a.ingredientName.localeCompare(b.ingredientName)
   );
   garnishes.sort((a, b) => a.garnishName.localeCompare(b.garnishName));
+  ice.sort((a, b) => a.iceType.localeCompare(b.iceType));
+  straws.sort((a, b) => a.strawType.localeCompare(b.strawType));
+  consumables.sort(
+    (a, b) =>
+      a.category.localeCompare(b.category) ||
+      a.itemName.localeCompare(b.itemName)
+  );
 
-  return { ingredients, garnishes, manualItems, warnings };
+  return {
+    ingredients,
+    garnishes,
+    manualItems,
+    ice,
+    straws,
+    consumables,
+    warnings,
+  };
 }

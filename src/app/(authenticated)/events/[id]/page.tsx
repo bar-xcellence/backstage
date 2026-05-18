@@ -20,6 +20,7 @@ import { getEventEquipment, getEquipmentTemplates } from "@/actions/equipment";
 import { getStandardNotes, getEventStandardNotes } from "@/actions/standard-notes";
 import { EventEquipment } from "@/components/events/event-equipment";
 import { EventStandardNotes } from "@/components/events/event-standard-notes";
+import { formatAddressLines } from "@/lib/address-format";
 import { STATUS_COLORS, STATUS_ORDER } from "@/lib/constants";
 
 export default async function EventDetailPage({
@@ -175,10 +176,17 @@ export default async function EventDetailPage({
       <div className="flex flex-wrap items-center gap-x-6 gap-y-1 py-4 mb-6 border-b border-outline/15 font-[family-name:var(--font-raleway)] text-[11px] tracking-[0.16em] uppercase text-grey">
         <span>{event.eventDate}</span>
         <span>{event.venueName}</span>
+        {event.city && <span>{event.city}</span>}
         {event.venueHallRoom && <span>{event.venueHallRoom}</span>}
         <span>{event.guestCount} guests</span>
         {event.prepaidServes && <span>{event.prepaidServes} serves</span>}
         {event.stationCount && <span>{event.stationCount} stations</span>}
+        {event.popUpBar && (
+          <span>
+            Pop-up bar
+            {event.popUpBarSize ? ` · ${event.popUpBarSize}` : ""}
+          </span>
+        )}
         {event.lcSentAt && (
           <span className="text-success">
             SENT TO LC{" "}
@@ -243,6 +251,64 @@ export default async function EventDetailPage({
                 </section>
               )}
 
+              {/* Location */}
+              {(event.addressLine1 ||
+                event.addressLine2 ||
+                event.city ||
+                event.postcode ||
+                event.venueTenant ||
+                event.cateringPartner) && (
+                <section>
+                  <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
+                    Location
+                  </h2>
+                  <div className="font-[family-name:var(--font-raleway)] text-sm text-gold-ink leading-relaxed space-y-0.5">
+                    {formatAddressLines(event).map((line, i) => (
+                      <p key={i}>{line}</p>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Batching */}
+              {event.batchingInstructions && (
+                <section>
+                  <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
+                    Batching
+                  </h2>
+                  <p className="font-[family-name:var(--font-raleway)] text-sm text-gold-ink leading-relaxed whitespace-pre-wrap">
+                    {event.batchingInstructions}
+                  </p>
+                </section>
+              )}
+
+              {/* Pop-up bar */}
+              {event.popUpBar && (event.popUpBarSize || event.popUpBarBranding) && (
+                <section>
+                  <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
+                    Pop-up Bar
+                  </h2>
+                  <div className="font-[family-name:var(--font-raleway)] text-sm text-gold-ink leading-relaxed space-y-1">
+                    {event.popUpBarSize && (
+                      <p>
+                        <span className="text-[10px] tracking-[0.18em] uppercase text-grey mr-2">
+                          Size
+                        </span>
+                        {event.popUpBarSize}
+                      </p>
+                    )}
+                    {event.popUpBarBranding && (
+                      <p>
+                        <span className="text-[10px] tracking-[0.18em] uppercase text-grey mr-2">
+                          Branding
+                        </span>
+                        {event.popUpBarBranding}
+                      </p>
+                    )}
+                  </div>
+                </section>
+              )}
+
               {/* Logistics */}
               {event.installInstructions && (
                 <section>
@@ -261,6 +327,21 @@ export default async function EventDetailPage({
                   <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
                     Site Contacts
                   </h2>
+                  {event.contacts.find((c) => c.isHost) && (
+                    <div className="mb-3 pb-3 border-b border-gold/30">
+                      <span className="text-[10px] tracking-[0.16em] uppercase text-gold font-semibold">
+                        Host
+                      </span>
+                      <p className="font-[family-name:var(--font-cormorant)] text-lg text-charcoal mt-1">
+                        {event.contacts.find((c) => c.isHost)?.contactName}
+                        {event.contacts.find((c) => c.isHost)?.contactPhone && (
+                          <span className="text-gold-ink text-sm font-[family-name:var(--font-raleway)] ml-3">
+                            {event.contacts.find((c) => c.isHost)?.contactPhone}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     {event.contacts.map((c) => (
                       <div
@@ -326,6 +407,7 @@ export default async function EventDetailPage({
               stationCount={event.stationCount || 1}
               spiritCount={spiritCount}
               ingredientCount={ingredientCount}
+              guestCount={event.guestCount || 0}
               isPartner={isPartner}
             />
           ),

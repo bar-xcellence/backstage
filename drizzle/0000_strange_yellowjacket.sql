@@ -1,9 +1,11 @@
 CREATE TYPE "public"."event_status" AS ENUM('enquiry', 'confirmed', 'preparation', 'ready', 'delivered', 'cancelled');--> statement-breakpoint
+CREATE TYPE "public"."event_stock_scaling_rule" AS ENUM('per_event', 'per_station');--> statement-breakpoint
 CREATE TYPE "public"."event_type" AS ENUM('masterclass', 'drinks_reception', 'team_building', 'corporate', 'exhibition', 'other');--> statement-breakpoint
 CREATE TYPE "public"."garnish_category" AS ENUM('fruit', 'botanical', 'decorative', 'spray');--> statement-breakpoint
 CREATE TYPE "public"."glass_type" AS ENUM('rocks', 'coupe', 'highball', 'martini', 'flute', 'polycarb_rocks', 'other');--> statement-breakpoint
 CREATE TYPE "public"."ingredient_category" AS ENUM('spirit', 'puree', 'juice', 'syrup', 'citrus', 'modifier', 'foamer', 'soda', 'other');--> statement-breakpoint
 CREATE TYPE "public"."ingredient_unit" AS ENUM('ml', 'g', 'drops', 'dash', 'piece', 'whole', 'bunch', 'sprig');--> statement-breakpoint
+CREATE TYPE "public"."scaling_rule" AS ENUM('per_station', 'fixed', 'per_spirit', 'per_ingredient');--> statement-breakpoint
 CREATE TYPE "public"."season" AS ENUM('spring', 'summer', 'autumn', 'winter', 'all_year');--> statement-breakpoint
 CREATE TYPE "public"."service_type" AS ENUM('cocktails_mocktails', 'smoothies', 'hybrid');--> statement-breakpoint
 CREATE TYPE "public"."user_role" AS ENUM('owner', 'super_admin', 'partner');--> statement-breakpoint
@@ -49,6 +51,23 @@ CREATE TABLE "cocktails" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "equipment_template_items" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"template_id" uuid NOT NULL,
+	"item_name" text NOT NULL,
+	"base_quantity" integer DEFAULT 1 NOT NULL,
+	"scaling_rule" "scaling_rule" DEFAULT 'fixed' NOT NULL,
+	"sort_order" integer DEFAULT 0 NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "equipment_templates" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"name" text NOT NULL,
+	"description" text,
+	"is_active" boolean DEFAULT true NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "event_checklists" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"event_id" uuid NOT NULL,
@@ -80,6 +99,35 @@ CREATE TABLE "event_contacts" (
 	"contact_email" text,
 	"is_primary" boolean DEFAULT false,
 	"sort_order" integer DEFAULT 0
+);
+--> statement-breakpoint
+CREATE TABLE "event_equipment" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"event_id" uuid NOT NULL,
+	"item_name" text NOT NULL,
+	"quantity" integer NOT NULL,
+	"is_from_template" boolean DEFAULT true NOT NULL,
+	"sort_order" integer DEFAULT 0 NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "event_standard_notes" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"event_id" uuid NOT NULL,
+	"note_id" uuid NOT NULL,
+	"sort_order" integer DEFAULT 0 NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "event_stock" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"event_id" uuid NOT NULL,
+	"item_name" text NOT NULL,
+	"category" "ingredient_category" DEFAULT 'other',
+	"quantity" numeric NOT NULL,
+	"unit" text NOT NULL,
+	"brand" text,
+	"scaling_rule" "event_stock_scaling_rule" DEFAULT 'per_event' NOT NULL,
+	"notes" text,
+	"sort_order" integer DEFAULT 0 NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "events" (
@@ -128,7 +176,17 @@ CREATE TABLE "events" (
 	"notes_custom" text,
 	"outcome_notes" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	"last_alert_sent_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE "standard_notes" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"label" text NOT NULL,
+	"content" text NOT NULL,
+	"is_active" boolean DEFAULT true NOT NULL,
+	"sort_order" integer DEFAULT 0 NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
@@ -142,8 +200,13 @@ CREATE TABLE "users" (
 --> statement-breakpoint
 ALTER TABLE "cocktail_garnishes" ADD CONSTRAINT "cocktail_garnishes_cocktail_id_cocktails_id_fk" FOREIGN KEY ("cocktail_id") REFERENCES "public"."cocktails"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "cocktail_ingredients" ADD CONSTRAINT "cocktail_ingredients_cocktail_id_cocktails_id_fk" FOREIGN KEY ("cocktail_id") REFERENCES "public"."cocktails"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "equipment_template_items" ADD CONSTRAINT "equipment_template_items_template_id_equipment_templates_id_fk" FOREIGN KEY ("template_id") REFERENCES "public"."equipment_templates"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "event_checklists" ADD CONSTRAINT "event_checklists_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "event_cocktails" ADD CONSTRAINT "event_cocktails_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "event_cocktails" ADD CONSTRAINT "event_cocktails_cocktail_id_cocktails_id_fk" FOREIGN KEY ("cocktail_id") REFERENCES "public"."cocktails"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "event_contacts" ADD CONSTRAINT "event_contacts_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "event_equipment" ADD CONSTRAINT "event_equipment_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "event_standard_notes" ADD CONSTRAINT "event_standard_notes_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "event_standard_notes" ADD CONSTRAINT "event_standard_notes_note_id_standard_notes_id_fk" FOREIGN KEY ("note_id") REFERENCES "public"."standard_notes"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "event_stock" ADD CONSTRAINT "event_stock_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "events" ADD CONSTRAINT "events_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;

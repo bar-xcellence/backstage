@@ -13,6 +13,11 @@ interface Cocktail {
   defaultMenuName: string;
   season: string | null;
   isNonAlcoholic: boolean | null;
+  iceType?: string | null;
+  iceAmountG?: number | null;
+  straw?: boolean | null;
+  strawType?: string | null;
+  referenceImageUrl?: string | null;
 }
 
 interface EventCocktailRow {
@@ -93,6 +98,29 @@ export function CocktailSelector({
                   <p className="font-[family-name:var(--font-cormorant)] text-sm italic text-gold-ink/70 mt-0.5">
                     {sc.menuDescription}
                   </p>
+                )}
+                {(sc.cocktail?.iceType || (sc.cocktail?.straw && sc.cocktail?.strawType)) && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {sc.cocktail?.iceType && (
+                      <span className="text-[10px] font-medium tracking-[0.16em] uppercase text-grey bg-cream px-2 py-1">
+                        {sc.cocktail.iceType} ice
+                        {sc.cocktail.iceAmountG ? ` · ${sc.cocktail.iceAmountG}g` : ""}
+                      </span>
+                    )}
+                    {sc.cocktail?.straw && sc.cocktail?.strawType && (
+                      <span className="text-[10px] font-medium tracking-[0.16em] uppercase text-grey bg-cream px-2 py-1">
+                        Straw · {sc.cocktail.strawType}
+                      </span>
+                    )}
+                  </div>
+                )}
+                {sc.cocktail?.referenceImageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={sc.cocktail.referenceImageUrl}
+                    alt={`${sc.menuName} reference`}
+                    className="mt-3 max-w-[180px] border border-outline/15"
+                  />
                 )}
                 <div className="flex items-center gap-4 mt-3">
                   <div>

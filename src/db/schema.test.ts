@@ -50,6 +50,23 @@ describe("Database Schema", () => {
       expect(columns).toContain("parkingInstructions");
       expect(columns).toContain("stationLayoutNotes");
     });
+
+    it("has pop-up bar columns (Spec D)", () => {
+      const columns = Object.keys(events);
+      expect(columns).toContain("popUpBar");
+      expect(columns).toContain("popUpBarSize");
+      expect(columns).toContain("popUpBarBranding");
+    });
+
+    it("has multi-line address columns (Spec G)", () => {
+      const columns = Object.keys(events);
+      expect(columns).toContain("addressLine1");
+      expect(columns).toContain("addressLine2");
+      expect(columns).toContain("city");
+      expect(columns).toContain("postcode");
+      expect(columns).toContain("venueTenant");
+      expect(columns).toContain("cateringPartner");
+    });
   });
 
   describe("cocktails table", () => {
@@ -106,6 +123,11 @@ describe("Database Schema", () => {
       expect(columns).toContain("contactRole");
       expect(columns).toContain("contactPhone");
       expect(columns).toContain("isPrimary");
+    });
+
+    it("has isHost column (Spec C)", () => {
+      const columns = Object.keys(eventContacts);
+      expect(columns).toContain("isHost");
     });
   });
 

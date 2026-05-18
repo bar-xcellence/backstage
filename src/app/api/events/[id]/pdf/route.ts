@@ -14,10 +14,12 @@ import {
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { calculateStock } from "@/lib/stock-calculator";
+import { fetchEventStock } from "@/lib/event-stock-query";
 import { stripPartnerFinancials } from "@/lib/partner-event-sanitisation";
 import { BriefPDF } from "@/lib/pdf/brief-pdf";
 import { TextOnlyBriefPDF } from "@/lib/pdf/text-only-brief-pdf";
 import { renderBriefWithFallback } from "@/lib/pdf/render-brief-with-fallback";
+import { fetchEventStandardNotes } from "@/lib/event-standard-notes-query";
 
 export async function GET(
   request: NextRequest,
@@ -86,6 +88,8 @@ export async function GET(
       })
     );
 
+    const standardNotes = await fetchEventStandardNotes(id);
+
     // Calculate stock
     const totalServes =
       (event.prepaidServes || 0) + (event.cardPaymentServes || 0);
@@ -94,6 +98,10 @@ export async function GET(
       servesAllocated:
         ec.servesAllocated ||
         (cocktailCount > 0 ? Math.floor(totalServes / cocktailCount) : 0),
+      iceAmountG: ec.cocktail?.iceAmountG ?? null,
+      iceType: ec.cocktail?.iceType ?? null,
+      straw: ec.cocktail?.straw ?? null,
+      strawType: ec.cocktail?.strawType ?? null,
       ingredients: ec.ingredients.map((ing) => ({
         ingredientName: ing.ingredientName,
         amount: Number(ing.amount),
@@ -107,7 +115,11 @@ export async function GET(
         quantityUnit: g.quantityUnit || "piece",
       })),
     }));
-    const stock = calculateStock(stockInput);
+    const eventStockItems = await fetchEventStock(id);
+    const stock = calculateStock(stockInput, {
+      eventStockItems,
+      stationCount: event.stationCount,
+    });
 
     const safeEvent =
       session.role === "partner" ? stripPartnerFinancials(event) : event;
@@ -115,11 +127,11 @@ export async function GET(
     const { buffer: pdfBuffer, usedFallback } = await renderBriefWithFallback(
       () =>
         renderToBuffer(
-          BriefPDF({ event: safeEvent, contacts, cocktails: enrichedCocktails, stock })
+          BriefPDF({ event: safeEvent, contacts, cocktails: enrichedCocktails, stock, standardNotes })
         ),
       () =>
         renderToBuffer(
-          TextOnlyBriefPDF({ event: safeEvent, contacts, cocktails: enrichedCocktails, stock })
+          TextOnlyBriefPDF({ event: safeEvent, contacts, cocktails: enrichedCocktails, stock, standardNotes })
         )
     );
 

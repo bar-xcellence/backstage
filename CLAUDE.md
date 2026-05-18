@@ -33,6 +33,57 @@ Bar Excellence's events preparation and dispatch system. Bespoke tool for 3 user
 - Touch targets: minimum 44px height on all interactive elements
 - Colours: use Tailwind tokens (`text-gold`, `bg-charcoal`, `text-cream`, etc.) defined in `globals.css`
 
+### Multi-line address (Spec G)
+`events` gains 6 optional address fields: `addressLine1`, `addressLine2`, `city`, `postcode`, `venueTenant`, `cateringPartner`. `venueName` stays required but now holds the short brand only (e.g. "Aurora", not "Aurora @ Pinsent Masons, 120 Bothwell Street...").
+
+A shared `formatAddressLines()` helper in `src/lib/address-format.ts` composes the structured fields into ordered lines: venueName → `@ tenant` → `catered by partner` → venueHallRoom → line 1 → line 2 → `city, postcode`. Empty fields drop out automatically.
+
+Used by: event detail Location section, summary bar (`city` chip), brief preview, email (multi-line Location section), both PDFs. Form (`event-form.tsx`) captures all 6 new fields; create + update actions persist them.
+
+Seed splits Heathrow and Glasgow addresses into structured fields and drops the `WORKAROUND[address]` comments.
+
+### Batching instructions (Spec E)
+`events.batchingInstructions` was previously read only by `brief-preview.tsx`. Now surfaced on:
+- Event detail Overview (Batching section above Pop-up Bar)
+- Brief email (Batching section between Times and Site Contacts)
+- Both PDFs
+
+Glasgow seed moved pre-pour text from `notesCustom` (where it carried a `WORKAROUND[pre-pour-batching]:` marker) into `batchingInstructions`. No schema change — Option A.
+
+### Pop-up bar (Spec D)
+When `events.popUpBar` is true, `popUpBarSize` (e.g. "3m curved") and `popUpBarBranding` (e.g. "Vinyl banner front branding...") are surfaced on:
+- Event detail summary bar (`page.tsx` — `Pop-up bar · 3m curved`)
+- Event detail Pop-up Bar section (Size + Branding labels)
+- Brief preview, email ("Branding: ..." line under What), both PDFs
+- `popUpBarSupplier` remains for actual supplier name (not branding text)
+
+### Host visibility (Spec C)
+`eventContacts.isHost: boolean` flags the on-site lead (max one per event by convention — no DB constraint, enforced by seed/admin discipline). Surfaced as a prominent "Host: <name>" badge above the rest of the contact list on:
+- Event detail page (`app/(authenticated)/events/[id]/page.tsx` — gold-underlined block)
+- Brief preview (`components/events/brief-preview.tsx` — gold text)
+- Brief email (`lib/brief-email-template.ts` — bold "Host:" prefix above contacts)
+- Both PDFs (`lib/pdf/brief-pdf.tsx`, `lib/pdf/text-only-brief-pdf.tsx`)
+
+### Per-cocktail ice / straw / reference image (Spec H)
+`cocktails.iceType`, `iceAmountG`, `straw`, `strawType`, `referenceImageUrl` are surfaced on all 4 brief surfaces and the cocktails tab:
+- `brief-preview.tsx` — ice/straw lines + `<img>` reference
+- `brief-email-template.ts` — ice/straw lines + `<img>` reference
+- `lib/pdf/brief-pdf.tsx` — ice/straw lines + react-pdf `<Image>` (120×120)
+- `lib/pdf/text-only-brief-pdf.tsx` — ice/straw lines (no image)
+- `components/events/cocktail-selector.tsx` — pill badges + reference image
+
+Brief-surface call sites already enrich `ec.cocktail` (`send-to-lc.ts`, `api/events/[id]/pdf/route.ts`, `actions/brief-preview.ts`); no schema changes needed.
+
+### Equipment scaling rules
+`scalingRuleEnum` (in `src/db/schema.ts`) drives per-template-item scaling via `scaleEquipment()` (`src/lib/equipment-scaler.ts`):
+- `per_station` — multiplied by `stationCount`
+- `per_spirit` — multiplied by distinct spirit count
+- `per_ingredient` — multiplied by distinct ingredient count
+- `per_guest` — multiplied by `guestCount` (e.g. 130 rocks glasses for 130 guests)
+- `fixed` — no multiplication
+
+Callers must pass `{ stationCount, spiritCount, ingredientCount, guestCount }`. `applyTemplate()` (`src/actions/equipment.ts`) takes guestCount as a 6th positional arg.
+
 ### Empty States
 Never show "No items found." — every empty state needs:
 1. Warm heading (Cormorant Garamond)

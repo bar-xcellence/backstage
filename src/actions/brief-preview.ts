@@ -3,12 +3,18 @@
 import { getEvent } from "./events";
 import { getEventCocktails } from "./event-cocktails";
 import { calculateStock } from "@/lib/stock-calculator";
+import { fetchEventStock } from "@/lib/event-stock-query";
 import { requireRole } from "@/lib/session";
+import {
+  fetchEventStandardNotes,
+  type EventStandardNote,
+} from "@/lib/event-standard-notes-query";
 
 export interface BriefPreviewData {
   event: NonNullable<Awaited<ReturnType<typeof getEvent>>>;
   cocktails: Awaited<ReturnType<typeof getEventCocktails>>;
   stock: ReturnType<typeof calculateStock>;
+  standardNotes: EventStandardNote[];
 }
 
 export async function getBriefPreview(
@@ -29,6 +35,10 @@ export async function getBriefPreview(
       servesAllocated:
         ec.servesAllocated ||
         (cocktailCount > 0 ? Math.floor(totalServes / cocktailCount) : 0),
+      iceAmountG: ec.cocktail?.iceAmountG ?? null,
+      iceType: ec.cocktail?.iceType ?? null,
+      straw: ec.cocktail?.straw ?? null,
+      strawType: ec.cocktail?.strawType ?? null,
       ingredients: ec.ingredients.map((ing) => ({
         ingredientName: ing.ingredientName,
         amount: Number(ing.amount),
@@ -44,6 +54,11 @@ export async function getBriefPreview(
     };
   });
 
-  const stock = calculateStock(stockInput);
-  return { event, cocktails, stock };
+  const eventStockItems = await fetchEventStock(eventId);
+  const stock = calculateStock(stockInput, {
+    eventStockItems,
+    stationCount: event.stationCount,
+  });
+  const standardNotes = await fetchEventStandardNotes(eventId);
+  return { event, cocktails, stock, standardNotes };
 }
