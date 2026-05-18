@@ -2,6 +2,7 @@ import React from "react";
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 import type { StockResult } from "@/lib/stock-calculator";
 import { stripWorkaroundMarkers } from "@/lib/notes-sanitization";
+import { formatAddressLines } from "@/lib/address-format";
 import type { EventStandardNote } from "@/lib/event-standard-notes-query";
 
 const s = StyleSheet.create({
@@ -142,8 +143,7 @@ export function BriefPDF({
         {/* 2. Location */}
         <Text style={s.sectionTitle}>Location</Text>
         <Text style={s.text}>
-          {event.venueName as string}
-          {event.venueHallRoom ? `, ${event.venueHallRoom}` : ""}
+          {formatAddressLines(event).join("\n")}
           {"\n"}
           {event.guestCount as number} guests
         </Text>

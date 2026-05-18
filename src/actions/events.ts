@@ -58,6 +58,15 @@ export async function createEvent(
       departTime: (formData.get("departTime") as string) || null,
       venueHallRoom:
         (formData.get("venueHallRoom") as string)?.trim() || null,
+      addressLine1:
+        (formData.get("addressLine1") as string)?.trim() || null,
+      addressLine2:
+        (formData.get("addressLine2") as string)?.trim() || null,
+      city: (formData.get("city") as string)?.trim() || null,
+      postcode: (formData.get("postcode") as string)?.trim() || null,
+      venueTenant: (formData.get("venueTenant") as string)?.trim() || null,
+      cateringPartner:
+        (formData.get("cateringPartner") as string)?.trim() || null,
       installInstructions:
         (formData.get("installInstructions") as string)?.trim() || null,
       parkingInstructions:
@@ -127,6 +136,15 @@ export async function updateEvent(
       departTime: (formData.get("departTime") as string) || null,
       venueHallRoom:
         (formData.get("venueHallRoom") as string)?.trim() || null,
+      addressLine1:
+        (formData.get("addressLine1") as string)?.trim() || null,
+      addressLine2:
+        (formData.get("addressLine2") as string)?.trim() || null,
+      city: (formData.get("city") as string)?.trim() || null,
+      postcode: (formData.get("postcode") as string)?.trim() || null,
+      venueTenant: (formData.get("venueTenant") as string)?.trim() || null,
+      cateringPartner:
+        (formData.get("cateringPartner") as string)?.trim() || null,
       installInstructions:
         (formData.get("installInstructions") as string)?.trim() || null,
       parkingInstructions:

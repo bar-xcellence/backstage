@@ -354,10 +354,12 @@ async function seed() {
       serviceStart: "19:15:00",
       serviceEnd: "20:15:00",
       departTime: "20:30:00",
-      // WORKAROUND[address]: full address jammed into venueName (no multi-line address fields)
-      venueName:
-        "London Hilton Heathrow Airport Terminal 5, Poole Rd, Colnbrook, Heathrow, SL3 0FF",
+      venueName: "London Hilton Heathrow Airport",
       venueHallRoom: "Conference room",
+      addressLine1: "Terminal 5, Poole Rd",
+      addressLine2: "Colnbrook",
+      city: "Heathrow",
+      postcode: "SL3 0FF",
       guestCount: 130,
       eventType: "masterclass",
       serviceType: "cocktails_mocktails",
@@ -473,10 +475,13 @@ async function seed() {
       serviceStart: "18:00:00",
       serviceEnd: "21:00:00",
       departTime: "21:30:00",
-      // WORKAROUND[address]: full address + caterer jammed into venueName
-      venueName:
-        "Aurora @ Pinsent Masons (catered by Lexington Catering), 120 Bothwell Street, Glasgow, G2 7JS",
-      venueHallRoom: "Aurora",
+      venueName: "Aurora",
+      venueHallRoom: null,
+      venueTenant: "Pinsent Masons",
+      cateringPartner: "Lexington Catering",
+      addressLine1: "120 Bothwell Street",
+      city: "Glasgow",
+      postcode: "G2 7JS",
       guestCount: 100,
       eventType: "drinks_reception",
       serviceType: "cocktails_mocktails",

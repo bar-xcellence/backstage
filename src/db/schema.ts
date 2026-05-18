@@ -132,6 +132,12 @@ export const events = pgTable("events", {
   departTime: time("depart_time"),
   venueName: text("venue_name").notNull(),
   venueHallRoom: text("venue_hall_room"),
+  addressLine1: text("address_line_1"),
+  addressLine2: text("address_line_2"),
+  city: text("city"),
+  postcode: text("postcode"),
+  venueTenant: text("venue_tenant"),
+  cateringPartner: text("catering_partner"),
   guestCount: integer("guest_count").notNull(),
 
   // Service configuration

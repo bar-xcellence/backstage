@@ -20,6 +20,7 @@ import { getEventEquipment, getEquipmentTemplates } from "@/actions/equipment";
 import { getStandardNotes, getEventStandardNotes } from "@/actions/standard-notes";
 import { EventEquipment } from "@/components/events/event-equipment";
 import { EventStandardNotes } from "@/components/events/event-standard-notes";
+import { formatAddressLines } from "@/lib/address-format";
 import { STATUS_COLORS, STATUS_ORDER } from "@/lib/constants";
 
 export default async function EventDetailPage({
@@ -175,6 +176,7 @@ export default async function EventDetailPage({
       <div className="flex flex-wrap items-center gap-x-6 gap-y-1 py-4 mb-6 border-b border-outline/15 font-[family-name:var(--font-raleway)] text-[11px] tracking-[0.16em] uppercase text-grey">
         <span>{event.eventDate}</span>
         <span>{event.venueName}</span>
+        {event.city && <span>{event.city}</span>}
         {event.venueHallRoom && <span>{event.venueHallRoom}</span>}
         <span>{event.guestCount} guests</span>
         {event.prepaidServes && <span>{event.prepaidServes} serves</span>}
@@ -245,6 +247,25 @@ export default async function EventDetailPage({
                         {event.departTime}
                       </div>
                     )}
+                  </div>
+                </section>
+              )}
+
+              {/* Location */}
+              {(event.addressLine1 ||
+                event.addressLine2 ||
+                event.city ||
+                event.postcode ||
+                event.venueTenant ||
+                event.cateringPartner) && (
+                <section>
+                  <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
+                    Location
+                  </h2>
+                  <div className="font-[family-name:var(--font-raleway)] text-sm text-gold-ink leading-relaxed space-y-0.5">
+                    {formatAddressLines(event).map((line, i) => (
+                      <p key={i}>{line}</p>
+                    ))}
                   </div>
                 </section>
               )}

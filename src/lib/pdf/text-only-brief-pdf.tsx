@@ -3,6 +3,7 @@ import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { StockResult } from "@/lib/stock-calculator";
 import { stripWorkaroundMarkers } from "@/lib/notes-sanitization";
 import type { EventStandardNote } from "@/lib/event-standard-notes-query";
+import { formatAddressLines } from "@/lib/address-format";
 
 const s = StyleSheet.create({
   page: { padding: 40, fontFamily: "Helvetica", fontSize: 10, color: "#1E1F2E" },
@@ -76,10 +77,7 @@ export function TextOnlyBriefPDF({
 
         <Text style={s.heading}>Event Details</Text>
         <Text style={s.text}>Date: {event.eventDate as string}</Text>
-        <Text style={s.text}>
-          Venue: {event.venueName as string}
-          {event.venueHallRoom ? `, ${event.venueHallRoom}` : ""}
-        </Text>
+        <Text style={s.text}>Venue: {formatAddressLines(event).join(", ")}</Text>
         <Text style={s.text}>Guests: {event.guestCount as number}</Text>
         {event.stationCount ? (
           <Text style={s.text}>Stations: {event.stationCount as number}</Text>

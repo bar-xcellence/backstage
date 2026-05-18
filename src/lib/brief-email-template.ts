@@ -3,6 +3,7 @@ import type { getEventCocktails } from "@/actions/event-cocktails";
 import type { calculateStock } from "@/lib/stock-calculator";
 import { escapeHtml } from "./lc-email";
 import { stripWorkaroundMarkers } from "./notes-sanitization";
+import { formatAddressLines } from "./address-format";
 import type { EventStandardNote } from "./event-standard-notes-query";
 
 type EventWithContacts = NonNullable<Awaited<ReturnType<typeof getEvent>>>;
@@ -130,7 +131,8 @@ export function buildBriefEmailHtml(
 
   const whatContent = `${escapeHtml(event.eventType?.replace("_", " ") ?? "")} — ${escapeHtml(event.serviceType?.replace("_", " / ") ?? "")}<br>${escapeHtml(event.staffCount ?? "TBC")} staff, ${escapeHtml(event.prepaidServes ?? "TBC")} serves, ${escapeHtml(event.stationCount ?? "TBC")} stations${popUpBarLine}${event.flairRequired ? "<br>Flair bartending required" : ""}${event.dryIce ? "<br>Dry ice required" : ""}`;
 
-  const locationContent = `${escapeHtml(event.venueName)}${event.venueHallRoom ? `, ${escapeHtml(event.venueHallRoom)}` : ""}<br>${escapeHtml(event.guestCount)} guests`;
+  const addressLines = formatAddressLines(event);
+  const locationContent = `${addressLines.map((l) => escapeHtml(l)).join("<br>")}<br>${escapeHtml(event.guestCount)} guests`;
 
   const manualItemsContent =
     stock.manualItems.length > 0

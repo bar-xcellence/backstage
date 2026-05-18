@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import type { BriefPreviewData } from "@/actions/brief-preview";
 import { stripWorkaroundMarkers } from "@/lib/notes-sanitization";
+import { formatAddressLines } from "@/lib/address-format";
 import type { EventStandardNote } from "@/lib/event-standard-notes-query";
 
 function Section({
@@ -125,10 +126,11 @@ export function BriefPreview({
 
           {/* Location */}
           <Section title="Location">
-            <p>{event.venueName}</p>
-            {event.venueHallRoom && (
-              <p className="text-cream/50">{event.venueHallRoom}</p>
-            )}
+            {formatAddressLines(event).map((line, i) => (
+              <p key={i} className={i === 0 ? "" : "text-cream/70"}>
+                {line}
+              </p>
+            ))}
           </Section>
 
           {/* Pop-up bar */}

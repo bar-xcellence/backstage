@@ -158,6 +158,42 @@ export function EventForm({
             defaultValue={defaultValues.venueHallRoom}
             placeholder="Hall 4"
           />
+          <FormField
+            label="Address line 1"
+            name="addressLine1"
+            defaultValue={defaultValues.addressLine1}
+            placeholder="Broad St"
+          />
+          <FormField
+            label="Address line 2"
+            name="addressLine2"
+            defaultValue={defaultValues.addressLine2}
+            placeholder=""
+          />
+          <FormField
+            label="City"
+            name="city"
+            defaultValue={defaultValues.city}
+            placeholder="Birmingham"
+          />
+          <FormField
+            label="Postcode"
+            name="postcode"
+            defaultValue={defaultValues.postcode}
+            placeholder="B1 2EA"
+          />
+          <FormField
+            label="Venue tenant"
+            name="venueTenant"
+            defaultValue={defaultValues.venueTenant}
+            placeholder="Hexaware"
+          />
+          <FormField
+            label="Catering partner"
+            name="cateringPartner"
+            defaultValue={defaultValues.cateringPartner}
+            placeholder="Lexington Catering"
+          />
         </div>
       </section>
 

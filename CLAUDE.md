@@ -33,6 +33,15 @@ Bar Excellence's events preparation and dispatch system. Bespoke tool for 3 user
 - Touch targets: minimum 44px height on all interactive elements
 - Colours: use Tailwind tokens (`text-gold`, `bg-charcoal`, `text-cream`, etc.) defined in `globals.css`
 
+### Multi-line address (Spec G)
+`events` gains 6 optional address fields: `addressLine1`, `addressLine2`, `city`, `postcode`, `venueTenant`, `cateringPartner`. `venueName` stays required but now holds the short brand only (e.g. "Aurora", not "Aurora @ Pinsent Masons, 120 Bothwell Street...").
+
+A shared `formatAddressLines()` helper in `src/lib/address-format.ts` composes the structured fields into ordered lines: venueName → `@ tenant` → `catered by partner` → venueHallRoom → line 1 → line 2 → `city, postcode`. Empty fields drop out automatically.
+
+Used by: event detail Location section, summary bar (`city` chip), brief preview, email (multi-line Location section), both PDFs. Form (`event-form.tsx`) captures all 6 new fields; create + update actions persist them.
+
+Seed splits Heathrow and Glasgow addresses into structured fields and drops the `WORKAROUND[address]` comments.
+
 ### Batching instructions (Spec E)
 `events.batchingInstructions` was previously read only by `brief-preview.tsx`. Now surfaced on:
 - Event detail Overview (Batching section above Pop-up Bar)

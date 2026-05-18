@@ -57,6 +57,16 @@ describe("Database Schema", () => {
       expect(columns).toContain("popUpBarSize");
       expect(columns).toContain("popUpBarBranding");
     });
+
+    it("has multi-line address columns (Spec G)", () => {
+      const columns = Object.keys(events);
+      expect(columns).toContain("addressLine1");
+      expect(columns).toContain("addressLine2");
+      expect(columns).toContain("city");
+      expect(columns).toContain("postcode");
+      expect(columns).toContain("venueTenant");
+      expect(columns).toContain("cateringPartner");
+    });
   });
 
   describe("cocktails table", () => {

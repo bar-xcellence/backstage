@@ -228,6 +228,46 @@ describe("buildBriefEmailHtml", () => {
     expect(html).toContain("Specsavers Conference");
   });
 
+  it("renders multi-line address with line breaks when address fields set (Spec G)", () => {
+    const html = buildBriefEmailHtml(
+      {
+        ...baseEvent,
+        venueName: "London Hilton Heathrow",
+        venueHallRoom: "Terminal 5",
+        addressLine1: "Poole Rd",
+        addressLine2: "Colnbrook",
+        city: "Heathrow",
+        postcode: "SL3 0FF",
+        venueTenant: "Hexaware",
+        cateringPartner: "Lexington Catering",
+      } as unknown as Parameters<typeof buildBriefEmailHtml>[0],
+      [],
+      emptyStock,
+      []
+    );
+    expect(html).toContain("London Hilton Heathrow");
+    expect(html).toContain("Terminal 5");
+    expect(html).toContain("Poole Rd");
+    expect(html).toContain("Colnbrook");
+    expect(html).toContain("Heathrow");
+    expect(html).toContain("SL3 0FF");
+    expect(html).toContain("Hexaware");
+    expect(html).toContain("Lexington Catering");
+  });
+
+  it("falls back to venueName only when address fields missing (Spec G)", () => {
+    const html = buildBriefEmailHtml(
+      {
+        ...baseEvent,
+        venueName: "The Old Pub",
+      } as unknown as Parameters<typeof buildBriefEmailHtml>[0],
+      [],
+      emptyStock,
+      []
+    );
+    expect(html).toContain("The Old Pub");
+  });
+
   it("renders batchingInstructions in its own section when set (Spec E)", () => {
     const html = buildBriefEmailHtml(
       {
