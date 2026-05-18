@@ -5,6 +5,7 @@ import { events, eventContacts } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { requireRole } from "@/lib/session";
 import { validateEvent } from "@/lib/event-validation";
+import { stripPartnerFinancials } from "@/lib/partner-event-sanitisation";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { generateChecklist } from "./checklists";
@@ -182,20 +183,11 @@ export async function getEvent(id: string) {
     .where(eq(eventContacts.eventId, id))
     .orderBy(eventContacts.sortOrder);
 
-  // Strip financial data for partner
+  const fullEvent = { ...event, contacts };
   if (session.role === "partner") {
-    return {
-      ...event,
-      invoiceAmount: null,
-      costAmount: null,
-      stockReturnPolicy: null,
-      cardPaymentPrice: null,
-      cardPaymentCommission: null,
-      contacts,
-    };
+    return stripPartnerFinancials(fullEvent);
   }
-
-  return { ...event, contacts };
+  return fullEvent;
 }
 
 export async function listEvents() {
@@ -206,20 +198,12 @@ export async function listEvents() {
     .from(events)
     .orderBy(desc(events.eventDate));
 
-  // Partner: filter to confirmed+ and strip financials
   if (session.role === "partner") {
     allEvents = allEvents
       .filter((e) =>
         ["confirmed", "preparation", "ready", "delivered"].includes(e.status)
       )
-      .map((e) => ({
-        ...e,
-        invoiceAmount: null,
-        costAmount: null,
-        stockReturnPolicy: null,
-        cardPaymentPrice: null,
-        cardPaymentCommission: null,
-      }));
+      .map(stripPartnerFinancials);
   }
 
   return allEvents;

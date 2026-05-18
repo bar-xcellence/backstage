@@ -6,6 +6,17 @@ Repo: bar-xcellence/backstage (to be created)
 Status: APPROVED
 Mode: Startup
 
+---
+
+> **Implementation note (2026-04-28):** Phases 1, 2, and 3 are fully built and on `main`. The decisions made during the Engineering Review (see bottom of this doc) supersede some sections below. Key divergences from the original design text:
+>
+> - **Auth:** Custom magic link with Resend + `iron-session` is what was built — NOT Auth.js v5 and NOT WorkOS. See `src/lib/session.ts` and `src/lib/auth.ts`.
+> - **Role security:** Implemented as app-level checks via `requireRole()` in every Server Action — NOT NeonDB RLS policies or a `events_partner` VIEW. Partner data filtering and financial sanitisation lives in `src/actions/events.ts` and `src/lib/partner-event-sanitisation.ts`.
+> - **Testing:** Vitest only (`src/**/*.test.ts`, Node environment). Playwright is not installed and was removed from `package.json`. E2E coverage is a future milestone.
+> - **Repo:** The git repo exists and is deployed to Vercel. The "not yet a git repo" header line is a doc artifact.
+
+---
+
 ## Problem Statement
 
 Murdo MacLeod, owner of Bar Excellence, creates event briefs manually in Word documents. Each brief takes 30-60 minutes to type from scratch. He then emails them to Rory at Liquor Collective (LC), their bartending partner. This manual process has caused real-world errors, including a missed NEC event where bartender kit details were forgotten, requiring an emergency drive back to site. Backstage replaces this with structured data entry and one-button "Send to LC" dispatch.
@@ -372,7 +383,7 @@ Before any code is written: **Get Murdo's cocktail recipes in a spreadsheet.** E
 | 4 | Send to LC errors | Full error handling (retry, bounce, idempotent, atomic) | Killer feature, design for tired Murdo at 11pm |
 | 5 | Auth DRY | requireRole() helper | Prevents copy-paste role checks across all Server Actions |
 | 6 | Stock calc edges | Handle all edge cases | Division by zero, non-ml units, brand aggregation |
-| 7 | Test framework | Vitest + Playwright | Unit tests for business logic, E2E for 5 critical flows |
+| 7 | Test framework | Vitest (unit only) | Unit tests for business logic in `src/lib/*.test.ts`; Playwright not installed — E2E is a future milestone |
 | 8 | Query pattern | Single JOIN query for stock calc | 10x faster than N+1 over Neon HTTP driver |
 
 ## GSTACK REVIEW REPORT

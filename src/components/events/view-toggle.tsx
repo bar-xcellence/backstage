@@ -1,18 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 type ViewMode = "list" | "kanban";
 
-export function useViewMode(): [ViewMode, (mode: ViewMode) => void] {
-  const [mode, setMode] = useState<ViewMode>("list");
+function readStoredViewMode(): ViewMode {
+  if (typeof window === "undefined") return "list";
+  const stored = window.localStorage.getItem("backstage-events-view");
+  return stored === "kanban" || stored === "list" ? stored : "list";
+}
 
-  useEffect(() => {
-    const stored = localStorage.getItem("backstage-events-view");
-    if (stored === "kanban" || stored === "list") {
-      setMode(stored);
-    }
-  }, []);
+export function useViewMode(): [ViewMode, (mode: ViewMode) => void] {
+  const [mode, setMode] = useState<ViewMode>(readStoredViewMode);
 
   function setViewMode(newMode: ViewMode) {
     setMode(newMode);

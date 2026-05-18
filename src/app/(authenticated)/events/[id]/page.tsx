@@ -6,6 +6,7 @@ import {
   getEventCocktails,
   getAvailableCocktails,
 } from "@/actions/event-cocktails";
+import { canManageEventCocktails } from "@/lib/role-permissions";
 import { calculateStock } from "@/lib/stock-calculator";
 import { EventForm } from "@/components/events/event-form";
 import { EventTabs } from "@/components/events/event-tabs";
@@ -35,7 +36,9 @@ export default async function EventDetailPage({
   if (!event) notFound();
 
   const eventCocktails = await getEventCocktails(id);
-  const availableCocktails = await getAvailableCocktails();
+  const availableCocktails = canManageEventCocktails(session.role)
+    ? await getAvailableCocktails()
+    : [];
   const checklist = isPartner ? [] : await getEventChecklist(id);
   const equipment = await getEventEquipment(id);
   const templates = isPartner ? [] : await getEquipmentTemplates();
@@ -309,6 +312,7 @@ export default async function EventDetailPage({
               eventId={id}
               selectedCocktails={eventCocktails}
               availableCocktails={availableCocktails}
+              isPartner={isPartner}
             />
           ),
 

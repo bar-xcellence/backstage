@@ -8,6 +8,16 @@
 
 ---
 
+> **Implementation note (2026-04-28):** This is the original PRD and specification. The app is fully built (Phases 1–3 on `main`). Some architectural choices described here were revised during engineering review — the implementation uses:
+>
+> - **Custom magic link auth** (Resend + `iron-session`) — NOT WorkOS AuthKit or Auth.js
+> - **App-level role checks** via `requireRole()` — NOT NeonDB RLS policies
+> - **Vitest only** for testing — Playwright is not installed
+>
+> Refer to `CLAUDE.md` and `src/lib/session.ts` for the actual security model.
+
+---
+
 # Part 1: Project Overview
 
 **Backstage** is Bar Excellence's events preparation and dispatch system for the Liquor Collective (LC) partnership. Deliberately separate from the Command Centre for data security. It replaces Murdo's current manual workflow of typing event briefs in Word documents and emailing them to Rory at LC.

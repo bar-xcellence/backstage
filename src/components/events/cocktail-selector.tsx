@@ -29,12 +29,14 @@ interface CocktailSelectorProps {
   eventId: string;
   selectedCocktails: EventCocktailRow[];
   availableCocktails: Cocktail[];
+  isPartner?: boolean;
 }
 
 export function CocktailSelector({
   eventId,
   selectedCocktails,
   availableCocktails,
+  isPartner = false,
 }: CocktailSelectorProps) {
   const [adding, setAdding] = useState(false);
 
@@ -101,10 +103,13 @@ export function CocktailSelector({
                       type="number"
                       defaultValue={sc.servesAllocated ?? ""}
                       placeholder="Auto"
-                      onBlur={(e) =>
-                        handleUpdateServes(sc.id, e.target.value)
+                      readOnly={isPartner}
+                      onBlur={
+                        isPartner
+                          ? undefined
+                          : (e) => handleUpdateServes(sc.id, e.target.value)
                       }
-                      className="w-24 px-2 py-1.5 bg-cream border-b-2 border-outline/15 text-charcoal font-[family-name:var(--font-raleway)] text-sm focus:border-gold focus:outline-none"
+                      className={`w-24 px-2 py-1.5 bg-cream border-b-2 border-outline/15 text-charcoal font-[family-name:var(--font-raleway)] text-sm focus:outline-none ${isPartner ? "cursor-default opacity-70" : "focus:border-gold"}`}
                     />
                   </div>
                   <div>
@@ -115,20 +120,25 @@ export function CocktailSelector({
                       type="number"
                       defaultValue={sc.stationNumber ?? ""}
                       placeholder="—"
-                      onBlur={(e) =>
-                        handleUpdateStation(sc.id, e.target.value)
+                      readOnly={isPartner}
+                      onBlur={
+                        isPartner
+                          ? undefined
+                          : (e) => handleUpdateStation(sc.id, e.target.value)
                       }
-                      className="w-16 px-2 py-1.5 bg-cream border-b-2 border-outline/15 text-charcoal font-[family-name:var(--font-raleway)] text-sm focus:border-gold focus:outline-none"
+                      className={`w-16 px-2 py-1.5 bg-cream border-b-2 border-outline/15 text-charcoal font-[family-name:var(--font-raleway)] text-sm focus:outline-none ${isPartner ? "cursor-default opacity-70" : "focus:border-gold"}`}
                     />
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => handleRemove(sc.id)}
-                className="text-grey hover:text-error text-[11px] font-medium tracking-[0.16em] uppercase transition-colors duration-200 cursor-pointer mt-1"
-              >
-                REMOVE
-              </button>
+              {!isPartner && (
+                <button
+                  onClick={() => handleRemove(sc.id)}
+                  className="text-grey hover:text-error text-[11px] font-medium tracking-[0.16em] uppercase transition-colors duration-200 cursor-pointer mt-1"
+                >
+                  REMOVE
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -168,9 +178,20 @@ export function CocktailSelector({
       )}
 
       {selectedCocktails.length === 0 && unselected.length === 0 && (
-        <p className="font-[family-name:var(--font-raleway)] text-sm text-grey">
-          No cocktails available. Add recipes to the library first.
-        </p>
+        isPartner ? (
+          <div className="py-8">
+            <p className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-2">
+              Cocktail menu pending
+            </p>
+            <p className="font-[family-name:var(--font-raleway)] text-sm text-grey">
+              The cocktail menu hasn&apos;t been finalised yet — check back closer to the event.
+            </p>
+          </div>
+        ) : (
+          <p className="font-[family-name:var(--font-raleway)] text-sm text-grey">
+            No cocktails available. Add recipes to the library first.
+          </p>
+        )
       )}
     </div>
   );
