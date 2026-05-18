@@ -150,6 +150,8 @@ export const events = pgTable("events", {
   // Equipment and setup
   popUpBar: boolean("pop_up_bar").default(false),
   popUpBarSupplier: text("pop_up_bar_supplier"),
+  popUpBarSize: text("pop_up_bar_size"),
+  popUpBarBranding: text("pop_up_bar_branding"),
   dryIce: boolean("dry_ice").default(false),
   menuFrameCount: integer("menu_frame_count"),
   menuNotes: text("menu_notes"),

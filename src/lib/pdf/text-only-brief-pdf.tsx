@@ -87,6 +87,19 @@ export function TextOnlyBriefPDF({
         {event.staffCount ? (
           <Text style={s.text}>Staff: {event.staffCount as number}</Text>
         ) : null}
+        {event.popUpBar ? (
+          <>
+            <Text style={s.text}>
+              Pop-up bar
+              {event.popUpBarSize ? ` — ${event.popUpBarSize as string}` : ""}
+            </Text>
+            {event.popUpBarBranding ? (
+              <Text style={s.text}>
+                Branding: {event.popUpBarBranding as string}
+              </Text>
+            ) : null}
+          </>
+        ) : null}
 
         {(event.arriveTime || event.serviceStart || event.serviceEnd) && (
           <>

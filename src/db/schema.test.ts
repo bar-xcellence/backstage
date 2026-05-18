@@ -50,6 +50,13 @@ describe("Database Schema", () => {
       expect(columns).toContain("parkingInstructions");
       expect(columns).toContain("stationLayoutNotes");
     });
+
+    it("has pop-up bar columns (Spec D)", () => {
+      const columns = Object.keys(events);
+      expect(columns).toContain("popUpBar");
+      expect(columns).toContain("popUpBarSize");
+      expect(columns).toContain("popUpBarBranding");
+    });
   });
 
   describe("cocktails table", () => {

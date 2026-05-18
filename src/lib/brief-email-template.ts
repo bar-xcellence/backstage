@@ -124,7 +124,11 @@ export function buildBriefEmailHtml(
     .filter(Boolean)
     .join("<br>");
 
-  const whatContent = `${escapeHtml(event.eventType?.replace("_", " ") ?? "")} — ${escapeHtml(event.serviceType?.replace("_", " / ") ?? "")}<br>${escapeHtml(event.staffCount ?? "TBC")} staff, ${escapeHtml(event.prepaidServes ?? "TBC")} serves, ${escapeHtml(event.stationCount ?? "TBC")} stations${event.popUpBar ? "<br>Pop-up bar required" : ""}${event.flairRequired ? "<br>Flair bartending required" : ""}${event.dryIce ? "<br>Dry ice required" : ""}`;
+  const popUpBarLine = event.popUpBar
+    ? `<br>Pop-up bar required${event.popUpBarSize ? ` — ${escapeHtml(event.popUpBarSize)}` : ""}${event.popUpBarBranding ? `<br>Branding: ${escapeHtml(event.popUpBarBranding)}` : ""}`
+    : "";
+
+  const whatContent = `${escapeHtml(event.eventType?.replace("_", " ") ?? "")} — ${escapeHtml(event.serviceType?.replace("_", " / ") ?? "")}<br>${escapeHtml(event.staffCount ?? "TBC")} staff, ${escapeHtml(event.prepaidServes ?? "TBC")} serves, ${escapeHtml(event.stationCount ?? "TBC")} stations${popUpBarLine}${event.flairRequired ? "<br>Flair bartending required" : ""}${event.dryIce ? "<br>Dry ice required" : ""}`;
 
   const locationContent = `${escapeHtml(event.venueName)}${event.venueHallRoom ? `, ${escapeHtml(event.venueHallRoom)}` : ""}<br>${escapeHtml(event.guestCount)} guests`;
 

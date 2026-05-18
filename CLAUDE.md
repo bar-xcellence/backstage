@@ -33,6 +33,13 @@ Bar Excellence's events preparation and dispatch system. Bespoke tool for 3 user
 - Touch targets: minimum 44px height on all interactive elements
 - Colours: use Tailwind tokens (`text-gold`, `bg-charcoal`, `text-cream`, etc.) defined in `globals.css`
 
+### Pop-up bar (Spec D)
+When `events.popUpBar` is true, `popUpBarSize` (e.g. "3m curved") and `popUpBarBranding` (e.g. "Vinyl banner front branding...") are surfaced on:
+- Event detail summary bar (`page.tsx` — `Pop-up bar · 3m curved`)
+- Event detail Pop-up Bar section (Size + Branding labels)
+- Brief preview, email ("Branding: ..." line under What), both PDFs
+- `popUpBarSupplier` remains for actual supplier name (not branding text)
+
 ### Host visibility (Spec C)
 `eventContacts.isHost: boolean` flags the on-site lead (max one per event by convention — no DB constraint, enforced by seed/admin discipline). Surfaced as a prominent "Host: <name>" badge above the rest of the contact list on:
 - Event detail page (`app/(authenticated)/events/[id]/page.tsx` — gold-underlined block)

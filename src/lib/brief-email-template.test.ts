@@ -228,6 +228,38 @@ describe("buildBriefEmailHtml", () => {
     expect(html).toContain("Specsavers Conference");
   });
 
+  it("renders pop-up bar size + branding when set (Spec D)", () => {
+    const html = buildBriefEmailHtml(
+      {
+        ...baseEvent,
+        popUpBar: true,
+        popUpBarSize: "3m curved",
+        popUpBarBranding: "Vinyl banner front branding attached seamlessly",
+      } as unknown as Parameters<typeof buildBriefEmailHtml>[0],
+      [],
+      emptyStock,
+      []
+    );
+    expect(html).toContain("3m curved");
+    expect(html).toContain("Vinyl banner front branding attached seamlessly");
+  });
+
+  it("does not render pop-up bar size/branding when popUpBar is false (Spec D)", () => {
+    const html = buildBriefEmailHtml(
+      {
+        ...baseEvent,
+        popUpBar: false,
+        popUpBarSize: "3m curved",
+        popUpBarBranding: "Should not appear",
+      } as unknown as Parameters<typeof buildBriefEmailHtml>[0],
+      [],
+      emptyStock,
+      []
+    );
+    expect(html).not.toContain("3m curved");
+    expect(html).not.toContain("Should not appear");
+  });
+
   it("renders Host: <name> prominently when a contact has isHost=true (Spec C)", () => {
     const html = buildBriefEmailHtml(
       {

@@ -131,6 +131,18 @@ export function BriefPreview({
             )}
           </Section>
 
+          {/* Pop-up bar */}
+          {event.popUpBar && (
+            <Section title="Pop-up Bar">
+              {event.popUpBarSize && <p>Size: {event.popUpBarSize}</p>}
+              {event.popUpBarBranding && (
+                <p className="text-cream/70 mt-1">
+                  Branding: {event.popUpBarBranding}
+                </p>
+              )}
+            </Section>
+          )}
+
           {/* Times */}
           {hasTimes && (
             <Section title="Times">

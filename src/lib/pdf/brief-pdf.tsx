@@ -155,6 +155,15 @@ export function BriefPDF({
           {(event.prepaidServes as number) || "TBC"} serves,{" "}
           {(event.stationCount as number) || "TBC"} stations
         </Text>
+        {event.popUpBar && (
+          <Text style={s.text}>
+            Pop-up bar
+            {event.popUpBarSize ? ` — ${event.popUpBarSize as string}` : ""}
+            {event.popUpBarBranding
+              ? `\nBranding: ${event.popUpBarBranding as string}`
+              : ""}
+          </Text>
+        )}
 
         {/* 4. Times */}
         {(event.arriveTime || event.serviceStart) && (

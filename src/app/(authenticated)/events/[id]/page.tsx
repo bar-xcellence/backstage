@@ -179,6 +179,12 @@ export default async function EventDetailPage({
         <span>{event.guestCount} guests</span>
         {event.prepaidServes && <span>{event.prepaidServes} serves</span>}
         {event.stationCount && <span>{event.stationCount} stations</span>}
+        {event.popUpBar && (
+          <span>
+            Pop-up bar
+            {event.popUpBarSize ? ` · ${event.popUpBarSize}` : ""}
+          </span>
+        )}
         {event.lcSentAt && (
           <span className="text-success">
             SENT TO LC{" "}
@@ -238,6 +244,33 @@ export default async function EventDetailPage({
                         </span>
                         {event.departTime}
                       </div>
+                    )}
+                  </div>
+                </section>
+              )}
+
+              {/* Pop-up bar */}
+              {event.popUpBar && (event.popUpBarSize || event.popUpBarBranding) && (
+                <section>
+                  <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
+                    Pop-up Bar
+                  </h2>
+                  <div className="font-[family-name:var(--font-raleway)] text-sm text-gold-ink leading-relaxed space-y-1">
+                    {event.popUpBarSize && (
+                      <p>
+                        <span className="text-[10px] tracking-[0.18em] uppercase text-grey mr-2">
+                          Size
+                        </span>
+                        {event.popUpBarSize}
+                      </p>
+                    )}
+                    {event.popUpBarBranding && (
+                      <p>
+                        <span className="text-[10px] tracking-[0.18em] uppercase text-grey mr-2">
+                          Branding
+                        </span>
+                        {event.popUpBarBranding}
+                      </p>
                     )}
                   </div>
                 </section>

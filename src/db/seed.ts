@@ -487,8 +487,8 @@ async function seed() {
       staffCount: 3,
       staffNames: "Murdo MacLeod; James McClymont; 3 LC bartenders",
       popUpBar: true,
-      // WORKAROUND[branding]: branding text shoehorned into supplier field
-      popUpBarSupplier: "3m curved, vinyl banner front branding attached seamlessly",
+      popUpBarSize: "3m curved",
+      popUpBarBranding: "Vinyl banner front branding, attached seamlessly to the bar",
       installInstructions:
         "Meet Murdo outside the building at 15:00. Bar in place first, vinyl attached seamlessly. All stock/glassware hidden behind bar out of sight. Loading bay access TBC (updated Tuesday before event).",
       status: "delivered",
