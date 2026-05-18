@@ -49,6 +49,17 @@ export function buildBriefEmailHtml(
               .join(", ")}</em>`
           : "";
 
+      const c = ec.cocktail;
+      const iceLine = c?.iceType
+        ? `<br><span style="font-size: 12px; color: #6B7280;">Ice: ${escapeHtml(c.iceType)}${c.iceAmountG ? ` (${escapeHtml(c.iceAmountG)}g)` : ""}</span>`
+        : "";
+      const strawLine = c?.straw && c.strawType
+        ? `<br><span style="font-size: 12px; color: #6B7280;">Straw: ${escapeHtml(c.strawType)}</span>`
+        : "";
+      const refImage = c?.referenceImageUrl
+        ? `<br><img src="${escapeHtml(c.referenceImageUrl)}" alt="${escapeHtml(ec.menuName)} reference" style="max-width: 240px; margin-top: 8px;">`
+        : "";
+
       return `
     <div style="margin-bottom: 16px;">
       <strong>${escapeHtml(ec.menuName)}</strong>
@@ -57,6 +68,9 @@ export function buildBriefEmailHtml(
       <br>
       ${ingredients}
       ${garnishes}
+      ${iceLine}
+      ${strawLine}
+      ${refImage}
     </div>`;
     })
     .join("");

@@ -133,6 +133,91 @@ describe("buildBriefEmailHtml", () => {
     expect(html).toContain("Brand &lt;test&gt;");
   });
 
+  it("renders per-cocktail ice type when set (Spec H)", () => {
+    const html = buildBriefEmailHtml(
+      baseEvent,
+      [
+        {
+          id: "ec1",
+          menuName: "Clydeport Celebration",
+          menuDescription: null,
+          stationNumber: 1,
+          servesAllocated: 50,
+          cocktail: {
+            iceType: "Crushed",
+            iceAmountG: 200,
+            straw: true,
+            strawType: "Black short cardboard",
+            referenceImageUrl: null,
+          },
+          ingredients: [],
+          garnishes: [],
+        },
+      ] as unknown as Parameters<typeof buildBriefEmailHtml>[1],
+      emptyStock,
+      []
+    );
+    expect(html).toContain("Crushed");
+    expect(html).toContain("Black short cardboard");
+  });
+
+  it("renders per-cocktail reference image when URL set (Spec H)", () => {
+    const html = buildBriefEmailHtml(
+      baseEvent,
+      [
+        {
+          id: "ec1",
+          menuName: "Clockwork Orange",
+          menuDescription: null,
+          stationNumber: null,
+          servesAllocated: 50,
+          cocktail: {
+            iceType: null,
+            iceAmountG: null,
+            straw: false,
+            strawType: null,
+            referenceImageUrl: "https://example.com/clockwork.jpg",
+          },
+          ingredients: [],
+          garnishes: [],
+        },
+      ] as unknown as Parameters<typeof buildBriefEmailHtml>[1],
+      emptyStock,
+      []
+    );
+    expect(html).toContain("https://example.com/clockwork.jpg");
+    expect(html).toContain("<img");
+  });
+
+  it("omits ice/straw lines when fields are absent (Spec H)", () => {
+    const html = buildBriefEmailHtml(
+      baseEvent,
+      [
+        {
+          id: "ec1",
+          menuName: "No-frills Cocktail",
+          menuDescription: null,
+          stationNumber: null,
+          servesAllocated: 50,
+          cocktail: {
+            iceType: null,
+            iceAmountG: null,
+            straw: false,
+            strawType: null,
+            referenceImageUrl: null,
+          },
+          ingredients: [],
+          garnishes: [],
+        },
+      ] as unknown as Parameters<typeof buildBriefEmailHtml>[1],
+      emptyStock,
+      []
+    );
+    expect(html).not.toContain("Ice:");
+    expect(html).not.toContain("Straw:");
+    expect(html).not.toContain("<img");
+  });
+
   it("still includes safe strings verbatim (sanity check)", () => {
     const html = buildBriefEmailHtml(
       { ...baseEvent, eventName: "Specsavers Conference" },

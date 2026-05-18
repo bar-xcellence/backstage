@@ -1,5 +1,5 @@
 import React from "react";
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 import type { StockResult } from "@/lib/stock-calculator";
 import { stripWorkaroundMarkers } from "@/lib/notes-sanitization";
 import type { EventStandardNote } from "@/lib/event-standard-notes-query";
@@ -101,6 +101,13 @@ interface BriefPDFProps {
     stationNumber: number | null;
     ingredients: Array<Record<string, unknown>>;
     garnishes: Array<Record<string, unknown>>;
+    cocktail?: {
+      iceType?: string | null;
+      iceAmountG?: number | null;
+      straw?: boolean | null;
+      strawType?: string | null;
+      referenceImageUrl?: string | null;
+    } | null;
   }>;
   stock: StockResult;
   standardNotes: EventStandardNote[];
@@ -207,6 +214,21 @@ export function BriefPDF({
                     {ing.brand ? ` (${ing.brand})` : ""}
                   </Text>
                 ))}
+                {c.cocktail?.iceType && (
+                  <Text style={s.text}>
+                    Ice: {c.cocktail.iceType}
+                    {c.cocktail.iceAmountG ? ` (${c.cocktail.iceAmountG}g)` : ""}
+                  </Text>
+                )}
+                {c.cocktail?.straw && c.cocktail.strawType && (
+                  <Text style={s.text}>Straw: {c.cocktail.strawType}</Text>
+                )}
+                {c.cocktail?.referenceImageUrl && (
+                  <Image
+                    src={c.cocktail.referenceImageUrl}
+                    style={{ width: 120, height: 120, marginTop: 4 }}
+                  />
+                )}
               </View>
             ))}
           </>

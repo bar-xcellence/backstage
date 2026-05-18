@@ -239,6 +239,27 @@ export function BriefPreview({
                         ))}
                       </ul>
                     )}
+                    {ec.cocktail?.iceType && (
+                      <p className="text-cream/50 text-xs mt-1">
+                        Ice: {ec.cocktail.iceType}
+                        {ec.cocktail.iceAmountG
+                          ? ` (${ec.cocktail.iceAmountG}g)`
+                          : ""}
+                      </p>
+                    )}
+                    {ec.cocktail?.straw && ec.cocktail.strawType && (
+                      <p className="text-cream/50 text-xs">
+                        Straw: {ec.cocktail.strawType}
+                      </p>
+                    )}
+                    {ec.cocktail?.referenceImageUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={ec.cocktail.referenceImageUrl}
+                        alt={`${ec.menuName} reference`}
+                        className="mt-2 max-w-[200px] border border-cream/10"
+                      />
+                    )}
                   </div>
                 ))}
               </div>

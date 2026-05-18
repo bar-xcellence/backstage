@@ -40,6 +40,12 @@ interface TextOnlyBriefPDFProps {
     stationNumber: number | null;
     ingredients: Array<Record<string, unknown>>;
     garnishes: Array<Record<string, unknown>>;
+    cocktail?: {
+      iceType?: string | null;
+      iceAmountG?: number | null;
+      straw?: boolean | null;
+      strawType?: string | null;
+    } | null;
   }>;
   stock: StockResult;
   standardNotes: EventStandardNote[];
@@ -156,6 +162,16 @@ export function TextOnlyBriefPDF({
                     {`- ${g.quantity as number} ${g.quantityUnit as string} ${g.garnishName as string} (garnish)`}
                   </Text>
                 ))}
+                {c.cocktail?.iceType && (
+                  <Text style={s.indent}>
+                    {`- Ice: ${c.cocktail.iceType}${c.cocktail.iceAmountG ? ` (${c.cocktail.iceAmountG}g)` : ""}`}
+                  </Text>
+                )}
+                {c.cocktail?.straw && c.cocktail.strawType && (
+                  <Text style={s.indent}>
+                    {`- Straw: ${c.cocktail.strawType}`}
+                  </Text>
+                )}
               </View>
             ))}
           </>
