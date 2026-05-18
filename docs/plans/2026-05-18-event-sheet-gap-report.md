@@ -360,7 +360,7 @@ Cluster related gaps into the smallest sensible specs:
 
 - **Spec A: Stock-list completeness (foamer, ice, straws, substitutes, per-station consumables)** — closes `per-station-stock`, `ice-types`, `substitution-stock`, and the straws part of `per-guest-equipment`. Introduces (a) `scalingRule: per_station | per_event | fixed` for stock items, (b) `cocktails.iceAmountG` aggregated into stock with type breakdown, (c) `eventStock` table or per-recipe sub-stock for substitution bottles, and (d) `strawType` feeding a stock garnish row. Estimated scope: **L**. *(Highest blocker concentration — 5+ blockers across both events.)*
 
-- **Spec B: Standard notes + attire reach LC** — closes the "standard notes not rendered in email/PDF" + "attire hard-coded" blockers. Refactor `brief-email-template.ts`, `brief-pdf.tsx`, and `brief-preview.tsx` to read the linked `eventStandardNotes` set (label + content) and remove the hard-coded attire string. Estimated scope: **S**.
+- ✓ **Spec B: Standard notes + attire reach LC** — closes the "standard notes not rendered in email/PDF" + "attire hard-coded" blockers. Refactored `brief-email-template.ts`, `brief-pdf.tsx`, `text-only-brief-pdf.tsx`, and `brief-preview.tsx` to read the linked `eventStandardNotes` set (label + content); hard-coded attire string removed. **Done** on `feat/real-event-seed-and-gap-report` (commits `f98019b` → `dea951d`; spec `docs/superpowers/specs/2026-05-18-brief-notes-standardization-design.md`).
 
 - **Spec C: Host + staff visibility** — closes `host`. Introduce `eventContacts.isHost: boolean` (or a `host` role on the existing `contactRole` text field's enum) and surface "Host: Murdo MacLeod" prominently on the event detail page + brief preview + email + PDF. Alternative: add `events.hostName: text`. Estimated scope: **S**.
 
@@ -368,7 +368,7 @@ Cluster related gaps into the smallest sensible specs:
 
 - **Spec E: Pre-pour batching + intermediate timings** — closes `pre-pour-batching`. Either (a) repurpose `batchingInstructions` and ensure the seed uses it, **plus** surface it on event detail page + email + PDF (currently only brief-preview reads it), or (b) introduce a structured `eventTimings` table with arbitrary labeled milestones (e.g. "Stations set", "Pre-pour bar top"). Estimated scope: **S** for option (a), **M** for (b).
 
-- **Spec F: notesCustom hygiene + workaround tokenization** — closes the `WORKAROUND[...]` leak to LC. Either strip markers before rendering (cheap), or move workarounds to a separate `outcomeNotes`-style internal-only field. Estimated scope: **XS**.
+- ✓ **Spec F: notesCustom hygiene + workaround tokenization** — closes the `WORKAROUND[...]` leak to LC. Implemented as a render-time `stripWorkaroundMarkers()` regex util applied across brief email, PDF, and preview surfaces; seed markers stay in DB for traceability. **Done** alongside Spec B in the same commit range (`f98019b` → `dea951d`; spec `docs/superpowers/specs/2026-05-18-brief-notes-standardization-design.md`).
 
 - **Spec G: Multi-line address + tenant/caterer fields** — closes `address`. Add `events.addressLine1`, `addressLine2`, `city`, `postcode`, and optional `venueTenant`, `cateringPartner`. Migrate `venueName` to short brand only. Estimated scope: **M** (touches forms, summary bar, brief surfaces).
 
@@ -378,7 +378,7 @@ Cluster related gaps into the smallest sensible specs:
 
 - **Spec J (deferred):** `tbc-fields`, `plastic-box-qty` — accept as-is for now; revisit only if Murdo asks for provisional UX.
 
-Recommended order: B (cheap, big LC-facing win) → F (cheap, removes leak) → A (the big stock spec) → C, D, E, G in parallel by domain.
+Recommended order: ~~B~~ ✓ → ~~F~~ ✓ → A (the big stock spec) → C, D, E, G in parallel by domain.
 
 ## Source PDF discrepancies noted in cocktail recipes
 
