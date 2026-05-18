@@ -324,6 +324,136 @@ describe("Stock Calculator", () => {
     expect(result.straws).toHaveLength(2);
   });
 
+  it("resolves per_event eventStockItems with no multiplier", () => {
+    const result = calculateStock([espressoMartini], {
+      eventStockItems: [
+        {
+          itemName: "Non-alcoholic Gin",
+          category: "spirit",
+          quantity: 4,
+          unit: "bottle",
+          brand: null,
+          scalingRule: "per_event",
+        },
+      ],
+    });
+    expect(result.consumables).toHaveLength(1);
+    expect(result.consumables[0]).toEqual({
+      itemName: "Non-alcoholic Gin",
+      brand: null,
+      category: "spirit",
+      totalQuantity: 4,
+      unit: "bottle",
+    });
+  });
+
+  it("multiplies per_station eventStockItems by stationCount", () => {
+    const result = calculateStock([espressoMartini], {
+      eventStockItems: [
+        {
+          itemName: "Miraculous Foamer",
+          category: "foamer",
+          quantity: 1,
+          unit: "bottle",
+          brand: null,
+          scalingRule: "per_station",
+        },
+      ],
+      stationCount: 13,
+    });
+    expect(result.consumables[0].totalQuantity).toBe(13);
+  });
+
+  it("warns when per_station eventStock has null stationCount", () => {
+    const result = calculateStock([espressoMartini], {
+      eventStockItems: [
+        {
+          itemName: "Miraculous Foamer",
+          category: "foamer",
+          quantity: 1,
+          unit: "bottle",
+          brand: null,
+          scalingRule: "per_station",
+        },
+      ],
+    });
+    expect(result.warnings).toContain(
+      "'Miraculous Foamer' is per_station but stationCount is null — treating as per_event"
+    );
+    expect(result.consumables[0].totalQuantity).toBe(1);
+  });
+
+  it("suppresses manualItems whose name matches an eventStock entry", () => {
+    const result = calculateStock(
+      [
+        {
+          servesAllocated: 130,
+          ingredients: [
+            {
+              ingredientName: "Miraculous Foamer",
+              amount: 3,
+              unit: "drops" as const,
+              brand: null,
+              ingredientCategory: "foamer" as const,
+            },
+          ],
+          garnishes: [],
+        },
+      ],
+      {
+        eventStockItems: [
+          {
+            itemName: "Miraculous Foamer",
+            category: "foamer",
+            quantity: 1,
+            unit: "bottle",
+            brand: null,
+            scalingRule: "per_station",
+          },
+        ],
+        stationCount: 13,
+      }
+    );
+    // Foamer as drops gets suppressed; only the consumable row remains
+    expect(result.manualItems).toHaveLength(0);
+    expect(result.consumables).toHaveLength(1);
+    expect(result.consumables[0].totalQuantity).toBe(13);
+  });
+
+  it("suppresses garnishes whose name matches an eventStock entry", () => {
+    const result = calculateStock(
+      [
+        {
+          servesAllocated: 130,
+          ingredients: [],
+          garnishes: [
+            {
+              garnishName: "Edible Gold Duster Spray",
+              quantity: 1,
+              quantityUnit: "spray",
+            },
+          ],
+        },
+      ],
+      {
+        eventStockItems: [
+          {
+            itemName: "Edible Gold Duster Spray",
+            category: "other",
+            quantity: 1,
+            unit: "pack",
+            brand: null,
+            scalingRule: "per_station",
+          },
+        ],
+        stationCount: 13,
+      }
+    );
+    expect(result.garnishes).toHaveLength(0);
+    expect(result.consumables[0].unit).toBe("pack");
+    expect(result.consumables[0].totalQuantity).toBe(13);
+  });
+
   it("rounds purchase units UP (ceiling)", () => {
     const result = calculateStock([
       {
