@@ -4,11 +4,16 @@ import { getEvent } from "./events";
 import { getEventCocktails } from "./event-cocktails";
 import { calculateStock } from "@/lib/stock-calculator";
 import { requireRole } from "@/lib/session";
+import {
+  fetchEventStandardNotes,
+  type EventStandardNote,
+} from "@/lib/event-standard-notes-query";
 
 export interface BriefPreviewData {
   event: NonNullable<Awaited<ReturnType<typeof getEvent>>>;
   cocktails: Awaited<ReturnType<typeof getEventCocktails>>;
   stock: ReturnType<typeof calculateStock>;
+  standardNotes: EventStandardNote[];
 }
 
 export async function getBriefPreview(
@@ -45,5 +50,6 @@ export async function getBriefPreview(
   });
 
   const stock = calculateStock(stockInput);
-  return { event, cocktails, stock };
+  const standardNotes = await fetchEventStandardNotes(eventId);
+  return { event, cocktails, stock, standardNotes };
 }
