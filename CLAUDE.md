@@ -4,12 +4,12 @@ Bar Excellence's events preparation and dispatch system. Bespoke tool for 3 user
 
 ## Quick Reference
 
-- **Stack:** Next.js 16.2 App Router, React 19, TypeScript 5, Tailwind v4, Drizzle ORM, NeonDB, Resend, Vitest
+- **Stack:** Next.js 16.2 App Router, React 19, TypeScript 5, Tailwind v4, Drizzle ORM, NeonDB, Resend, Vitest, Playwright
 - **Design system:** Reserve Noir — see `stitch_backstage_events_dashboard/reserve_noir/DESIGN.md`
 - **Auth:** Custom magic link (Resend + iron-session), NOT Auth.js. See `src/lib/session.ts`
 - **Role check:** Always use `requireRole()` from `src/lib/session.ts` in every server action
 - **Schema:** `src/db/schema.ts` — single source of truth for all tables
-- **Tests:** `npm run test -- --run` (Vitest, `src/**/*.test.ts`)
+- **Tests:** `npm run test -- --run` (Vitest, `src/**/*.test.ts`); `npm run test:e2e` (Playwright, `e2e/*.spec.ts` — boots `next start -p 3100` with `ENABLE_TEST_AUTH=true`)
 - **Build:** `npm run build` (must pass before shipping)
 
 ## Project Docs
