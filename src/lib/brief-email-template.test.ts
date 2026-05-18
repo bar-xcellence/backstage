@@ -41,7 +41,8 @@ describe("buildBriefEmailHtml", () => {
     const html = buildBriefEmailHtml(
       { ...baseEvent, eventName: "Johnson & Johnson Gala" },
       [],
-      emptyStock
+      emptyStock,
+      []
     );
     expect(html).toContain("Johnson &amp; Johnson Gala");
     expect(html).not.toContain("Johnson & Johnson Gala");
@@ -54,7 +55,8 @@ describe("buildBriefEmailHtml", () => {
         venueName: `O'Hara <"Catering"> & Sons`,
       },
       [],
-      emptyStock
+      emptyStock,
+      []
     );
     expect(html).toContain("O&#39;Hara &lt;&quot;Catering&quot;&gt; &amp; Sons");
   });
@@ -66,7 +68,8 @@ describe("buildBriefEmailHtml", () => {
         notesCustom: "Line 1 <b>bold</b>\nLine 2 & more",
       },
       [],
-      emptyStock
+      emptyStock,
+      []
     );
     expect(html).toContain(
       "Line 1 &lt;b&gt;bold&lt;/b&gt;<br>Line 2 &amp; more"
@@ -88,7 +91,8 @@ describe("buildBriefEmailHtml", () => {
         ],
       },
       [],
-      emptyStock
+      emptyStock,
+      []
     );
     expect(html).toContain("Alice &lt;admin&gt;");
     expect(html).toContain("Chef &amp; Owner");
@@ -117,7 +121,8 @@ describe("buildBriefEmailHtml", () => {
           garnishes: [],
         },
       ] as unknown as Parameters<typeof buildBriefEmailHtml>[1],
-      emptyStock
+      emptyStock,
+      []
     );
     expect(html).toContain("G&amp;T Special");
     expect(html).toContain("Refreshing &lt;twist&gt;");
@@ -129,8 +134,50 @@ describe("buildBriefEmailHtml", () => {
     const html = buildBriefEmailHtml(
       { ...baseEvent, eventName: "Specsavers Conference" },
       [],
-      emptyStock
+      emptyStock,
+      []
     );
     expect(html).toContain("Specsavers Conference");
+  });
+
+  it("renders standard notes as Attire-style sections when provided", () => {
+    const html = buildBriefEmailHtml(
+      baseEvent,
+      [],
+      emptyStock,
+      [
+        {
+          label: "Attire",
+          content:
+            "All extended team must arrive to site already in set attire:\n- Black bow ties\n- Black waistcoats",
+        },
+        {
+          label: "Problem Escalation",
+          content: "Call Murdo first, not the venue.",
+        },
+      ]
+    );
+    expect(html).toContain("Attire");
+    expect(html).toContain("Black bow ties");
+    expect(html).toContain("Black waistcoats");
+    expect(html).toContain("Problem Escalation");
+    expect(html).toContain("Call Murdo first");
+  });
+
+  it("omits the standard notes block entirely when none are attached", () => {
+    const html = buildBriefEmailHtml(baseEvent, [], emptyStock, []);
+    expect(html).not.toContain("Black waistcoat, black bow tie");
+  });
+
+  it("strips WORKAROUND[id]: prefixes from notesCustom before rendering", () => {
+    const eventWithMarkers = {
+      ...baseEvent,
+      notesCustom:
+        "Real note for LC.\n\nWORKAROUND[substitution-stock]: 4 bottles non-alc gin.",
+    };
+    const html = buildBriefEmailHtml(eventWithMarkers, [], emptyStock, []);
+    expect(html).not.toContain("WORKAROUND[");
+    expect(html).toContain("Real note for LC.");
+    expect(html).toContain("4 bottles non-alc gin.");
   });
 });

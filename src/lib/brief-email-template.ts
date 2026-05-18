@@ -2,6 +2,8 @@ import type { getEvent } from "@/actions/events";
 import type { getEventCocktails } from "@/actions/event-cocktails";
 import type { calculateStock } from "@/lib/stock-calculator";
 import { escapeHtml } from "./lc-email";
+import { stripWorkaroundMarkers } from "./notes-sanitization";
+import type { EventStandardNote } from "./event-standard-notes-query";
 
 type EventWithContacts = NonNullable<Awaited<ReturnType<typeof getEvent>>>;
 type EventCocktails = Awaited<ReturnType<typeof getEventCocktails>>;
@@ -10,7 +12,8 @@ type Stock = ReturnType<typeof calculateStock>;
 export function buildBriefEmailHtml(
   event: EventWithContacts,
   eventCocktails: EventCocktails,
-  stock: Stock
+  stock: Stock,
+  standardNotes: EventStandardNote[]
 ): string {
   const section = (title: string, content: string) =>
     content
@@ -72,9 +75,6 @@ export function buildBriefEmailHtml(
     )
     .join("<br>");
 
-  const attireDefault =
-    "Black waistcoat, black bow tie, white ironed shirt, smart black trousers, polished black leather shoes. Arrive in serving attire.";
-
   const contactsHtml =
     event.contacts && event.contacts.length > 0
       ? event.contacts
@@ -118,8 +118,14 @@ export function buildBriefEmailHtml(
           .join("<br>")
       : "";
 
+  const standardNotesHtml = standardNotes
+    .map((n) =>
+      section(n.label, escapeHtml(n.content).replace(/\n/g, "<br>"))
+    )
+    .join("");
+
   const notesContent = event.notesCustom
-    ? escapeHtml(event.notesCustom).replace(/\n/g, "<br>")
+    ? escapeHtml(stripWorkaroundMarkers(event.notesCustom)).replace(/\n/g, "<br>")
     : "";
 
   return `
@@ -149,7 +155,7 @@ export function buildBriefEmailHtml(
           ${section("Cocktails and Specs", cocktailsHtml)}
           ${section("Stock List", stockHtml + (garnishHtml ? `<br><br><strong>Garnishes:</strong><br>${garnishHtml}` : ""))}
           ${section("Manual Items", manualItemsContent)}
-          ${section("Attire", attireDefault)}
+          ${standardNotesHtml}
           ${section("Notes", notesContent)}
         </table>
       </td>
