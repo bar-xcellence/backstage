@@ -39,14 +39,22 @@ async function seed() {
 
   // ── Users ──────────────────────────────────────────
   console.log("Seeding users...");
-  await db
+  const insertedUsers = await db
     .insert(users)
     .values([
       { email: "murdo@bar-excellence.app", name: "Murdo", role: "owner" },
       { email: "rob@roberthayford.com", name: "Rob", role: "super_admin" },
       { email: "rory@lc-group.com", name: "Rory", role: "partner" },
     ])
-    .onConflictDoNothing();
+    .onConflictDoNothing()
+    .returning({ id: users.id, email: users.email });
+
+  // On re-runs onConflictDoNothing returns []. Fetch existing rows instead.
+  const allUsers = insertedUsers.length
+    ? insertedUsers
+    : await db.select({ id: users.id, email: users.email }).from(users);
+  const userIdByEmail = new Map(allUsers.map((u) => [u.email, u.id]));
+  const murdoId = userIdByEmail.get("murdo@bar-excellence.app")!;
 
   // ── Cocktails ──────────────────────────────────────
   console.log("Seeding cocktails...");
@@ -328,6 +336,125 @@ async function seed() {
     );
     console.log(`  ✓ ${tmpl.name} (${items.length} items)`);
   }
+
+  // ── Events ─────────────────────────────────────────
+  console.log("Seeding events...");
+
+  // ── Event 1: Heathrow Masterclass ──
+  const [heathrow] = await db
+    .insert(events)
+    .values({
+      createdBy: murdoId,
+      eventName: "Hexaware Cocktail Masterclass",
+      eventDate: "2026-05-15",
+      arriveTime: "16:00:00",
+      setupDeadline: "18:45:00",
+      serviceStart: "19:15:00",
+      serviceEnd: "20:15:00",
+      departTime: "20:30:00",
+      // WORKAROUND[address]: full address jammed into venueName (no multi-line address fields)
+      venueName:
+        "London Hilton Heathrow Airport Terminal 5, Poole Rd, Colnbrook, Heathrow, SL3 0FF",
+      venueHallRoom: "Conference room",
+      guestCount: 130,
+      eventType: "masterclass",
+      serviceType: "cocktails_mocktails",
+      prepaidServes: 260,
+      stationCount: 13,
+      stationLayoutNotes:
+        "13 tables of 10 guests. Each table: 8 glass bottles + foamer + garnishes + ice bucket + scoop + pre-cut garnish plate.",
+      staffCount: 4,
+      // WORKAROUND[host]: no host/lead flag — host noted inline
+      staffNames: "Murdo MacLeod (host); LC supplies 4 cocktail bartenders",
+      installInstructions:
+        "Trolley required. Sealed boxes only — no bags or open boxes. Meet Murdo at hotel loading bay at 16:00. Setup complete by 18:45 for 19:15 guest arrival.",
+      status: "delivered",
+      notesCustom: [
+        "60-minute masterclass format, 2 cocktails per guest (one of each menu item).",
+        "",
+        "WORKAROUND[substitution-stock]: Substitution stock not in any recipe — 4 bottles non-alcoholic gin, 4 bottles non-alcoholic spiced rum (Captain Morgan Non Alco Spiced recommended).",
+        "",
+        "WORKAROUND[per-station-stock]: Per-table consumables not in per-serve calculator — 13 packs edible gold duster spray, 13 bottles miraculous foamer.",
+      ].join("\n"),
+      lcRecipient: "Rory",
+    })
+    .returning({ id: events.id });
+
+  await db.insert(eventContacts).values([
+    {
+      eventId: heathrow.id,
+      contactName: "Murdo MacLeod",
+      contactRole: "Host (Bar Excellence)",
+      contactPhone: "07882084422",
+      isPrimary: true,
+      sortOrder: 0,
+    },
+    {
+      eventId: heathrow.id,
+      contactName: "Nafisa Ali",
+      contactRole: "Venue",
+      contactEmail: "nafisa.ali@hilton.com",
+      sortOrder: 1,
+    },
+    {
+      eventId: heathrow.id,
+      contactName: "Prakharg Ghildyal",
+      contactRole: "Client (Hexaware)",
+      contactPhone: "+447776651243",
+      contactEmail: "prakharg@hexaware.com",
+      sortOrder: 2,
+    },
+  ]);
+
+  await db.insert(eventCocktails).values([
+    {
+      eventId: heathrow.id,
+      cocktailId: cocktailIdByName.get("Spiced Passionstar")!,
+      menuName: "Spiced Passionstar",
+      menuDescription:
+        "Spiced rum, passionfruit, freshly squeezed lemon, pineapple & glistening with edible glitter",
+      servesAllocated: 130,
+      sortOrder: 0,
+    },
+    {
+      eventId: heathrow.id,
+      cocktailId: cocktailIdByName.get("Springtime Clover Club")!,
+      menuName: "Springtime Clover Club",
+      menuDescription:
+        "Gin, raspberries, mint, freshly squeezed lemon, elderflower & cloudy apple",
+      servesAllocated: 130,
+      sortOrder: 1,
+    },
+  ]);
+
+  // WORKAROUND[per-guest-equipment]: 140 rocks/coupes/shakers = 130 guests + 10 spare.
+  // No per_guest scaling rule in the enum, so all entered as fixed quantities.
+  // WORKAROUND[plastic-box-qty]: PDF doesn't specify count for plastic boxes — picked 6 as judgement call.
+  await db.insert(eventEquipment).values([
+    { eventId: heathrow.id, itemName: "Glass bottles (labelled, on tables)", quantity: 110, isFromTemplate: false, sortOrder: 0 },
+    { eventId: heathrow.id, itemName: "Pens for labels", quantity: 4, isFromTemplate: false, sortOrder: 1 },
+    { eventId: heathrow.id, itemName: "Sticky labels (pack)", quantity: 1, isFromTemplate: false, sortOrder: 2 },
+    { eventId: heathrow.id, itemName: "Ice bucket", quantity: 13, isFromTemplate: true, sortOrder: 3 },
+    { eventId: heathrow.id, itemName: "Ice scoop", quantity: 13, isFromTemplate: true, sortOrder: 4 },
+    { eventId: heathrow.id, itemName: "Fruit plate", quantity: 13, isFromTemplate: true, sortOrder: 5 },
+    { eventId: heathrow.id, itemName: "Fruit knife", quantity: 3, isFromTemplate: false, sortOrder: 6 },
+    { eventId: heathrow.id, itemName: "Chopping board", quantity: 3, isFromTemplate: false, sortOrder: 7 },
+    { eventId: heathrow.id, itemName: "Rocks glass", quantity: 140, isFromTemplate: false, sortOrder: 8 },
+    { eventId: heathrow.id, itemName: "Coupe glass", quantity: 140, isFromTemplate: false, sortOrder: 9 },
+    { eventId: heathrow.id, itemName: "Plastic shaker (3-piece)", quantity: 140, isFromTemplate: false, sortOrder: 10 },
+    { eventId: heathrow.id, itemName: "Brush and dustpan", quantity: 1, isFromTemplate: true, sortOrder: 11 },
+    { eventId: heathrow.id, itemName: "Trolley", quantity: 1, isFromTemplate: false, sortOrder: 12 },
+    { eventId: heathrow.id, itemName: "Large plastic box with lid", quantity: 6, isFromTemplate: false, sortOrder: 13 },
+  ]);
+
+  await db.insert(eventStandardNotes).values([
+    { eventId: heathrow.id, noteId: noteIdByLabel.get("Attire")!, sortOrder: 0 },
+    { eventId: heathrow.id, noteId: noteIdByLabel.get("Problem Escalation")!, sortOrder: 1 },
+    { eventId: heathrow.id, noteId: noteIdByLabel.get("Stock Movement")!, sortOrder: 2 },
+    { eventId: heathrow.id, noteId: noteIdByLabel.get("On-Site Washing")!, sortOrder: 3 },
+  ]);
+
+  console.log("  ✓ Heathrow Masterclass (2026-05-15)");
 
   console.log("\nSeed complete!");
 }
