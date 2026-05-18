@@ -320,6 +320,52 @@ async function seed() {
   const noteIdByLabel = new Map(insertedNotes.map((n) => [n.label, n.id]));
   console.log(`  ✓ ${insertedNotes.length} standard notes`);
 
+  // ── Equipment Templates ────────────────────────────
+  console.log("Seeding equipment templates...");
+
+  const equipmentTemplatesData = [
+    {
+      name: "Bartender Kit",
+      description: "Per-station bartender toolkit; scales with stationCount.",
+      items: [
+        { itemName: "Speedpour", baseQuantity: 6, scalingRule: "per_station" as const, sortOrder: 0 },
+        { itemName: "Fruit knife", baseQuantity: 1, scalingRule: "per_station" as const, sortOrder: 1 },
+        { itemName: "Chopping board", baseQuantity: 1, scalingRule: "per_station" as const, sortOrder: 2 },
+        { itemName: "Cocktail shaker (3-piece)", baseQuantity: 1, scalingRule: "per_station" as const, sortOrder: 3 },
+        { itemName: "Hawthorn strainer", baseQuantity: 1, scalingRule: "per_station" as const, sortOrder: 4 },
+        { itemName: "Fine strainer", baseQuantity: 1, scalingRule: "per_station" as const, sortOrder: 5 },
+        { itemName: "Squeeze bottle", baseQuantity: 4, scalingRule: "per_station" as const, sortOrder: 6 },
+        { itemName: "Bar spoon", baseQuantity: 1, scalingRule: "per_station" as const, sortOrder: 7 },
+      ],
+    },
+    {
+      name: "Service Setup",
+      description: "Core event setup — bins, first aid, menu, ice service.",
+      items: [
+        { itemName: "Bin", baseQuantity: 2, scalingRule: "fixed" as const, sortOrder: 0 },
+        { itemName: "Bin liners (pack)", baseQuantity: 1, scalingRule: "fixed" as const, sortOrder: 1 },
+        { itemName: "Brush and dustpan", baseQuantity: 1, scalingRule: "fixed" as const, sortOrder: 2 },
+        { itemName: "First aid kit", baseQuantity: 1, scalingRule: "fixed" as const, sortOrder: 3 },
+        { itemName: "Menu in holder", baseQuantity: 1, scalingRule: "fixed" as const, sortOrder: 4 },
+        { itemName: "Ice bucket", baseQuantity: 1, scalingRule: "per_station" as const, sortOrder: 5 },
+        { itemName: "Ice scoop", baseQuantity: 1, scalingRule: "per_station" as const, sortOrder: 6 },
+        { itemName: "Fruit plate", baseQuantity: 1, scalingRule: "per_station" as const, sortOrder: 7 },
+      ],
+    },
+  ];
+
+  for (const tmpl of equipmentTemplatesData) {
+    const { items, ...templateRow } = tmpl;
+    const [inserted] = await db
+      .insert(equipmentTemplates)
+      .values(templateRow)
+      .returning({ id: equipmentTemplates.id });
+    await db.insert(equipmentTemplateItems).values(
+      items.map((it) => ({ ...it, templateId: inserted.id }))
+    );
+    console.log(`  ✓ ${tmpl.name} (${items.length} items)`);
+  }
+
   console.log("\nSeed complete!");
 }
 
