@@ -283,6 +283,43 @@ async function seed() {
     console.log(`  ✓ ${c.name}`);
   }
 
+  // ── Standard Notes ─────────────────────────────────
+  console.log("Seeding standard notes...");
+
+  const standardNotesData = [
+    {
+      label: "Attire",
+      content:
+        "All extended team must arrive to site already in set attire:\n- Black bow ties\n- Black waistcoats\n- White ironed shirts\n- Smart black trousers (not jeans)\n- Polished black shoes (not trainers)",
+      sortOrder: 0,
+    },
+    {
+      label: "Problem Escalation",
+      content:
+        "Any problems to solve, Murdo will be there for first few hours. After that, call him with anything to solve. Do not ask the venue teams.",
+      sortOrder: 1,
+    },
+    {
+      label: "Stock Movement",
+      content:
+        "All alcohol and ingredients must be moved in sealed boxes from the vehicle through the building to the event space. No bags or open boxes. Bring a trolley to move the items.",
+      sortOrder: 2,
+    },
+    {
+      label: "On-Site Washing",
+      content: "We are not washing any glasses on site.",
+      sortOrder: 3,
+    },
+  ];
+
+  const insertedNotes = await db
+    .insert(standardNotes)
+    .values(standardNotesData)
+    .returning({ id: standardNotes.id, label: standardNotes.label });
+
+  const noteIdByLabel = new Map(insertedNotes.map((n) => [n.label, n.id]));
+  console.log(`  ✓ ${insertedNotes.length} standard notes`);
+
   console.log("\nSeed complete!");
 }
 
