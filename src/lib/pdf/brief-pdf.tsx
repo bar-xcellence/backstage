@@ -238,6 +238,24 @@ export function BriefPDF({
           </>
         )}
 
+        {/* 12b. Manual Items */}
+        {stock.manualItems.length > 0 && (
+          <>
+            <Text style={s.sectionTitle}>Manual Items</Text>
+            {stock.manualItems.map((m, i) => (
+              <View key={i} style={s.row}>
+                <Text style={s.text}>
+                  {m.ingredientName}
+                  {m.brand ? ` (${m.brand})` : ""}
+                </Text>
+                <Text style={[s.text, s.bold]}>
+                  {m.totalQuantity} {m.unit}
+                </Text>
+              </View>
+            ))}
+          </>
+        )}
+
         {/* 13. Standard Notes */}
         {standardNotes.map((note) => (
           <View key={note.label} wrap={false}>
