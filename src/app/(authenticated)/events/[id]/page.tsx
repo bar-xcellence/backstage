@@ -261,6 +261,21 @@ export default async function EventDetailPage({
                   <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
                     Site Contacts
                   </h2>
+                  {event.contacts.find((c) => c.isHost) && (
+                    <div className="mb-3 pb-3 border-b border-gold/30">
+                      <span className="text-[10px] tracking-[0.16em] uppercase text-gold font-semibold">
+                        Host
+                      </span>
+                      <p className="font-[family-name:var(--font-cormorant)] text-lg text-charcoal mt-1">
+                        {event.contacts.find((c) => c.isHost)?.contactName}
+                        {event.contacts.find((c) => c.isHost)?.contactPhone && (
+                          <span className="text-gold-ink text-sm font-[family-name:var(--font-raleway)] ml-3">
+                            {event.contacts.find((c) => c.isHost)?.contactPhone}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     {event.contacts.map((c) => (
                       <div

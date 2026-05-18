@@ -1,0 +1,1 @@
+ALTER TABLE "event_contacts" ADD COLUMN "is_host" boolean DEFAULT false NOT NULL;

@@ -228,6 +228,65 @@ describe("buildBriefEmailHtml", () => {
     expect(html).toContain("Specsavers Conference");
   });
 
+  it("renders Host: <name> prominently when a contact has isHost=true (Spec C)", () => {
+    const html = buildBriefEmailHtml(
+      {
+        ...baseEvent,
+        contacts: [
+          {
+            id: "c1",
+            contactName: "Murdo MacLeod",
+            contactRole: "Host (Bar Excellence)",
+            contactPhone: "07882084422",
+            contactEmail: null,
+            isHost: true,
+            isPrimary: true,
+            sortOrder: 0,
+          },
+          {
+            id: "c2",
+            contactName: "Nafisa Ali",
+            contactRole: "Venue",
+            contactPhone: null,
+            contactEmail: "nafisa@example.com",
+            isHost: false,
+            isPrimary: false,
+            sortOrder: 1,
+          },
+        ],
+      } as unknown as Parameters<typeof buildBriefEmailHtml>[0],
+      [],
+      emptyStock,
+      []
+    );
+    expect(html).toContain("Host:");
+    expect(html).toContain("Murdo MacLeod");
+  });
+
+  it("omits Host line when no contact has isHost=true (Spec C)", () => {
+    const html = buildBriefEmailHtml(
+      {
+        ...baseEvent,
+        contacts: [
+          {
+            id: "c1",
+            contactName: "Nafisa Ali",
+            contactRole: "Venue",
+            contactPhone: null,
+            contactEmail: null,
+            isHost: false,
+            isPrimary: false,
+            sortOrder: 0,
+          },
+        ],
+      } as unknown as Parameters<typeof buildBriefEmailHtml>[0],
+      [],
+      emptyStock,
+      []
+    );
+    expect(html).not.toContain("Host:");
+  });
+
   it("renders standard notes as Attire-style sections when provided", () => {
     const html = buildBriefEmailHtml(
       baseEvent,

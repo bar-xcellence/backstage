@@ -119,6 +119,15 @@ export function TextOnlyBriefPDF({
         {contacts && contacts.length > 0 && (
           <>
             <Text style={s.heading}>Site Contacts</Text>
+            {(() => {
+              const host = contacts.find((c) => c.isHost);
+              return host ? (
+                <Text style={s.text}>
+                  Host: {host.contactName as string}
+                  {host.contactPhone ? ` — ${host.contactPhone}` : ""}
+                </Text>
+              ) : null;
+            })()}
             {contacts.map((c, i) => (
               <Text key={i} style={s.text}>
                 {c.contactName as string}

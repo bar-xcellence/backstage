@@ -33,6 +33,13 @@ Bar Excellence's events preparation and dispatch system. Bespoke tool for 3 user
 - Touch targets: minimum 44px height on all interactive elements
 - Colours: use Tailwind tokens (`text-gold`, `bg-charcoal`, `text-cream`, etc.) defined in `globals.css`
 
+### Host visibility (Spec C)
+`eventContacts.isHost: boolean` flags the on-site lead (max one per event by convention — no DB constraint, enforced by seed/admin discipline). Surfaced as a prominent "Host: <name>" badge above the rest of the contact list on:
+- Event detail page (`app/(authenticated)/events/[id]/page.tsx` — gold-underlined block)
+- Brief preview (`components/events/brief-preview.tsx` — gold text)
+- Brief email (`lib/brief-email-template.ts` — bold "Host:" prefix above contacts)
+- Both PDFs (`lib/pdf/brief-pdf.tsx`, `lib/pdf/text-only-brief-pdf.tsx`)
+
 ### Per-cocktail ice / straw / reference image (Spec H)
 `cocktails.iceType`, `iceAmountG`, `straw`, `strawType`, `referenceImageUrl` are surfaced on all 4 brief surfaces and the cocktails tab:
 - `brief-preview.tsx` — ice/straw lines + `<img>` reference

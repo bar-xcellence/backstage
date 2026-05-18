@@ -366,8 +366,7 @@ async function seed() {
       stationLayoutNotes:
         "13 tables of 10 guests. Each table: 8 glass bottles + foamer + garnishes + ice bucket + scoop + pre-cut garnish plate.",
       staffCount: 4,
-      // WORKAROUND[host]: no host/lead flag — host noted inline
-      staffNames: "Murdo MacLeod (host); LC supplies 4 cocktail bartenders",
+      staffNames: "Murdo MacLeod; LC supplies 4 cocktail bartenders",
       installInstructions:
         "Trolley required. Sealed boxes only — no bags or open boxes. Meet Murdo at hotel loading bay at 16:00. Setup complete by 18:45 for 19:15 guest arrival.",
       status: "delivered",
@@ -384,6 +383,7 @@ async function seed() {
       contactRole: "Host (Bar Excellence)",
       contactPhone: "07882084422",
       isPrimary: true,
+      isHost: true,
       sortOrder: 0,
     },
     {
@@ -485,8 +485,7 @@ async function seed() {
       stationLayoutNotes:
         "3 bartender stations on a 3m curved pop-up bar. 40 cocktails pre-poured on bar top at 17:45 (10 of each of 4 types). All stock and glassware hidden behind bar throughout.",
       staffCount: 3,
-      // WORKAROUND[host]: no host/lead flag — host noted inline
-      staffNames: "Murdo MacLeod (host); James McClymont; 3 LC bartenders",
+      staffNames: "Murdo MacLeod; James McClymont; 3 LC bartenders",
       popUpBar: true,
       // WORKAROUND[branding]: branding text shoehorned into supplier field
       popUpBarSupplier: "3m curved, vinyl banner front branding attached seamlessly",
@@ -511,6 +510,7 @@ async function seed() {
       contactRole: "Host (Bar Excellence)",
       contactPhone: "07882084422",
       isPrimary: true,
+      isHost: true,
       sortOrder: 0,
     },
     {

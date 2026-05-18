@@ -89,9 +89,15 @@ export function buildBriefEmailHtml(
     )
     .join("<br>");
 
+  const hostContact = event.contacts?.find((c) => c.isHost);
+  const hostLine = hostContact
+    ? `<strong>Host:</strong> ${escapeHtml(hostContact.contactName)}${hostContact.contactPhone ? ` — ${escapeHtml(hostContact.contactPhone)}` : ""}<br><br>`
+    : "";
+
   const contactsHtml =
     event.contacts && event.contacts.length > 0
-      ? event.contacts
+      ? hostLine +
+        event.contacts
           .map(
             (c) =>
               `${escapeHtml(c.contactName)}${c.contactRole ? ` (${escapeHtml(c.contactRole)})` : ""}${c.contactPhone ? ` — ${escapeHtml(c.contactPhone)}` : ""}`

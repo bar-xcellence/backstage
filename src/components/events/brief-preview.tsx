@@ -152,6 +152,16 @@ export function BriefPreview({
           {hasContacts && (
             <Section title="Site Contacts">
               <div className="space-y-2">
+                {event.contacts.find((c) => c.isHost) && (
+                  <p className="text-gold font-bold">
+                    Host: {event.contacts.find((c) => c.isHost)?.contactName}
+                    {event.contacts.find((c) => c.isHost)?.contactPhone && (
+                      <span className="text-cream/70 font-normal ml-2">
+                        {event.contacts.find((c) => c.isHost)?.contactPhone}
+                      </span>
+                    )}
+                  </p>
+                )}
                 {event.contacts.map((c) => (
                   <div key={c.id}>
                     <p className="text-cream font-medium">

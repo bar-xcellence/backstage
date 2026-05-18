@@ -198,6 +198,7 @@ export const eventContacts = pgTable("event_contacts", {
   contactPhone: text("contact_phone"),
   contactEmail: text("contact_email"),
   isPrimary: boolean("is_primary").default(false),
+  isHost: boolean("is_host").default(false).notNull(),
   sortOrder: integer("sort_order").default(0),
 });
 

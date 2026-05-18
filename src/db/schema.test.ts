@@ -107,6 +107,11 @@ describe("Database Schema", () => {
       expect(columns).toContain("contactPhone");
       expect(columns).toContain("isPrimary");
     });
+
+    it("has isHost column (Spec C)", () => {
+      const columns = Object.keys(eventContacts);
+      expect(columns).toContain("isHost");
+    });
   });
 
   describe("eventChecklists table", () => {

@@ -177,6 +177,15 @@ export function BriefPDF({
         {contacts.length > 0 && (
           <>
             <Text style={s.sectionTitle}>Site Contacts</Text>
+            {(() => {
+              const host = contacts.find((c) => c.isHost);
+              return host ? (
+                <Text style={[s.text, s.bold]}>
+                  Host: {host.contactName as string}
+                  {host.contactPhone ? ` — ${host.contactPhone}` : ""}
+                </Text>
+              ) : null;
+            })()}
             {contacts.map((c, i) => (
               <Text key={i} style={s.text}>
                 {c.contactName as string}
