@@ -10,6 +10,7 @@ import {
   eventCocktails,
   eventEquipment,
   eventStandardNotes,
+  eventStock,
   standardNotes,
   equipmentTemplates,
   equipmentTemplateItems,
@@ -24,6 +25,7 @@ async function cleanup() {
   await db.delete(eventCocktails);
   await db.delete(eventContacts);
   await db.delete(eventStandardNotes);
+  await db.delete(eventStock);
   await db.delete(events);
   await db.delete(cocktailIngredients);
   await db.delete(cocktailGarnishes);
@@ -369,13 +371,8 @@ async function seed() {
       installInstructions:
         "Trolley required. Sealed boxes only — no bags or open boxes. Meet Murdo at hotel loading bay at 16:00. Setup complete by 18:45 for 19:15 guest arrival.",
       status: "delivered",
-      notesCustom: [
+      notesCustom:
         "60-minute masterclass format, 2 cocktails per guest (one of each menu item).",
-        "",
-        "WORKAROUND[substitution-stock]: Substitution stock not in any recipe — 4 bottles non-alcoholic gin, 4 bottles non-alcoholic spiced rum (Captain Morgan Non Alco Spiced recommended).",
-        "",
-        "WORKAROUND[per-station-stock]: Per-table consumables not in per-serve calculator — 13 packs edible gold duster spray, 13 bottles miraculous foamer.",
-      ].join("\n"),
       lcRecipient: "Rory",
     })
     .returning({ id: events.id });
@@ -447,6 +444,14 @@ async function seed() {
     { eventId: heathrow.id, itemName: "Large plastic box with lid", quantity: 6, isFromTemplate: false, sortOrder: 13 },
   ]);
 
+  // Per-event stock: per-station consumables (1 per table × 13 tables) + substitution spirits
+  await db.insert(eventStock).values([
+    { eventId: heathrow.id, itemName: "Miraculous Foamer", category: "foamer", quantity: "1", unit: "bottle", brand: null, scalingRule: "per_station", sortOrder: 0 },
+    { eventId: heathrow.id, itemName: "Edible Gold Duster Spray", category: "other", quantity: "1", unit: "pack", brand: null, scalingRule: "per_station", sortOrder: 1 },
+    { eventId: heathrow.id, itemName: "Non-alcoholic Gin", category: "spirit", quantity: "4", unit: "bottle", brand: null, scalingRule: "per_event", sortOrder: 2 },
+    { eventId: heathrow.id, itemName: "Non-alcoholic Spiced Rum", category: "spirit", quantity: "4", unit: "bottle", brand: "Captain Morgan Non Alco Spiced", scalingRule: "per_event", sortOrder: 3 },
+  ]);
+
   await db.insert(eventStandardNotes).values([
     { eventId: heathrow.id, noteId: noteIdByLabel.get("Attire")!, sortOrder: 0 },
     { eventId: heathrow.id, noteId: noteIdByLabel.get("Problem Escalation")!, sortOrder: 1 },
@@ -492,10 +497,6 @@ async function seed() {
         "WORKAROUND[pre-pour-batching]: Pre-pour 40 cocktails on bar top at 17:45 (10 of each of 4 types). Bar top must be clean and beautiful throughout service.",
         "",
         "Glasses to be collected from floor and returned to bar throughout service.",
-        "",
-        "WORKAROUND[substitution-stock]: Substitution stock — 1 bottle each: non-alc scotch whisky, non-alc gin, non-alc spiced rum, non-alc agave spirit.",
-        "",
-        "WORKAROUND[ice-types]: Two ice types in same event — Cubed 30kg + Crushed 10kg. Stock calculator may aggregate both as 'g'.",
         "",
         "Venue also serves wine + champagne from a separate bar (not our responsibility).",
       ].join("\n"),
@@ -572,6 +573,17 @@ async function seed() {
     { eventId: glasgow.id, itemName: "First aid kit", quantity: 1, isFromTemplate: true, sortOrder: 9 },
     { eventId: glasgow.id, itemName: "Brush and dustpan", quantity: 1, isFromTemplate: true, sortOrder: 10 },
     { eventId: glasgow.id, itemName: "Menu in holder", quantity: 1, isFromTemplate: true, sortOrder: 11 },
+  ]);
+
+  // Per-event stock: per-event consumables (single bar service, smaller scale) + substitution spirits
+  await db.insert(eventStock).values([
+    { eventId: glasgow.id, itemName: "Miraculous Foamer", category: "foamer", quantity: "2", unit: "bottle", brand: null, scalingRule: "per_event", sortOrder: 0 },
+    { eventId: glasgow.id, itemName: "Hibiscus Powder", category: "other", quantity: "1", unit: "tub", brand: null, scalingRule: "per_event", sortOrder: 1 },
+    { eventId: glasgow.id, itemName: "Edible Gold Duster Spray", category: "other", quantity: "2", unit: "pump", brand: null, scalingRule: "per_event", sortOrder: 2 },
+    { eventId: glasgow.id, itemName: "Non-alcoholic Scotch Whisky", category: "spirit", quantity: "1", unit: "bottle", brand: null, scalingRule: "per_event", sortOrder: 3 },
+    { eventId: glasgow.id, itemName: "Non-alcoholic Gin", category: "spirit", quantity: "1", unit: "bottle", brand: null, scalingRule: "per_event", sortOrder: 4 },
+    { eventId: glasgow.id, itemName: "Non-alcoholic Spiced Rum", category: "spirit", quantity: "1", unit: "bottle", brand: null, scalingRule: "per_event", sortOrder: 5 },
+    { eventId: glasgow.id, itemName: "Non-alcoholic Agave Spirit", category: "spirit", quantity: "1", unit: "bottle", brand: null, scalingRule: "per_event", sortOrder: 6 },
   ]);
 
   await db.insert(eventStandardNotes).values([
