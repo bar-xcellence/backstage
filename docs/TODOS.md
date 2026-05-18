@@ -14,12 +14,6 @@ All Phases 1–3 code is implemented on `main`. The items below are the remainin
 **Depends on:** GitHub org access for bar-xcellence.
 **Added:** 2026-04-16
 
-### Resolve Resend domain verification for bar-excellence.app
-**What:** Add SPF, DKIM, DMARC DNS records for bar-excellence.app in Resend dashboard. Remove the `barxcellence@gmail.com` Resend test address from `src/lib/auth-config.ts` once done.
-**Why:** Magic link and Send to LC emails must come from bar-excellence.app for brand credibility and deliverability.
-**Depends on:** DNS access for bar-excellence.app.
-**Added:** 2026-04-16
-
 ---
 
 ## Content

@@ -24,5 +24,4 @@ export const ALLOWED_EMAILS = [
   "murdo@bar-excellence.app",
   "rob@roberthayford.com",
   "rory@lc-group.com",
-  "barxcellence@gmail.com", // Resend test mode — remove after domain verification
 ] as const;
