@@ -1,20 +1,35 @@
 "use server";
 
+import { db } from "@/db";
+import { lcRecipients } from "@/db/schema";
+import { eq, asc } from "drizzle-orm";
 import { getEvent } from "./events";
 import { getEventCocktails } from "./event-cocktails";
 import { calculateStock } from "@/lib/stock-calculator";
 import { fetchEventStock } from "@/lib/event-stock-query";
 import { requireRole } from "@/lib/session";
+import { resolveLCEmail } from "@/lib/lc-email";
 import {
   fetchEventStandardNotes,
   type EventStandardNote,
 } from "@/lib/event-standard-notes-query";
+
+export interface SavedRecipientOption {
+  id: string;
+  label: string;
+  email: string;
+  isAutoCc: boolean;
+  isDefaultTo: boolean;
+}
 
 export interface BriefPreviewData {
   event: NonNullable<Awaited<ReturnType<typeof getEvent>>>;
   cocktails: Awaited<ReturnType<typeof getEventCocktails>>;
   stock: ReturnType<typeof calculateStock>;
   standardNotes: EventStandardNote[];
+  defaultTo: string | null;
+  savedRecipients: SavedRecipientOption[];
+  autoCcEmails: string[];
 }
 
 export async function getBriefPreview(
@@ -60,5 +75,36 @@ export async function getBriefPreview(
     stationCount: event.stationCount,
   });
   const standardNotes = await fetchEventStandardNotes(eventId);
-  return { event, cocktails, stock, standardNotes };
+
+  const savedRows = await db
+    .select()
+    .from(lcRecipients)
+    .where(eq(lcRecipients.isActive, true))
+    .orderBy(asc(lcRecipients.sortOrder), asc(lcRecipients.createdAt));
+
+  const savedRecipients: SavedRecipientOption[] = savedRows.map((r) => ({
+    id: r.id,
+    label: r.label,
+    email: r.email,
+    isAutoCc: r.isAutoCc,
+    isDefaultTo: r.isDefaultTo,
+  }));
+
+  const eventTo = resolveLCEmail(event.lcRecipient);
+  const defaultFromSaved = savedRecipients.find((r) => r.isDefaultTo)?.email ?? null;
+  const defaultTo = "email" in eventTo ? eventTo.email : defaultFromSaved;
+
+  const autoCcEmails = savedRecipients
+    .filter((r) => r.isAutoCc)
+    .map((r) => r.email);
+
+  return {
+    event,
+    cocktails,
+    stock,
+    standardNotes,
+    defaultTo,
+    savedRecipients,
+    autoCcEmails,
+  };
 }

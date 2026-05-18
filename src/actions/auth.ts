@@ -10,6 +10,7 @@ import {
   isAllowedEmail,
 } from "@/lib/auth";
 import { createSession, destroySession } from "@/lib/session";
+import { getFromEmail } from "@/lib/lc-email";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -28,6 +29,12 @@ export async function sendMagicLink(
   }
 
   try {
+    const from = await getFromEmail();
+    if ("error" in from) {
+      console.error("sendMagicLink: From address invalid:", from.error);
+      return { error: "Sign-in is temporarily unavailable. Contact an administrator." };
+    }
+
     const token = await createMagicLinkToken(
       email,
       process.env.MAGIC_LINK_SECRET!
@@ -35,7 +42,7 @@ export async function sendMagicLink(
     const magicLink = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify?token=${token}`;
 
     await resend.emails.send({
-      from: process.env.FROM_EMAIL!,
+      from: from.email,
       to: email,
       subject: "Sign in to Backstage",
       html: `

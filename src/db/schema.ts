@@ -354,6 +354,30 @@ export const eventStandardNotes = pgTable("event_standard_notes", {
 
 // ── Event Stock (per-event procurement extras) ────────
 
+// ── LC Recipients (saved To/CC roster) ────────────────
+
+export const lcRecipients = pgTable("lc_recipients", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  label: text("label").notNull(),
+  email: text("email").notNull(),
+  isDefaultTo: boolean("is_default_to").default(false).notNull(),
+  isAutoCc: boolean("is_auto_cc").default(false).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// ── App Settings (global key/value) ───────────────────
+
+export const appSettings = pgTable("app_settings", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedBy: uuid("updated_by").references(() => users.id),
+});
+
+// ── Event Stock (per-event procurement extras) ────────
+
 export const eventStock = pgTable("event_stock", {
   id: uuid("id").primaryKey().defaultRandom(),
   eventId: uuid("event_id")

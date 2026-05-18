@@ -10,7 +10,11 @@ import { getEvent } from "./events";
 import { calculateStock } from "@/lib/stock-calculator";
 import { fetchEventStock } from "@/lib/event-stock-query";
 import { validateSendToLC } from "@/lib/event-validation";
-import { resolveLCEmail, getFromEmail } from "@/lib/lc-email";
+import {
+  resolveLCEmail,
+  getFromEmail,
+  resolveSendRecipients,
+} from "@/lib/lc-email";
 import { buildBriefEmailHtml } from "@/lib/brief-email-template";
 import { fetchEventStandardNotes } from "@/lib/event-standard-notes-query";
 import { revalidatePath } from "next/cache";
@@ -45,8 +49,14 @@ async function sendWithRetry(
   }
 }
 
+export interface SendRecipients {
+  to: string;
+  cc?: string[];
+}
+
 export async function sendToLC(
-  eventId: string
+  eventId: string,
+  recipients?: SendRecipients
 ): Promise<{
   success?: boolean;
   error?: string;
@@ -65,18 +75,29 @@ export async function sendToLC(
     };
   }
 
-  // Validate sender (FROM_EMAIL env) before doing any work
-  const from = getFromEmail();
+  // Validate sender (Settings → env fallback) before doing any work
+  const from = await getFromEmail();
   if ("error" in from) {
-    console.error("send-to-lc: FROM_EMAIL invalid:", from.error);
+    console.error("send-to-lc: From address invalid:", from.error);
     return { error: "Email sender not configured. Contact an administrator." };
   }
 
-  // Validate recipient (handles legacy "Rory" literal, null, non-email strings)
-  const to = resolveLCEmail(event.lcRecipient);
-  if ("error" in to) {
-    return { error: to.error };
+  // Resolve recipients: explicit picker selection wins; otherwise fall back to
+  // the event's stored lcRecipient (preserves the legacy one-arg call path).
+  let resolved: { to: string; cc: string[] } | { error: string };
+  if (recipients) {
+    resolved = resolveSendRecipients({
+      to: recipients.to,
+      cc: recipients.cc ?? [],
+    });
+  } else {
+    const fallback = resolveLCEmail(event.lcRecipient);
+    if ("error" in fallback) {
+      return { error: fallback.error };
+    }
+    resolved = { to: fallback.email, cc: [] };
   }
+  if ("error" in resolved) return { error: resolved.error };
 
   const eventCocktails = await getEventCocktails(eventId);
 
@@ -126,7 +147,8 @@ export async function sendToLC(
 
   const result = await sendWithRetry({
     from: from.email,
-    to: to.email,
+    to: resolved.to,
+    cc: resolved.cc.length > 0 ? resolved.cc : undefined,
     subject: `Event Brief: ${event.eventName} — ${event.eventDate}`,
     html,
   });
@@ -155,7 +177,8 @@ export async function sendToLC(
 }
 
 export async function confirmResendToLC(
-  eventId: string
+  eventId: string,
+  recipients?: SendRecipients
 ): Promise<{ success?: boolean; error?: string }> {
   await requireRole("owner", "super_admin");
 
@@ -164,5 +187,5 @@ export async function confirmResendToLC(
     .set({ lcSentAt: null })
     .where(eq(events.id, eventId));
 
-  return sendToLC(eventId);
+  return sendToLC(eventId, recipients);
 }

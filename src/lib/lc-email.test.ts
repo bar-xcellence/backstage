@@ -1,5 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { resolveLCEmail, getFromEmail, escapeHtml } from "./lc-email";
+import { describe, it, expect } from "vitest";
+import {
+  resolveLCEmail,
+  resolveFromEmail,
+  resolveSendRecipients,
+  escapeHtml,
+} from "./lc-email";
 
 describe("resolveLCEmail", () => {
   it("resolves the literal 'Rory' to rory@lc-group.com", () => {
@@ -36,30 +41,110 @@ describe("resolveLCEmail", () => {
   });
 });
 
-describe("getFromEmail", () => {
-  const originalFromEmail = process.env.FROM_EMAIL;
-
-  beforeEach(() => {
-    delete process.env.FROM_EMAIL;
+describe("resolveFromEmail", () => {
+  it("prefers a valid DB value over a valid env value", () => {
+    expect(
+      resolveFromEmail("settings@bar-excellence.com", "env@bar-excellence.com")
+    ).toEqual({ email: "settings@bar-excellence.com" });
   });
 
-  afterEach(() => {
-    if (originalFromEmail === undefined) delete process.env.FROM_EMAIL;
-    else process.env.FROM_EMAIL = originalFromEmail;
+  it("falls back to env when DB is empty", () => {
+    expect(resolveFromEmail(null, "env@bar-excellence.com")).toEqual({
+      email: "env@bar-excellence.com",
+    });
   });
 
-  it("returns the email when FROM_EMAIL is a valid address", () => {
-    process.env.FROM_EMAIL = "no-reply@bar-excellence.com";
-    expect(getFromEmail()).toEqual({ email: "no-reply@bar-excellence.com" });
+  it("falls back to env when DB is whitespace-only", () => {
+    expect(resolveFromEmail("   ", "env@bar-excellence.com")).toEqual({
+      email: "env@bar-excellence.com",
+    });
   });
 
-  it("returns an error when FROM_EMAIL is missing", () => {
-    expect(getFromEmail()).toHaveProperty("error");
+  it("falls back to env when DB value is malformed", () => {
+    expect(resolveFromEmail("not an email", "env@bar-excellence.com")).toEqual(
+      { email: "env@bar-excellence.com" }
+    );
   });
 
-  it("returns an error when FROM_EMAIL is not a valid email", () => {
-    process.env.FROM_EMAIL = "not an email";
-    expect(getFromEmail()).toHaveProperty("error");
+  it("trims surrounding whitespace before validating", () => {
+    expect(resolveFromEmail("  no-reply@bar-excellence.com  ", null)).toEqual({
+      email: "no-reply@bar-excellence.com",
+    });
+  });
+
+  it("returns an error when both DB and env are missing", () => {
+    expect(resolveFromEmail(null, null)).toHaveProperty("error");
+    expect(resolveFromEmail(undefined, "")).toHaveProperty("error");
+  });
+
+  it("surfaces the DB error message when DB is set but invalid and env is missing", () => {
+    const result = resolveFromEmail("nope@", null);
+    expect(result).toHaveProperty("error");
+    if ("error" in result) {
+      expect(result.error).toMatch(/nope@/);
+    }
+  });
+});
+
+describe("resolveSendRecipients", () => {
+  it("returns a single To and empty CC list for a basic input", () => {
+    expect(
+      resolveSendRecipients({ to: "rory@lc-group.com" })
+    ).toEqual({ to: "rory@lc-group.com", cc: [] });
+  });
+
+  it("trims To and CC entries", () => {
+    expect(
+      resolveSendRecipients({
+        to: "  rory@lc-group.com  ",
+        cc: ["  ops@lc-group.com  "],
+      })
+    ).toEqual({ to: "rory@lc-group.com", cc: ["ops@lc-group.com"] });
+  });
+
+  it("drops empty/whitespace CC entries silently", () => {
+    expect(
+      resolveSendRecipients({
+        to: "rory@lc-group.com",
+        cc: ["", "   ", null, undefined, "ops@lc-group.com"],
+      })
+    ).toEqual({ to: "rory@lc-group.com", cc: ["ops@lc-group.com"] });
+  });
+
+  it("dedupes CC against To (case-insensitive)", () => {
+    expect(
+      resolveSendRecipients({
+        to: "Rory@LC-Group.com",
+        cc: ["rory@lc-group.com", "ops@lc-group.com"],
+      })
+    ).toEqual({ to: "Rory@LC-Group.com", cc: ["ops@lc-group.com"] });
+  });
+
+  it("dedupes CC entries amongst themselves (case-insensitive)", () => {
+    expect(
+      resolveSendRecipients({
+        to: "rory@lc-group.com",
+        cc: ["Ops@LC-Group.com", "ops@lc-group.com", "ops@lc-group.com"],
+      })
+    ).toEqual({ to: "rory@lc-group.com", cc: ["Ops@LC-Group.com"] });
+  });
+
+  it("rejects missing To", () => {
+    expect(resolveSendRecipients({ to: null })).toHaveProperty("error");
+    expect(resolveSendRecipients({ to: "   " })).toHaveProperty("error");
+  });
+
+  it("rejects an invalid To", () => {
+    const result = resolveSendRecipients({ to: "nope@" });
+    expect(result).toHaveProperty("error");
+  });
+
+  it("rejects when any CC entry is invalid", () => {
+    const result = resolveSendRecipients({
+      to: "rory@lc-group.com",
+      cc: ["ops@lc-group.com", "broken@"],
+    });
+    expect(result).toHaveProperty("error");
   });
 });
 

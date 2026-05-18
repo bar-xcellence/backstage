@@ -1,10 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { BriefPreviewData } from "@/actions/brief-preview";
 import { stripWorkaroundMarkers } from "@/lib/notes-sanitization";
 import { formatAddressLines } from "@/lib/address-format";
 import type { EventStandardNote } from "@/lib/event-standard-notes-query";
+import { RecipientsPanel } from "./recipients-panel";
+
+export interface BriefSendRecipients {
+  to: string;
+  cc: string[];
+}
 
 function Section({
   title,
@@ -28,7 +34,7 @@ function Section({
 interface BriefPreviewProps {
   data: BriefPreviewData;
   standardNotes: EventStandardNote[];
-  onConfirm: () => void;
+  onConfirm: (recipients: BriefSendRecipients) => void;
   onCancel: () => void;
   loading: boolean;
 }
@@ -40,7 +46,17 @@ export function BriefPreview({
   onCancel,
   loading,
 }: BriefPreviewProps) {
-  const { event, cocktails, stock } = data;
+  const { event, cocktails, stock, defaultTo, savedRecipients, autoCcEmails } =
+    data;
+
+  const [recipients, setRecipients] = useState<BriefSendRecipients>({
+    to: defaultTo ?? "",
+    cc: autoCcEmails.filter(
+      (e) => e.toLowerCase() !== (defaultTo ?? "").toLowerCase()
+    ),
+  });
+
+  const canSend = recipients.to.trim().length > 0;
 
   // Lock body scroll while open
   useEffect(() => {
@@ -116,6 +132,13 @@ export function BriefPreview({
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto px-6 py-6">
+          <RecipientsPanel
+            to={recipients.to}
+            cc={recipients.cc}
+            savedRecipients={savedRecipients}
+            onChange={setRecipients}
+          />
+
           {/* Date */}
           <Section title="Date">
             <p>{event.eventDate}</p>
@@ -407,11 +430,15 @@ export function BriefPreview({
         {/* Sticky footer */}
         <div className="sticky bottom-0 z-10 px-6 py-4 border-t border-cream/10 bg-charcoal/95 backdrop-blur-[20px] space-y-2">
           <button
-            onClick={onConfirm}
-            disabled={loading}
+            onClick={() => onConfirm(recipients)}
+            disabled={loading || !canSend}
             className="w-full px-8 py-3 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 disabled:opacity-50 min-h-[44px] cursor-pointer"
           >
-            {loading ? "SENDING..." : "CONFIRM & SEND"}
+            {loading
+              ? "SENDING..."
+              : canSend
+                ? "CONFIRM & SEND"
+                : "ENTER A TO ADDRESS"}
           </button>
           <button
             onClick={onCancel}
