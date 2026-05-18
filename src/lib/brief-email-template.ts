@@ -132,6 +132,16 @@ export function buildBriefEmailHtml(
           .join("<br>")
       : "";
 
+  const consumablesContent =
+    stock.consumables.length > 0
+      ? stock.consumables
+          .map(
+            (c) =>
+              `${escapeHtml(c.itemName)}${c.brand ? ` (${escapeHtml(c.brand)})` : ""}: ${c.totalQuantity} ${escapeHtml(c.unit)}${c.totalQuantity === 1 ? "" : "s"}`
+          )
+          .join("<br>")
+      : "";
+
   const standardNotesHtml = standardNotes
     .map((n) =>
       section(n.label, escapeHtml(n.content).replace(/\n/g, "<br>"))
@@ -171,6 +181,7 @@ export function buildBriefEmailHtml(
           ${section("Manual Items", manualItemsContent)}
           ${section("Ice", iceContent)}
           ${section("Straws", strawsContent)}
+          ${section("Per-Event Stock", consumablesContent)}
           ${standardNotesHtml}
           ${section("Notes", notesContent)}
         </table>

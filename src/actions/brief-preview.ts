@@ -3,6 +3,7 @@
 import { getEvent } from "./events";
 import { getEventCocktails } from "./event-cocktails";
 import { calculateStock } from "@/lib/stock-calculator";
+import { fetchEventStock } from "@/lib/event-stock-query";
 import { requireRole } from "@/lib/session";
 import {
   fetchEventStandardNotes,
@@ -53,7 +54,11 @@ export async function getBriefPreview(
     };
   });
 
-  const stock = calculateStock(stockInput);
+  const eventStockItems = await fetchEventStock(eventId);
+  const stock = calculateStock(stockInput, {
+    eventStockItems,
+    stationCount: event.stationCount,
+  });
   const standardNotes = await fetchEventStandardNotes(eventId);
   return { event, cocktails, stock, standardNotes };
 }

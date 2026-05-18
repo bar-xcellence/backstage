@@ -282,6 +282,25 @@ export function BriefPDF({
           </>
         )}
 
+        {/* 12e. Per-Event Stock (substitutions, per-station consumables) */}
+        {stock.consumables.length > 0 && (
+          <>
+            <Text style={s.sectionTitle}>Per-Event Stock</Text>
+            {stock.consumables.map((c, idx) => (
+              <View key={idx} style={s.row}>
+                <Text style={s.text}>
+                  {c.itemName}
+                  {c.brand ? ` (${c.brand})` : ""}
+                </Text>
+                <Text style={[s.text, s.bold]}>
+                  {c.totalQuantity} {c.unit}
+                  {c.totalQuantity === 1 ? "" : "s"}
+                </Text>
+              </View>
+            ))}
+          </>
+        )}
+
         {/* 13. Standard Notes */}
         {standardNotes.map((note) => (
           <View key={note.label} wrap={false}>

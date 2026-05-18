@@ -8,6 +8,7 @@ import { requireRole } from "@/lib/session";
 import { getEventCocktails } from "./event-cocktails";
 import { getEvent } from "./events";
 import { calculateStock } from "@/lib/stock-calculator";
+import { fetchEventStock } from "@/lib/event-stock-query";
 import { validateSendToLC } from "@/lib/event-validation";
 import { resolveLCEmail, getFromEmail } from "@/lib/lc-email";
 import { buildBriefEmailHtml } from "@/lib/brief-email-template";
@@ -113,7 +114,11 @@ export async function sendToLC(
       })),
     };
   });
-  const stock = calculateStock(stockInput);
+  const eventStockItems = await fetchEventStock(eventId);
+  const stock = calculateStock(stockInput, {
+    eventStockItems,
+    stationCount: event.stationCount,
+  });
 
   const standardNotes = await fetchEventStandardNotes(eventId);
 

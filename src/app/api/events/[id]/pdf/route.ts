@@ -14,6 +14,7 @@ import {
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { calculateStock } from "@/lib/stock-calculator";
+import { fetchEventStock } from "@/lib/event-stock-query";
 import { stripPartnerFinancials } from "@/lib/partner-event-sanitisation";
 import { BriefPDF } from "@/lib/pdf/brief-pdf";
 import { TextOnlyBriefPDF } from "@/lib/pdf/text-only-brief-pdf";
@@ -114,7 +115,11 @@ export async function GET(
         quantityUnit: g.quantityUnit || "piece",
       })),
     }));
-    const stock = calculateStock(stockInput);
+    const eventStockItems = await fetchEventStock(id);
+    const stock = calculateStock(stockInput, {
+      eventStockItems,
+      stationCount: event.stationCount,
+    });
 
     const safeEvent =
       session.role === "partner" ? stripPartnerFinancials(event) : event;
