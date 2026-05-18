@@ -58,6 +58,15 @@ export function HamburgerIcon({ className }: IconProps) {
   );
 }
 
+export function SettingsIcon({ className }: IconProps) {
+  return (
+    <svg {...baseProps} className={className}>
+      <circle cx="10" cy="10" r="2.5" />
+      <path d="M10 2v2.5M10 15.5V18M2 10h2.5M15.5 10H18M4.34 4.34l1.77 1.77M13.89 13.89l1.77 1.77M4.34 15.66l1.77-1.77M13.89 6.11l1.77-1.77" />
+    </svg>
+  );
+}
+
 export function SignOutIcon({ className }: IconProps) {
   return (
     <svg {...baseProps} className={className}>

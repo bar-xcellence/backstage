@@ -14,6 +14,8 @@ import {
   standardNotes,
   equipmentTemplates,
   equipmentTemplateItems,
+  lcRecipients,
+  appSettings,
 } from "./schema";
 
 const sql = neon(process.env.DATABASE_URL!);
@@ -33,6 +35,8 @@ async function cleanup() {
   await db.delete(equipmentTemplateItems);
   await db.delete(equipmentTemplates);
   await db.delete(standardNotes);
+  await db.delete(lcRecipients);
+  await db.delete(appSettings);
 }
 
 async function seed() {
@@ -57,6 +61,31 @@ async function seed() {
     : await db.select({ id: users.id, email: users.email }).from(users);
   const userIdByEmail = new Map(allUsers.map((u) => [u.email, u.id]));
   const murdoId = userIdByEmail.get("murdo@bar-excellence.app")!;
+
+  // ── LC Recipients ──────────────────────────────────
+  console.log("Seeding LC recipients...");
+  await db.insert(lcRecipients).values([
+    {
+      label: "Rory · LC",
+      email: "rory@lc-group.com",
+      isDefaultTo: true,
+      isAutoCc: false,
+      isActive: true,
+      sortOrder: 0,
+    },
+  ]);
+  console.log("  ✓ Rory · LC (default)");
+
+  // ── App Settings ───────────────────────────────────
+  if (process.env.FROM_EMAIL) {
+    console.log("Seeding app settings (from_email)...");
+    await db.insert(appSettings).values({
+      key: "from_email",
+      value: process.env.FROM_EMAIL,
+      updatedBy: murdoId,
+    });
+    console.log(`  ✓ from_email = ${process.env.FROM_EMAIL}`);
+  }
 
   // ── Cocktails ──────────────────────────────────────
   console.log("Seeding cocktails...");
@@ -374,7 +403,7 @@ async function seed() {
       status: "delivered",
       notesCustom:
         "60-minute masterclass format, 2 cocktails per guest (one of each menu item).",
-      lcRecipient: "Rory",
+      lcRecipient: "rory@lc-group.com",
     })
     .returning({ id: events.id });
 
@@ -504,7 +533,7 @@ async function seed() {
         "",
         "Venue also serves wine + champagne from a separate bar (not our responsibility).",
       ].join("\n"),
-      lcRecipient: "Rory",
+      lcRecipient: "rory@lc-group.com",
     })
     .returning({ id: events.id });
 

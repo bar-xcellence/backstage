@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { sendToLC, confirmResendToLC } from "@/actions/send-to-lc";
 import { getBriefPreview, type BriefPreviewData } from "@/actions/brief-preview";
-import { BriefPreview } from "./brief-preview";
+import { BriefPreview, type BriefSendRecipients } from "./brief-preview";
 
 export function SendToLCButton({ eventId }: { eventId: string }) {
   const [loading, setLoading] = useState(false);
   const [previewData, setPreviewData] = useState<BriefPreviewData | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [lastRecipients, setLastRecipients] =
+    useState<BriefSendRecipients | null>(null);
   const [result, setResult] = useState<{
     success?: boolean;
     error?: string;
@@ -32,21 +34,15 @@ export function SendToLCButton({ eventId }: { eventId: string }) {
     setLoading(false);
   }
 
-  async function handleConfirmSend() {
+  async function handleConfirmSend(recipients: BriefSendRecipients) {
     setLoading(true);
     setResult(null);
+    setLastRecipients(recipients);
     try {
-      const res = await sendToLC(eventId);
-      if (res.needsConfirmation) {
-        // Close preview, show re-send dialog
-        setShowPreview(false);
-        setPreviewData(null);
-        setResult(res);
-      } else {
-        setShowPreview(false);
-        setPreviewData(null);
-        setResult(res);
-      }
+      const res = await sendToLC(eventId, recipients);
+      setShowPreview(false);
+      setPreviewData(null);
+      setResult(res);
     } catch {
       setResult({ error: "Failed to send brief" });
     }
@@ -54,9 +50,13 @@ export function SendToLCButton({ eventId }: { eventId: string }) {
   }
 
   async function handleConfirmResend() {
+    if (!lastRecipients) {
+      setResult({ error: "Lost recipient selection. Click Send to LC again." });
+      return;
+    }
     setLoading(true);
     setResult(null);
-    const res = await confirmResendToLC(eventId);
+    const res = await confirmResendToLC(eventId, lastRecipients);
     setLoading(false);
     setResult(res);
   }

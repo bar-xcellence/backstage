@@ -32,7 +32,7 @@ export async function checkAndSendAlerts() {
 
   if (within48.length === 0) return;
 
-  const from = getFromEmail();
+  const from = await getFromEmail();
   if ("error" in from) {
     console.error("checkAndSendAlerts: FROM_EMAIL invalid, skipping alerts:", from.error);
     return;

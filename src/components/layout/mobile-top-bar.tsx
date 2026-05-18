@@ -10,6 +10,7 @@ import {
   EventsIcon,
   HamburgerIcon,
   RecipesIcon,
+  SettingsIcon,
   SignOutIcon,
 } from "./nav-icons";
 
@@ -23,6 +24,7 @@ const ownerNav: NavItem[] = [
   { label: "DASHBOARD", href: "/", Icon: DashboardIcon },
   { label: "EVENTS", href: "/events", Icon: EventsIcon },
   { label: "RECIPES", href: "/recipes", Icon: RecipesIcon },
+  { label: "SETTINGS", href: "/settings", Icon: SettingsIcon },
 ];
 
 const partnerNav: NavItem[] = [

@@ -64,6 +64,27 @@ When `events.popUpBar` is true, `popUpBarSize` (e.g. "3m curved") and `popUpBarB
 - Brief email (`lib/brief-email-template.ts` — bold "Host:" prefix above contacts)
 - Both PDFs (`lib/pdf/brief-pdf.tsx`, `lib/pdf/text-only-brief-pdf.tsx`)
 
+### Settings + saved LC recipients (Spec J)
+New `/settings` route (owner + super_admin only — partner is redirected to `/events`). Two sections, backed by two new tables.
+
+**`lc_recipients`** — managed list of named send targets:
+- `label` (e.g. "Rory · LC"), `email`, `isDefaultTo` (one row at a time), `isAutoCc` (any number), `isActive`
+- Invariant "at most one `isDefaultTo`" enforced by `setDefaultToRecipient()` in `src/actions/lc-recipients.ts` (no DB constraint — neon-http has no transactions, so it's a two-step UPDATE)
+- Read by `brief-preview.ts` to populate the picker; new event create (`actions/events.ts`) pre-fills `events.lcRecipient` with the current default's email
+
+**`app_settings`** — generic key/value (currently only `from_email`):
+- `getFromEmail()` in `src/lib/lc-email.ts` is now `async` — reads DB first, falls back to `process.env.FROM_EMAIL`
+- All outbound senders go through it: `send-to-lc.ts`, `auth.ts` (magic links), `alerts.ts`
+- Empty/cleared setting → env fallback applies (preserves dev workflow)
+
+**At-send picker** lives inside the existing `BriefPreview` slide-over (`components/events/brief-preview.tsx`), rendered by `recipients-panel.tsx`:
+- To: dropdown of saved recipients OR "Type custom" mode for ad-hoc emails
+- CC: tag-style multi-select pre-filled with `isAutoCc` recipients, plus an Enter-to-add ad-hoc input
+- Picker state passed to `sendToLC(eventId, { to, cc[] })` — validated server-side by `resolveSendRecipients()` (dedupes, validates each email)
+- Re-send confirmation flow remembers the last picked recipients (`SendToLCButton` keeps them in state)
+
+Seed inserts one row: `Rory · LC` (`rory@lc-group.com`, default To, no auto-CC). If `FROM_EMAIL` is set in env at seed time, it's copied into `app_settings.from_email`. Legacy events that still store `"Rory"` as `lcRecipient` continue to resolve via `resolveLCEmail()`.
+
 ### Per-cocktail ice / straw / reference image (Spec H)
 `cocktails.iceType`, `iceAmountG`, `straw`, `strawType`, `referenceImageUrl` are surfaced on all 4 brief surfaces and the cocktails tab:
 - `brief-preview.tsx` — ice/straw lines + `<img>` reference

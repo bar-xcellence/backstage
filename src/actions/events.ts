@@ -1,14 +1,32 @@
 "use server";
 
 import { db } from "@/db";
-import { events, eventContacts } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { events, eventContacts, lcRecipients } from "@/db/schema";
+import { eq, desc, and } from "drizzle-orm";
 import { requireRole } from "@/lib/session";
 import { validateEvent } from "@/lib/event-validation";
 import { stripPartnerFinancials } from "@/lib/partner-event-sanitisation";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { generateChecklist } from "./checklists";
+
+async function getDefaultLcRecipientEmail(): Promise<string | null> {
+  try {
+    const [row] = await db
+      .select({ email: lcRecipients.email })
+      .from(lcRecipients)
+      .where(
+        and(
+          eq(lcRecipients.isDefaultTo, true),
+          eq(lcRecipients.isActive, true)
+        )
+      )
+      .limit(1);
+    return row?.email ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export async function createEvent(
   formData: FormData
@@ -27,6 +45,8 @@ export async function createEvent(
     return { errors };
   }
 
+  const defaultRecipientEmail = await getDefaultLcRecipientEmail();
+
   const [event] = await db
     .insert(events)
     .values({
@@ -34,6 +54,7 @@ export async function createEvent(
       eventDate: data.eventDate,
       venueName: data.venueName.trim(),
       guestCount: data.guestCount,
+      lcRecipient: defaultRecipientEmail ?? "Rory",
       showName: (formData.get("showName") as string)?.trim() || null,
       eventType:
         (formData.get("eventType") as
