@@ -18,6 +18,7 @@ import { stripPartnerFinancials } from "@/lib/partner-event-sanitisation";
 import { BriefPDF } from "@/lib/pdf/brief-pdf";
 import { TextOnlyBriefPDF } from "@/lib/pdf/text-only-brief-pdf";
 import { renderBriefWithFallback } from "@/lib/pdf/render-brief-with-fallback";
+import { fetchEventStandardNotes } from "@/lib/event-standard-notes-query";
 
 export async function GET(
   request: NextRequest,
@@ -86,6 +87,8 @@ export async function GET(
       })
     );
 
+    const standardNotes = await fetchEventStandardNotes(id);
+
     // Calculate stock
     const totalServes =
       (event.prepaidServes || 0) + (event.cardPaymentServes || 0);
@@ -115,11 +118,11 @@ export async function GET(
     const { buffer: pdfBuffer, usedFallback } = await renderBriefWithFallback(
       () =>
         renderToBuffer(
-          BriefPDF({ event: safeEvent, contacts, cocktails: enrichedCocktails, stock })
+          BriefPDF({ event: safeEvent, contacts, cocktails: enrichedCocktails, stock, standardNotes })
         ),
       () =>
         renderToBuffer(
-          TextOnlyBriefPDF({ event: safeEvent, contacts, cocktails: enrichedCocktails, stock })
+          TextOnlyBriefPDF({ event: safeEvent, contacts, cocktails: enrichedCocktails, stock, standardNotes })
         )
     );
 
