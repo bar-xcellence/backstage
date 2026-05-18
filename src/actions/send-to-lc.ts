@@ -11,6 +11,7 @@ import { calculateStock } from "@/lib/stock-calculator";
 import { validateSendToLC } from "@/lib/event-validation";
 import { resolveLCEmail, getFromEmail } from "@/lib/lc-email";
 import { buildBriefEmailHtml } from "@/lib/brief-email-template";
+import { fetchEventStandardNotes } from "@/lib/event-standard-notes-query";
 import { revalidatePath } from "next/cache";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -110,7 +111,9 @@ export async function sendToLC(
   });
   const stock = calculateStock(stockInput);
 
-  const html = buildBriefEmailHtml(event, eventCocktails, stock);
+  const standardNotes = await fetchEventStandardNotes(eventId);
+
+  const html = buildBriefEmailHtml(event, eventCocktails, stock, standardNotes);
 
   const result = await sendWithRetry({
     from: from.email,
