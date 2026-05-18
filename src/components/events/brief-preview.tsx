@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import type { BriefPreviewData } from "@/actions/brief-preview";
+import { stripWorkaroundMarkers } from "@/lib/notes-sanitization";
+import type { EventStandardNote } from "@/lib/event-standard-notes-query";
 
 function Section({
   title,
@@ -24,6 +26,7 @@ function Section({
 
 interface BriefPreviewProps {
   data: BriefPreviewData;
+  standardNotes: EventStandardNote[];
   onConfirm: () => void;
   onCancel: () => void;
   loading: boolean;
@@ -31,6 +34,7 @@ interface BriefPreviewProps {
 
 export function BriefPreview({
   data,
+  standardNotes,
   onConfirm,
   onCancel,
   loading,
@@ -313,7 +317,9 @@ export function BriefPreview({
           {hasNotes && (
             <Section title="Notes">
               <div className="space-y-2">
-                {event.notesCustom && <p>{event.notesCustom}</p>}
+                {event.notesCustom && (
+                  <p>{stripWorkaroundMarkers(event.notesCustom)}</p>
+                )}
                 {event.stationLayoutNotes && (
                   <p>
                     <span className="text-cream/50">Station layout:</span>{" "}
@@ -332,6 +338,22 @@ export function BriefPreview({
                     {event.menuNotes}
                   </p>
                 )}
+              </div>
+            </Section>
+          )}
+
+          {/* Standard Notes */}
+          {standardNotes.length > 0 && (
+            <Section title="Standard Notes">
+              <div className="space-y-3">
+                {standardNotes.map((note) => (
+                  <div key={note.label}>
+                    <p className="text-[11px] font-medium tracking-[0.16em] uppercase text-gold">
+                      {note.label}
+                    </p>
+                    <p className="whitespace-pre-line">{note.content}</p>
+                  </div>
+                ))}
               </div>
             </Section>
           )}
