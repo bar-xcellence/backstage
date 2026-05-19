@@ -13,9 +13,11 @@ test.describe("partner read-only", () => {
     ).toHaveCount(0);
   });
 
-  test("has no access to the dashboard", async ({ page }) => {
+  test("lands on the new partner dashboard at /", async ({ page }) => {
     await signInAs(page, "partner", "/");
-    await expect(page).toHaveURL(/\/events(\?|$|\/)/);
+    await expect(page).toHaveURL(/\/(\?|$)/);
+    // Owner-only top-half should not render
+    await expect(page.getByRole("heading", { name: /needs attention/i })).toHaveCount(0);
   });
 
   test("event detail hides financial fields and edit controls", async ({ page }) => {
