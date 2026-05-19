@@ -249,8 +249,8 @@ export type OwnerEventCard = {
 };
 
 export type DashboardEventListResult =
-  | { viewerRole: "partner"; events: PartnerEventCard[]; summary: SummaryTotals }
-  | { viewerRole: "owner"; events: OwnerEventCard[]; summary: SummaryTotals };
+  | { viewerRole: "partner"; events: PartnerEventCard[]; summary: SummaryTotals; globalEventCount: number }
+  | { viewerRole: "owner"; events: OwnerEventCard[]; summary: SummaryTotals; globalEventCount: number };
 
 function monthBounds(month: string, today: Date): { from: string; to: string | null } {
   if (month === "upcoming") {
@@ -275,6 +275,12 @@ export async function getDashboardEvents(params: {
 
   const today = new Date();
   const filters: DashboardFilters = parseFilters(params, effectiveRole, today);
+
+  // Count total events globally — used for empty-state branching
+  const globalCountRows = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(events);
+  const globalEventCount = globalCountRows[0]?.n ?? 0;
 
   const { from, to } = monthBounds(filters.month, today);
 
@@ -324,7 +330,7 @@ export async function getDashboardEvents(params: {
     const partnerEvents: PartnerEventCard[] = allRows.map((r) =>
       projectPartnerEvent(r, serveByEvent.get(r.id) ?? 0)
     );
-    return { viewerRole: "partner", events: partnerEvents, summary };
+    return { viewerRole: "partner", events: partnerEvents, summary, globalEventCount };
   }
 
   // Owner / super_admin: fetch checklist counts
@@ -372,5 +378,5 @@ export async function getDashboardEvents(params: {
     };
   });
 
-  return { viewerRole: "owner", events: ownerEvents, summary };
+  return { viewerRole: "owner", events: ownerEvents, summary, globalEventCount };
 }

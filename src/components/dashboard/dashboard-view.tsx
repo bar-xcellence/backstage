@@ -6,14 +6,14 @@ import { ViewAsBanner } from "./view-as-banner";
 import { MonthHeader } from "./month-header";
 import { SummaryStrip } from "./summary-strip";
 import { EventCardList } from "./event-card-list";
+import { EmptyDashboard } from "./empty-dashboard";
 
 type Props = {
-  ownerData: DashboardData | null;        // null for partner view
+  ownerData: DashboardData | null;
   eventList: DashboardEventListResult;
   month: string;
   statuses: DbStatus[];
   showViewAsBanner: boolean;
-  allowCreate: boolean;                   // true only for real owner (not view-as)
 };
 
 export function DashboardView({
@@ -22,17 +22,31 @@ export function DashboardView({
   month,
   statuses,
   showViewAsBanner,
-  allowCreate,
 }: Props) {
+  const isGloballyEmpty = eventList.globalEventCount === 0;
+
+  // Globally empty paths — render a single unified empty state, no month section.
+  if (isGloballyEmpty) {
+    if (eventList.viewerRole === "partner") {
+      return (
+        <>
+          {showViewAsBanner && <ViewAsBanner />}
+          <EmptyDashboard />
+        </>
+      );
+    }
+    // Owner with zero events: DashboardClient's own zero-state renders the welcome.
+    return ownerData ? <DashboardClient data={ownerData} /> : null;
+  }
+
+  // Has at least one event — normal dashboard layout.
   return (
     <>
       {showViewAsBanner && <ViewAsBanner />}
 
       <div className="space-y-12">
-        {/* Owner-only top half */}
         {ownerData && <DashboardClient data={ownerData} />}
 
-        {/* Month-of-cards (both roles) */}
         <section className="space-y-6">
           <MonthHeader
             month={month}
@@ -47,11 +61,7 @@ export function DashboardView({
           {eventList.viewerRole === "partner" ? (
             <EventCardList variant="partner" events={eventList.events} />
           ) : (
-            <EventCardList
-              variant="owner"
-              events={eventList.events}
-              allowCreate={allowCreate}
-            />
+            <EventCardList variant="owner" events={eventList.events} />
           )}
         </section>
       </div>
