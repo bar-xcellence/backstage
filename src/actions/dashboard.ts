@@ -5,6 +5,19 @@ import { events, eventChecklists } from "@/db/schema";
 import { eq, and, ne, inArray } from "drizzle-orm";
 import { requireRole } from "@/lib/session";
 import { checkAndSendAlerts } from "./alerts";
+import {
+  projectPartnerEvent,
+  type PartnerEventCard,
+} from "@/lib/partner-event-projection";
+import { rollUpSummary, type SummaryTotals } from "@/lib/dashboard-summary";
+import {
+  parseFilters,
+  resolveEffectiveRole,
+  type Role,
+  type DashboardFilters,
+} from "@/lib/dashboard-filters";
+import { eventCocktails } from "@/db/schema";
+import { sql } from "drizzle-orm";
 
 export interface DashboardData {
   userName: string;
@@ -207,4 +220,157 @@ export async function getDashboardData(): Promise<DashboardData> {
     actions,
     upcoming,
   };
+}
+
+export type OwnerEventCard = {
+  id: string;
+  eventDate: string;
+  eventType: string | null;
+  guestCount: number;
+  serveCount: number;
+  elementsSummary: string | null;
+  venueName: string;
+  venueHallRoom: string | null;
+  addressLine1: string | null;
+  addressLine2: string | null;
+  city: string | null;
+  postcode: string | null;
+  venueTenant: string | null;
+  cateringPartner: string | null;
+  status: string;
+  lcPayout: string | null;
+  commissionNote: string | null;
+  // Owner-only:
+  invoiceAmount: string | null;
+  costAmount: string | null;
+  lcSentAt: Date | null;
+  checklistComplete: number;
+  checklistTotal: number;
+};
+
+export type DashboardEventListResult =
+  | { viewerRole: "partner"; events: PartnerEventCard[]; summary: SummaryTotals }
+  | { viewerRole: "owner"; events: OwnerEventCard[]; summary: SummaryTotals };
+
+function monthBounds(month: string, today: Date): { from: string; to: string | null } {
+  if (month === "upcoming") {
+    const todayStr = toDateString(today);
+    return { from: todayStr, to: null };
+  }
+  const [y, m] = month.split("-").map(Number);
+  const from = `${y}-${String(m).padStart(2, "0")}-01`;
+  const lastDay = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const to = `${y}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+  return { from, to };
+}
+
+export async function getDashboardEvents(params: {
+  month?: string;
+  statuses?: string;
+  viewAs?: string;
+}): Promise<DashboardEventListResult> {
+  const session = await requireRole("owner", "super_admin", "partner");
+  const sessionRole = session.role as Role;
+  const effectiveRole = resolveEffectiveRole(sessionRole, params.viewAs);
+
+  const today = new Date();
+  const filters: DashboardFilters = parseFilters(params, effectiveRole, today);
+
+  const { from, to } = monthBounds(filters.month, today);
+
+  // Build event query
+  const allRows = await db
+    .select()
+    .from(events)
+    .where(
+      and(
+        inArray(events.status, filters.statuses),
+        to === null
+          ? sql`${events.eventDate} >= ${from}`
+          : and(
+              sql`${events.eventDate} >= ${from}`,
+              sql`${events.eventDate} <= ${to}`
+            )
+      )
+    )
+    .orderBy(events.eventDate);
+
+  // Compute serve counts via cocktails join in a single query
+  const eventIds = allRows.map((r) => r.id);
+  let serveByEvent = new Map<string, number>();
+  if (eventIds.length > 0) {
+    const serveRows = await db
+      .select({
+        eventId: eventCocktails.eventId,
+        total: sql<number>`coalesce(sum(${eventCocktails.servesAllocated}), 0)::int`,
+      })
+      .from(eventCocktails)
+      .where(inArray(eventCocktails.eventId, eventIds))
+      .groupBy(eventCocktails.eventId);
+    serveByEvent = new Map(serveRows.map((r) => [r.eventId, r.total]));
+  }
+
+  // Summary uses raw rows (all fields) — never escapes the server
+  const summary = rollUpSummary(
+    allRows.map((r) => ({
+      status: r.status,
+      lcPayout: r.lcPayout,
+      invoiceAmount: r.invoiceAmount,
+      lcSentAt: r.lcSentAt,
+    }))
+  );
+
+  if (effectiveRole === "partner") {
+    const partnerEvents: PartnerEventCard[] = allRows.map((r) =>
+      projectPartnerEvent(r, serveByEvent.get(r.id) ?? 0)
+    );
+    return { viewerRole: "partner", events: partnerEvents, summary };
+  }
+
+  // Owner / super_admin: fetch checklist counts
+  let checklistByEvent = new Map<string, { complete: number; total: number }>();
+  if (eventIds.length > 0) {
+    const checklistRows = await db
+      .select({
+        eventId: eventChecklists.eventId,
+        complete: sql<number>`sum(case when ${eventChecklists.isCompleted} then 1 else 0 end)::int`,
+        total: sql<number>`count(*)::int`,
+      })
+      .from(eventChecklists)
+      .where(inArray(eventChecklists.eventId, eventIds))
+      .groupBy(eventChecklists.eventId);
+    checklistByEvent = new Map(
+      checklistRows.map((r) => [r.eventId, { complete: r.complete, total: r.total }])
+    );
+  }
+
+  const ownerEvents: OwnerEventCard[] = allRows.map((r) => {
+    const checklist = checklistByEvent.get(r.id) ?? { complete: 0, total: 0 };
+    return {
+      id: r.id,
+      eventDate: r.eventDate,
+      eventType: r.eventType ?? null,
+      guestCount: r.guestCount,
+      serveCount: serveByEvent.get(r.id) ?? 0,
+      elementsSummary: r.elementsSummary,
+      venueName: r.venueName,
+      venueHallRoom: r.venueHallRoom,
+      addressLine1: r.addressLine1,
+      addressLine2: r.addressLine2,
+      city: r.city,
+      postcode: r.postcode,
+      venueTenant: r.venueTenant,
+      cateringPartner: r.cateringPartner,
+      status: r.status,
+      lcPayout: r.lcPayout,
+      commissionNote: r.commissionNote,
+      invoiceAmount: r.invoiceAmount,
+      costAmount: r.costAmount,
+      lcSentAt: r.lcSentAt,
+      checklistComplete: checklist.complete,
+      checklistTotal: checklist.total,
+    };
+  });
+
+  return { viewerRole: "owner", events: ownerEvents, summary };
 }
