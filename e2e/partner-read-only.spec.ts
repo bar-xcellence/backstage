@@ -41,4 +41,30 @@ test.describe("partner read-only", () => {
     await expect(page.getByRole("link", { name: /edit/i })).toHaveCount(0);
     await expect(page.getByRole("button", { name: /send to lc/i })).toHaveCount(0);
   });
+
+  test("sidebar has a Dashboard link for partner", async ({ page }) => {
+    await signInAs(page, "partner", "/");
+    await expect(
+      page.getByRole("link", { name: /^DASHBOARD$/i })
+    ).toBeVisible();
+  });
+
+  test("event detail shows LC Payout section to partner", async ({ page }) => {
+    await signInAs(page, "partner", "/events");
+
+    const firstEventLink = page.locator('a[href^="/events/"]').first();
+    if ((await firstEventLink.count()) === 0) {
+      test.skip(true, "no partner-visible events seeded — nothing to inspect");
+      return;
+    }
+
+    await firstEventLink.click();
+    await page.waitForURL(/\/events\/[0-9a-f-]+/i);
+
+    await expect(
+      page.getByRole("heading", { name: /^LC Payout$/i })
+    ).toBeVisible();
+    // Payout figure formatted as GBP (£ symbol + digits)
+    await expect(page.getByText(/£[\d,]+/)).toBeVisible();
+  });
 });
