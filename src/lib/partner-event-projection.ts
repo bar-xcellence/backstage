@@ -8,6 +8,8 @@
  * of these three lists.
  */
 
+import { toPartnerStatus, type DbStatus, type DisplayStatus } from "./dashboard-status";
+
 // Real columns on `events` that a partner may receive.
 export const PARTNER_VISIBLE_DB_FIELDS = [
   "id",
@@ -99,7 +101,7 @@ export type PartnerEventCard = {
   postcode: string | null;
   venueTenant: string | null;
   cateringPartner: string | null;
-  status: string;
+  status: DisplayStatus;
   lcPayout: string | null;
   commissionNote: string | null;
 };
@@ -127,7 +129,7 @@ export function projectPartnerEvent(
     postcode: (row.postcode as string | null) ?? null,
     venueTenant: (row.venueTenant as string | null) ?? null,
     cateringPartner: (row.cateringPartner as string | null) ?? null,
-    status: row.status as string,
+    status: toPartnerStatus(row.status as DbStatus),
     lcPayout: (row.lcPayout as string | null) ?? null,
     commissionNote: (row.commissionNote as string | null) ?? null,
   };

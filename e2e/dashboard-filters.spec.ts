@@ -8,10 +8,16 @@ test.describe("dashboard filters", () => {
     const monthSelect = page.getByLabel("Month");
     await monthSelect.waitFor({ state: "visible" });
 
-    // Pick an option that isn't the current month
-    const options = await monthSelect.locator("option").allTextContents();
-    const otherOption = options.find((o) => o !== options[1]) ?? options[0];
-    await monthSelect.selectOption({ label: otherOption });
+    // Pick the first option whose value differs from the currently-selected one.
+    const currentValue = await monthSelect.inputValue();
+    const optionValues = await monthSelect.locator("option").evaluateAll((els) =>
+      (els as HTMLOptionElement[]).map((el) => el.value)
+    );
+    const otherValue = optionValues.find((v) => v && v !== currentValue);
+    if (!otherValue) {
+      throw new Error("Month select has no alternative option to switch to");
+    }
+    await monthSelect.selectOption(otherValue);
 
     await expect(page).toHaveURL(/\?.*month=/);
   });

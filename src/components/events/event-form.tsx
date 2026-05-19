@@ -15,6 +15,7 @@ function FormField({
   required = false,
   defaultValue,
   placeholder,
+  step,
 }: {
   label: string;
   name: string;
@@ -22,6 +23,7 @@ function FormField({
   required?: boolean;
   defaultValue?: string | number | null;
   placeholder?: string;
+  step?: string;
 }) {
   return (
     <div>
@@ -39,6 +41,7 @@ function FormField({
         required={required}
         defaultValue={defaultValue ?? ""}
         placeholder={placeholder}
+        step={step}
         className="w-full px-3 py-2.5 bg-surface-low border-b-2 border-outline/15 text-charcoal font-[family-name:var(--font-raleway)] text-sm focus:border-gold focus:outline-none transition-colors duration-200 placeholder:text-grey/40 min-h-[44px]"
       />
     </div>
@@ -328,6 +331,7 @@ export function EventForm({
             label="Invoice amount"
             name="invoiceAmount"
             type="number"
+            step="0.01"
             defaultValue={defaultValues.invoiceAmount}
             placeholder="5000"
           />
@@ -335,6 +339,7 @@ export function EventForm({
             label="LC payout"
             name="lcPayout"
             type="number"
+            step="0.01"
             defaultValue={defaultValues.lcPayout ?? ""}
             placeholder="1400"
           />

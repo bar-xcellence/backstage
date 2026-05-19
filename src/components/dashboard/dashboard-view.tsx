@@ -54,7 +54,11 @@ export function DashboardView({
             eventCount={eventList.events.length}
             variant={eventList.viewerRole}
           />
-          <SummaryStrip summary={eventList.summary} variant={eventList.viewerRole} />
+          {eventList.viewerRole === "partner" ? (
+            <SummaryStrip variant="partner" summary={eventList.summary} />
+          ) : (
+            <SummaryStrip variant="owner" summary={eventList.summary} />
+          )}
         </section>
 
         <section>

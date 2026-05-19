@@ -95,7 +95,9 @@ Seed inserts one row: `Rory · LC` (`rory@lc-group.com`, default To, no auto-CC)
 
 Pinned classification: every column on `events` is classified into `PARTNER_VISIBLE_DB_FIELDS`, `PARTNER_STRIPPED_FIELDS`, or `OWNER_ONLY_FIELDS` in `src/lib/partner-event-projection.ts`. Adding a new column without classifying it fails `partner-event-projection.test.ts`.
 
-Status mapping: `toPartnerStatus()` in `src/lib/dashboard-status.ts` collapses the 6-state db enum to the 4-state display set (`provisional`/`confirmed`/`delivered`/`cancelled`). The db enum is unchanged.
+Status mapping: `toPartnerStatus()` in `src/lib/dashboard-status.ts` collapses the 6-state db enum to the 4-state display set (`provisional`/`confirmed`/`delivered`/`cancelled`). The db enum is unchanged. The mapping is applied **at the projection boundary** in `projectPartnerEvent()` — `PartnerEventCard.status: DisplayStatus`, so raw db statuses like `enquiry`/`preparation`/`ready` never reach the partner client payload.
+
+Partner summary isolation: `toPartnerSummary()` in `src/lib/dashboard-summary.ts` narrows `SummaryTotals` to `PartnerSummary` (`eventCount`/`confirmedTotal`/`provisionalTotal` only). `getDashboardEvents` applies it in the partner branch so `invoicedDeliveredTotal` and `briefUnsentCount` (owner workflow signals) never appear in the partner response payload.
 
 Three new fields on `events`: `lcPayout` (numeric), `commissionNote` (text), `elementsSummary` (text). All optional. Form has all three in the Financial section.
 

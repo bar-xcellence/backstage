@@ -15,6 +15,20 @@ export type SummaryTotals = {
   briefUnsentCount: number;
 };
 
+// Partner-safe subset of SummaryTotals — omits invoice + brief-workflow signals.
+export type PartnerSummary = Pick<
+  SummaryTotals,
+  "eventCount" | "confirmedTotal" | "provisionalTotal"
+>;
+
+export function toPartnerSummary(s: SummaryTotals): PartnerSummary {
+  return {
+    eventCount: s.eventCount,
+    confirmedTotal: s.confirmedTotal,
+    provisionalTotal: s.provisionalTotal,
+  };
+}
+
 const CONFIRMED_PLUS: ReadonlyArray<DbStatus> = [
   "confirmed",
   "preparation",

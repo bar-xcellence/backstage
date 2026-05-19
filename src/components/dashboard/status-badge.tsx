@@ -1,10 +1,8 @@
 import type { DbStatus, DisplayStatus } from "@/lib/dashboard-status";
-import { toPartnerStatus } from "@/lib/dashboard-status";
 
-type Props = {
-  status: DbStatus;
-  variant: "partner" | "owner";
-};
+type Props =
+  | { status: DisplayStatus; variant: "partner" }
+  | { status: DbStatus; variant: "owner" };
 
 const PARTNER_LABELS: Record<DisplayStatus, string> = {
   provisional: "Provisional",
@@ -63,9 +61,9 @@ function ownerBadgeClass(status: DbStatus): string {
   return `${base} border border-error text-error`;
 }
 
-export function StatusBadge({ status, variant }: Props) {
-  if (variant === "partner") {
-    const display = toPartnerStatus(status);
+export function StatusBadge(props: Props) {
+  if (props.variant === "partner") {
+    const display = props.status;
     const label = PARTNER_LABELS[display];
     const className = partnerBadgeClass(display);
     return display === "provisional" ? (
@@ -84,6 +82,7 @@ export function StatusBadge({ status, variant }: Props) {
   }
 
   // owner
+  const status = props.status;
   return (
     <span
       className={ownerBadgeClass(status)}

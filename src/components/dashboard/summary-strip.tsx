@@ -1,4 +1,8 @@
-import type { SummaryTotals } from "@/lib/dashboard-summary";
+import type { PartnerSummary, SummaryTotals } from "@/lib/dashboard-summary";
+
+type Props =
+  | { variant: "partner"; summary: PartnerSummary }
+  | { variant: "owner"; summary: SummaryTotals };
 
 function gbp(n: number): string {
   return new Intl.NumberFormat("en-GB", {
@@ -9,13 +13,8 @@ function gbp(n: number): string {
   }).format(n);
 }
 
-export function SummaryStrip({
-  summary,
-  variant,
-}: {
-  summary: SummaryTotals;
-  variant: "partner" | "owner";
-}) {
+export function SummaryStrip(props: Props) {
+  const { summary } = props;
   const parts: string[] = [];
   parts.push(`${gbp(summary.confirmedTotal)} confirmed`);
   if (summary.provisionalTotal > 0) {
@@ -23,13 +22,13 @@ export function SummaryStrip({
   }
 
   const ownerLineParts: string[] = [];
-  if (variant === "owner") {
-    if (summary.invoicedDeliveredTotal > 0) {
-      ownerLineParts.push(`${gbp(summary.invoicedDeliveredTotal)} invoiced this month`);
+  if (props.variant === "owner") {
+    if (props.summary.invoicedDeliveredTotal > 0) {
+      ownerLineParts.push(`${gbp(props.summary.invoicedDeliveredTotal)} invoiced this month`);
     }
-    if (summary.briefUnsentCount > 0) {
+    if (props.summary.briefUnsentCount > 0) {
       ownerLineParts.push(
-        `${summary.briefUnsentCount} brief${summary.briefUnsentCount === 1 ? "" : "s"} unsent`
+        `${props.summary.briefUnsentCount} brief${props.summary.briefUnsentCount === 1 ? "" : "s"} unsent`
       );
     }
   }
@@ -37,7 +36,7 @@ export function SummaryStrip({
   return (
     <div className="space-y-1 font-[family-name:var(--font-raleway)]">
       <p className="text-sm text-charcoal">{parts.join(" · ")}</p>
-      {variant === "owner" && ownerLineParts.length > 0 && (
+      {props.variant === "owner" && ownerLineParts.length > 0 && (
         <p className="text-sm text-grey">{ownerLineParts.join(" · ")}</p>
       )}
     </div>

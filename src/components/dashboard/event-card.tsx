@@ -2,8 +2,10 @@ import type { PartnerEventCard } from "@/lib/partner-event-projection";
 import type { OwnerEventCard } from "@/actions/dashboard";
 import { formatAddressLines } from "@/lib/address-format";
 import { StatusBadge } from "./status-badge";
-import type { DbStatus } from "@/lib/dashboard-status";
+import type { DbStatus, DisplayStatus } from "@/lib/dashboard-status";
 import Link from "next/link";
+
+type AnyStatus = DbStatus | DisplayStatus;
 
 type Props =
   | { variant: "partner"; event: PartnerEventCard }
@@ -44,13 +46,13 @@ function formatPayout(s: string | null): string | null {
   }).format(n);
 }
 
-function cardOpacityClass(status: DbStatus): string {
+function cardOpacityClass(status: AnyStatus): string {
   if (status === "delivered") return "opacity-70";
   if (status === "cancelled") return "opacity-50";
   return "";
 }
 
-function dateClass(status: DbStatus): string {
+function dateClass(status: AnyStatus): string {
   const base = "font-[family-name:var(--font-cormorant)] font-light text-gold";
   if (status === "cancelled") return `${base} line-through`;
   return base;
@@ -59,7 +61,7 @@ function dateClass(status: DbStatus): string {
 export function EventCard(props: Props) {
   const { event, variant } = props;
   const { day, month } = formatDateBlock(event.eventDate);
-  const dbStatus = event.status as DbStatus;
+  const status = event.status;
   const addressLines = formatAddressLines({
     venueName: event.venueName,
     venueTenant: event.venueTenant,
@@ -72,15 +74,19 @@ export function EventCard(props: Props) {
   });
 
   const body = (
-    <div className={`bg-cream p-8 ${cardOpacityClass(dbStatus)}`}>
+    <div className={`bg-cream p-8 ${cardOpacityClass(status)}`}>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <div className={dateClass(dbStatus)}>
+          <div className={dateClass(status)}>
             <span className="text-[64px] leading-none">{day}</span>
             <span className="text-[24px] ml-2 tracking-[0.18em]">{month}</span>
           </div>
         </div>
-        <StatusBadge status={dbStatus} variant={variant} />
+        {props.variant === "partner" ? (
+          <StatusBadge status={props.event.status} variant="partner" />
+        ) : (
+          <StatusBadge status={props.event.status as DbStatus} variant="owner" />
+        )}
       </div>
 
       <div className="mt-6 font-[family-name:var(--font-raleway)] text-charcoal">

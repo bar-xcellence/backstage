@@ -9,7 +9,13 @@ import {
   projectPartnerEvent,
   type PartnerEventCard,
 } from "@/lib/partner-event-projection";
-import { rollUpSummary, type SummaryTotals } from "@/lib/dashboard-summary";
+import {
+  rollUpSummary,
+  toPartnerSummary,
+  type SummaryTotals,
+  type PartnerSummary,
+} from "@/lib/dashboard-summary";
+import type { DbStatus } from "@/lib/dashboard-status";
 import {
   parseFilters,
   resolveEffectiveRole,
@@ -237,7 +243,7 @@ export type OwnerEventCard = {
   postcode: string | null;
   venueTenant: string | null;
   cateringPartner: string | null;
-  status: string;
+  status: DbStatus;
   lcPayout: string | null;
   commissionNote: string | null;
   // Owner-only:
@@ -249,7 +255,7 @@ export type OwnerEventCard = {
 };
 
 export type DashboardEventListResult =
-  | { viewerRole: "partner"; events: PartnerEventCard[]; summary: SummaryTotals; globalEventCount: number }
+  | { viewerRole: "partner"; events: PartnerEventCard[]; summary: PartnerSummary; globalEventCount: number }
   | { viewerRole: "owner"; events: OwnerEventCard[]; summary: SummaryTotals; globalEventCount: number };
 
 function monthBounds(month: string, today: Date): { from: string; to: string | null } {
@@ -330,7 +336,12 @@ export async function getDashboardEvents(params: {
     const partnerEvents: PartnerEventCard[] = allRows.map((r) =>
       projectPartnerEvent(r, serveByEvent.get(r.id) ?? 0)
     );
-    return { viewerRole: "partner", events: partnerEvents, summary, globalEventCount };
+    return {
+      viewerRole: "partner",
+      events: partnerEvents,
+      summary: toPartnerSummary(summary),
+      globalEventCount,
+    };
   }
 
   // Owner / super_admin: fetch checklist counts
@@ -367,7 +378,7 @@ export async function getDashboardEvents(params: {
       postcode: r.postcode,
       venueTenant: r.venueTenant,
       cateringPartner: r.cateringPartner,
-      status: r.status,
+      status: r.status as DbStatus,
       lcPayout: r.lcPayout,
       commissionNote: r.commissionNote,
       invoiceAmount: r.invoiceAmount,
