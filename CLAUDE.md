@@ -85,6 +85,20 @@ New `/settings` route (owner + super_admin only — partner is redirected to `/e
 
 Seed inserts one row: `Rory · LC` (`rory@lc-group.com`, default To, no auto-CC). If `FROM_EMAIL` is set in env at seed time, it's copied into `app_settings.from_email`. Legacy events that still store `"Rory"` as `lcRecipient` continue to resolve via `resolveLCEmail()`.
 
+### Dashboard (Spec K — partner + owner unified)
+`/` is the single landing route for all roles. Role-aware shell renders:
+- Partner: month-of-cards view from PRD §5 (no KPI strip, no actions queue). Cards are non-interactive, show only `lcPayout`, `commissionNote`, `elementsSummary`, plus the partner-visible base fields.
+- Owner + super_admin: existing KPI strip + actions queue (unchanged) above the new month header + summary strip + cards. Owner cards add a footer panel with Invoice / Cost / Margin / Payout, brief sent status, checklist progress, and a T-N days countdown. Whole card is a link to `/events/{id}`.
+- `?viewAs=partner` is honoured for owner/super_admin only — shows a sticky gold-bordered banner. Partner sees no banner.
+- Filter state lives in URL (`?month=YYYY-MM&statuses=confirmed,enquiry`). Last-chip-deselect resists with a pulse.
+- Empty states: globally empty + partner → warm welcome ("Briefs will appear here once Murdo confirms…"); globally empty + owner → existing `DashboardClient` zero-state with "Create event" CTA; filter empty → "No events in this window." Both roles avoid double-empty rendering by gating the month section on `globalEventCount > 0`.
+
+Pinned classification: every column on `events` is classified into `PARTNER_VISIBLE_DB_FIELDS`, `PARTNER_STRIPPED_FIELDS`, or `OWNER_ONLY_FIELDS` in `src/lib/partner-event-projection.ts`. Adding a new column without classifying it fails `partner-event-projection.test.ts`.
+
+Status mapping: `toPartnerStatus()` in `src/lib/dashboard-status.ts` collapses the 6-state db enum to the 4-state display set (`provisional`/`confirmed`/`delivered`/`cancelled`). The db enum is unchanged.
+
+Three new fields on `events`: `lcPayout` (numeric), `commissionNote` (text), `elementsSummary` (text). All optional. Form has all three in the Financial section.
+
 ### Per-cocktail ice / straw / reference image (Spec H)
 `cocktails.iceType`, `iceAmountG`, `straw`, `strawType`, `referenceImageUrl` are surfaced on all 4 brief surfaces and the cocktails tab:
 - `brief-preview.tsx` — ice/straw lines + `<img>` reference
