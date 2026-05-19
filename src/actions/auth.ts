@@ -11,6 +11,22 @@ import {
 } from "@/lib/auth";
 import { createSession, destroySession } from "@/lib/session";
 import { getFromEmail } from "@/lib/lc-email";
+import { headers } from "next/headers";
+
+async function resolveBaseUrl(): Promise<string | null> {
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (envUrl) return envUrl.replace(/\/$/, "");
+
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  if (!host) return null;
+  const proto =
+    h.get("x-forwarded-proto") ??
+    (host.startsWith("localhost") || host.startsWith("127.0.0.1")
+      ? "http"
+      : "https");
+  return `${proto}://${host}`;
+}
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -35,11 +51,21 @@ export async function sendMagicLink(
       return { error: "Sign-in is temporarily unavailable. Contact an administrator." };
     }
 
+    const baseUrl = await resolveBaseUrl();
+    if (!baseUrl) {
+      console.error(
+        "sendMagicLink: could not resolve base URL — set NEXT_PUBLIC_APP_URL or ensure the request includes a Host header"
+      );
+      return {
+        error: "Sign-in is temporarily unavailable. Contact an administrator.",
+      };
+    }
+
     const token = await createMagicLinkToken(
       email,
       process.env.MAGIC_LINK_SECRET!
     );
-    const magicLink = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify?token=${token}`;
+    const magicLink = `${baseUrl}/auth/verify?token=${token}`;
 
     await resend.emails.send({
       from: from.email,
