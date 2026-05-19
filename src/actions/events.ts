@@ -99,6 +99,9 @@ export async function createEvent(
         (formData.get("batchingInstructions") as string)?.trim() || null,
       invoiceAmount: (formData.get("invoiceAmount") as string) || null,
       notesCustom: (formData.get("notesCustom") as string)?.trim() || null,
+      lcPayout: (formData.get("lcPayout") as string) || null,
+      commissionNote: (formData.get("commissionNote") as string)?.trim() || null,
+      elementsSummary: (formData.get("elementsSummary") as string)?.trim() || null,
       createdBy: session.userId,
       status: "enquiry",
     })
@@ -180,6 +183,9 @@ export async function updateEvent(
       stockReturnPolicy:
         (formData.get("stockReturnPolicy") as string)?.trim() || null,
       notesCustom: (formData.get("notesCustom") as string)?.trim() || null,
+      lcPayout: (formData.get("lcPayout") as string) || null,
+      commissionNote: (formData.get("commissionNote") as string)?.trim() || null,
+      elementsSummary: (formData.get("elementsSummary") as string)?.trim() || null,
       status:
         (formData.get("status") as
           | "enquiry"

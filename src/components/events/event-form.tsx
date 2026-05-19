@@ -331,6 +331,27 @@ export function EventForm({
             defaultValue={defaultValues.invoiceAmount}
             placeholder="5000"
           />
+          <FormField
+            label="LC payout"
+            name="lcPayout"
+            type="number"
+            defaultValue={defaultValues.lcPayout ?? ""}
+            placeholder="1400"
+          />
+          <TextArea
+            label="Commission note"
+            name="commissionNote"
+            defaultValue={defaultValues.commissionNote ?? ""}
+            placeholder="Small commission on cocktails sold at £9.95 each after 200 serves"
+            rows={2}
+          />
+          <TextArea
+            label="Elements summary"
+            name="elementsSummary"
+            defaultValue={defaultValues.elementsSummary ?? ""}
+            placeholder="2 cocktail bartenders, pop up bar, stock/glass for 150 serves"
+            rows={2}
+          />
           <TextArea
             label="Notes"
             name="notesCustom"
