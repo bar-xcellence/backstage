@@ -51,6 +51,11 @@ async function seed() {
       { email: "murdo@bar-excellence.app", name: "Murdo", role: "owner" },
       { email: "rob@roberthayford.com", name: "Rob", role: "super_admin" },
       { email: "rory@lc-group.com", name: "Rory", role: "partner" },
+      {
+        email: "roberthayford@outlook.com",
+        name: "Rob (Partner test)",
+        role: "partner",
+      },
     ])
     .onConflictDoNothing()
     .returning({ id: users.id, email: users.email });
