@@ -141,7 +141,129 @@ export function EventCard(props: Props) {
   return body;
 }
 
-function OwnerFooter(_props: { event: OwnerEventCard }) {
-  // Implemented in Task 10
-  return null;
+function formatMoney(s: string | null): string {
+  if (s === null) return "—";
+  const n = parseFloat(s);
+  if (!Number.isFinite(n)) return "—";
+  return new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency: "GBP",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(n);
+}
+
+function formatMargin(invoice: string | null, cost: string | null): string {
+  if (invoice === null || cost === null) return "—";
+  const i = parseFloat(invoice);
+  const c = parseFloat(cost);
+  if (!Number.isFinite(i) || !Number.isFinite(c)) return "—";
+  return formatMoney(String(i - c));
+}
+
+function daysUntil(eventDate: string, today: Date = new Date()): number {
+  const target = new Date(eventDate + "T00:00:00Z");
+  const midnight = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
+  );
+  return Math.round(
+    (target.getTime() - midnight.getTime()) / (1000 * 60 * 60 * 24)
+  );
+}
+
+function countdownLabel(eventDate: string, status: DbStatus): {
+  text: string;
+  urgent: boolean;
+} {
+  if (status === "delivered" || status === "cancelled") {
+    return { text: status === "delivered" ? "DELIVERED" : "CANCELLED", urgent: false };
+  }
+  const n = daysUntil(eventDate);
+  if (n < 0) return { text: "PAST", urgent: true };
+  if (n === 0) return { text: "TODAY", urgent: true };
+  return { text: `T-${n} DAYS`, urgent: n <= 7 };
+}
+
+function briefStatusLabel(
+  status: DbStatus,
+  lcSentAt: Date | null
+): { text: string; urgent: boolean } {
+  if (status === "enquiry") return { text: "—", urgent: false };
+  if (lcSentAt) {
+    const d = new Date(lcSentAt);
+    const fmt = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(d);
+    return { text: `sent ${fmt}`, urgent: false };
+  }
+  return { text: "Not sent", urgent: true };
+}
+
+function OwnerFooter({ event }: { event: OwnerEventCard }) {
+  const countdown = countdownLabel(event.eventDate as string, event.status as DbStatus);
+  const brief = briefStatusLabel(event.status as DbStatus, event.lcSentAt);
+  const checklistUrgent =
+    event.checklistTotal > 0 &&
+    event.checklistComplete < event.checklistTotal &&
+    daysUntil(event.eventDate as string) <= 2 &&
+    daysUntil(event.eventDate as string) >= 0;
+
+  return (
+    <div className="mt-8 bg-surface-low p-6">
+      {/* 4 figures, two columns on mobile, four on desktop */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3">
+        <div>
+          <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold">
+            Invoice
+          </p>
+          <p className="font-[family-name:var(--font-raleway)] text-base font-semibold text-charcoal mt-1">
+            {formatMoney(event.invoiceAmount)}
+          </p>
+        </div>
+        <div>
+          <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold">
+            Cost
+          </p>
+          <p className="font-[family-name:var(--font-raleway)] text-base font-semibold text-charcoal mt-1">
+            {formatMoney(event.costAmount)}
+          </p>
+        </div>
+        <div>
+          <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold">
+            Margin
+          </p>
+          <p className="font-[family-name:var(--font-raleway)] text-base font-semibold text-charcoal mt-1">
+            {formatMargin(event.invoiceAmount, event.costAmount)}
+          </p>
+        </div>
+        <div>
+          <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold">
+            Payout
+          </p>
+          <p className="font-[family-name:var(--font-raleway)] text-base font-semibold text-charcoal mt-1">
+            {formatMoney(event.lcPayout)}
+          </p>
+        </div>
+      </div>
+
+      {/* Brief, checklist, countdown */}
+      <div className="mt-4 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+        <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 font-[family-name:var(--font-raleway)] text-[13px]">
+          <span className={brief.urgent ? "text-gold font-semibold" : "text-grey"}>
+            Brief: {brief.text}
+          </span>
+          <span className={checklistUrgent ? "text-gold font-semibold" : "text-grey"}>
+            Checklist: {event.checklistTotal === 0
+              ? "—"
+              : `${event.checklistComplete} / ${event.checklistTotal}`}
+          </span>
+        </div>
+        <span
+          className={`font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase ${
+            countdown.urgent ? "text-gold" : "text-charcoal"
+          }`}
+        >
+          {countdown.text}
+        </span>
+      </div>
+    </div>
+  );
 }
