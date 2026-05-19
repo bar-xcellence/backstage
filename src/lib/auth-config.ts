@@ -24,4 +24,5 @@ export const ALLOWED_EMAILS = [
   "murdo@bar-excellence.app",
   "rob@roberthayford.com",
   "rory@lc-group.com",
+  "roberthayford@outlook.com",
 ] as const;
