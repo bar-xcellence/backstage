@@ -187,6 +187,12 @@ export const events = pgTable("events", {
   // Status and lifecycle
   status: eventStatusEnum("status").default("enquiry").notNull(),
   notesCustom: text("notes_custom"),
+
+  // Dashboard / LC partner surface
+  lcPayout: decimal("lc_payout", { precision: 10, scale: 2 }),
+  commissionNote: text("commission_note"),
+  elementsSummary: text("elements_summary"),
+
   outcomeNotes: text("outcome_notes"),
 
   createdAt: timestamp("created_at").defaultNow().notNull(),

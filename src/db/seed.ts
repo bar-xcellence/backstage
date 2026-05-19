@@ -409,6 +409,10 @@ async function seed() {
       notesCustom:
         "60-minute masterclass format, 2 cocktails per guest (one of each menu item).",
       lcRecipient: "rory@lc-group.com",
+      elementsSummary:
+        "2 cocktail bartenders, station with pop up bar, stock and glass for prepaid serves",
+      lcPayout: "1400.00",
+      commissionNote: null,
     })
     .returning({ id: events.id });
 
@@ -539,6 +543,11 @@ async function seed() {
         "Venue also serves wine + champagne from a separate bar (not our responsibility).",
       ].join("\n"),
       lcRecipient: "rory@lc-group.com",
+      elementsSummary:
+        "2 cocktail bartenders, pre-poured drinks reception, pop up bar, stock for service",
+      lcPayout: "1200.00",
+      commissionNote:
+        "Small commission on cocktails sold at £9.95 each after the prepaid 200 serves",
     })
     .returning({ id: events.id });
 

@@ -23,6 +23,18 @@ import { EventStandardNotes } from "@/components/events/event-standard-notes";
 import { formatAddressLines } from "@/lib/address-format";
 import { STATUS_COLORS, STATUS_ORDER } from "@/lib/constants";
 
+function formatLcPayout(s: string | null): string {
+  if (s === null) return "";
+  const n = parseFloat(s);
+  if (!Number.isFinite(n)) return "";
+  return new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency: "GBP",
+    minimumFractionDigits: n % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(n);
+}
+
 export default async function EventDetailPage({
   params,
 }: {
@@ -363,6 +375,25 @@ export default async function EventDetailPage({
                         )}
                       </div>
                     ))}
+                  </div>
+                </section>
+              )}
+
+              {/* LC Payout — visible to all roles, including partner */}
+              {event.lcPayout && (
+                <section>
+                  <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
+                    LC Payout
+                  </h2>
+                  <div className="font-[family-name:var(--font-raleway)] leading-relaxed">
+                    <p className="font-[family-name:var(--font-cormorant)] text-3xl font-light text-charcoal">
+                      {formatLcPayout(event.lcPayout)}
+                    </p>
+                    {event.commissionNote && (
+                      <p className="text-sm text-grey mt-2">
+                        + {event.commissionNote}
+                      </p>
+                    )}
                   </div>
                 </section>
               )}

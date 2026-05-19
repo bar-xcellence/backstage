@@ -26,6 +26,7 @@ const ownerNav: NavItem[] = [
 ];
 
 const partnerNav: NavItem[] = [
+  { label: "DASHBOARD", href: "/", Icon: DashboardIcon },
   { label: "EVENTS", href: "/events", Icon: EventsIcon },
   { label: "RECIPES", href: "/recipes", Icon: RecipesIcon },
 ];
