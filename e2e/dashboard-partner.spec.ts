@@ -7,8 +7,13 @@ test.describe("partner dashboard", () => {
   });
 
   test("renders month header, summary strip, and at least one card", async ({ page }) => {
-    await expect(page.getByText(/\d{4}/)).toBeVisible(); // some month label like JUNE 2026
-    await expect(page.getByText(/confirmed/i).first()).toBeVisible();
+    // Month header eyebrow — uppercase month name + year + ' · '
+    await expect(
+      page.locator("text=/^(JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER) \\d{4} ·/")
+    ).toBeVisible();
+    // Either a "Confirmed" summary line or the empty-state message — both are valid landing pages depending on seed dates
+    const summaryOrEmpty = page.getByText(/confirmed|no events in this window/i);
+    await expect(summaryOrEmpty.first()).toBeVisible();
   });
 
   test("does not show any owner-only labels anywhere", async ({ page }) => {

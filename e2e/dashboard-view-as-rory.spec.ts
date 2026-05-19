@@ -19,7 +19,10 @@ test.describe("view-as-rory preview", () => {
     await signInAs(page, "owner", "/?viewAs=partner");
     await page.getByRole("link", { name: /exit preview/i }).click();
     await page.waitForURL(/^.*\/$/);
-    await expect(page.getByText(/events? this week/i)).toBeVisible();
+    // The owner greeting is always visible after exit
+    await expect(page.getByText(/good (morning|afternoon|evening)/i)).toBeVisible();
+    // The view-as banner is gone
+    await expect(page.getByText(/viewing as: rory/i)).toHaveCount(0);
   });
 
   test("partner with ?viewAs=partner sees no banner (param ignored)", async ({ page }) => {
