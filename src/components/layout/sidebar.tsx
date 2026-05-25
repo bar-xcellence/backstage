@@ -52,7 +52,7 @@ export function Sidebar({ user }: { user: SessionData }) {
           <h2 className="font-[family-name:var(--font-cormorant)] text-lg font-light text-cream tracking-tight">
             Bar Excellence
           </h2>
-          <p className="font-[family-name:var(--font-raleway)] text-[10px] font-medium tracking-[0.18em] uppercase text-grey mt-1">
+          <p className="font-[family-name:var(--font-raleway)] text-[10px] font-medium tracking-[0.18em] uppercase text-grey-light mt-1">
             Premium Hospitality
           </p>
         </div>
@@ -71,7 +71,7 @@ export function Sidebar({ user }: { user: SessionData }) {
                 className={`group relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2.5 font-[family-name:var(--font-raleway)] text-[11px] font-medium tracking-[0.16em] uppercase transition-colors duration-200 min-h-[44px] ${
                   isActive
                     ? "bg-gold/10 text-gold border-l-2 border-gold"
-                    : "text-grey hover:text-cream hover:bg-cream/5 border-l-2 border-transparent"
+                    : "text-grey-light hover:text-cream hover:bg-cream/5 border-l-2 border-transparent"
                 }`}
               >
                 <Icon className="shrink-0" />
@@ -94,7 +94,7 @@ export function Sidebar({ user }: { user: SessionData }) {
           <p className="font-[family-name:var(--font-raleway)] text-sm text-cream">
             {user.name}
           </p>
-          <p className="font-[family-name:var(--font-raleway)] text-[10px] tracking-[0.18em] uppercase text-grey mt-0.5">
+          <p className="font-[family-name:var(--font-raleway)] text-[10px] tracking-[0.18em] uppercase text-grey-light mt-0.5">
             {roleLabel}
           </p>
         </div>
@@ -102,7 +102,7 @@ export function Sidebar({ user }: { user: SessionData }) {
           <button
             type="submit"
             aria-label="Sign out"
-            className="flex items-center justify-center lg:justify-start text-grey text-[10px] font-medium tracking-[0.16em] uppercase hover:text-cream transition-colors duration-200 cursor-pointer min-h-[44px] min-w-[44px]"
+            className="flex items-center justify-center lg:justify-start text-grey-light text-[10px] font-medium tracking-[0.16em] uppercase hover:text-cream transition-colors duration-200 cursor-pointer min-h-[44px] min-w-[44px]"
           >
             <span className="hidden lg:inline">SIGN OUT</span>
             <SignOutIcon className="lg:hidden" />

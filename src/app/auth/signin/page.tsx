@@ -30,7 +30,7 @@ export default function SignInPage() {
           <h1 className="font-[family-name:var(--font-cormorant)] text-4xl font-light text-cream tracking-tight">
             Backstage
           </h1>
-          <p className="font-[family-name:var(--font-raleway)] text-[10px] font-medium tracking-[0.18em] uppercase text-grey mt-2">
+          <p className="font-[family-name:var(--font-raleway)] text-[10px] font-medium tracking-[0.18em] uppercase text-grey-light mt-2">
             Bar Excellence Events
           </p>
         </div>
@@ -91,7 +91,7 @@ export default function SignInPage() {
         )}
 
         {/* Footer */}
-        <p className="text-center text-grey/40 text-[10px] font-[family-name:var(--font-raleway)] tracking-[0.16em] uppercase mt-8">
+        <p className="text-center text-grey-light/70 text-[10px] font-[family-name:var(--font-raleway)] tracking-[0.16em] uppercase mt-8">
           Backstage v1.0
         </p>
       </div>

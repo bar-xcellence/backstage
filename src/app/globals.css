@@ -7,6 +7,12 @@
   --color-gold: #A4731E;
   --color-gold-ink: #7A5416;
   --color-grey: #6B7280;
+  /*
+   * AA-compliant subtle text colour for use on dark backgrounds (e.g. the
+   * charcoal sidebar). `text-grey` on `bg-charcoal` is ~3.5:1 — below WCAG AA
+   * (4.5:1) for normal text. `text-grey-light` (#9CA3AF) gives ~6.2:1.
+   */
+  --color-grey-light: #9CA3AF;
   --color-cognac: #B8860B;
   --color-botanical: #8B9D83;
   --color-error: #EF4444;
