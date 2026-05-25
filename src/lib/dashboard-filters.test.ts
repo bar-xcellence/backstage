@@ -4,6 +4,7 @@ import {
   resolveEffectiveRole,
   defaultStatusesForRole,
   allowedStatusesForRole,
+  monthBounds,
 } from "./dashboard-filters";
 
 describe("parseFilters — month", () => {
@@ -173,6 +174,61 @@ describe("defaultStatusesForRole", () => {
 
   it("partner default never contains cancelled (owner-only per threat model)", () => {
     expect(defaultStatusesForRole("partner")).not.toContain("cancelled");
+  });
+});
+
+describe("monthBounds", () => {
+  it("'upcoming' uses UTC today as the lower bound (no upper)", () => {
+    // Mid-day UTC, well clear of any TZ boundary
+    const today = new Date("2026-06-15T12:00:00Z");
+    expect(monthBounds("upcoming", today)).toEqual({
+      from: "2026-06-15",
+      to: null,
+    });
+  });
+
+  it("'upcoming' lower bound stays UTC-stable across midnight UTC", () => {
+    // 23:30 UTC on May 31 — in BST this is 00:30 on June 1, in PST it's 16:30 on May 31.
+    // The bound must be the UTC calendar day (2026-05-31), matching how
+    // parseFilters' currentYYYYMM resolves the same instant.
+    const beforeMidnightUtc = new Date("2026-05-31T23:30:00Z");
+    expect(monthBounds("upcoming", beforeMidnightUtc).from).toBe("2026-05-31");
+
+    // 00:30 UTC on June 1 — should roll over.
+    const afterMidnightUtc = new Date("2026-06-01T00:30:00Z");
+    expect(monthBounds("upcoming", afterMidnightUtc).from).toBe("2026-06-01");
+  });
+
+  it("computes inclusive month bounds for a 31-day month", () => {
+    const today = new Date("2026-06-15T12:00:00Z");
+    expect(monthBounds("2026-05", today)).toEqual({
+      from: "2026-05-01",
+      to: "2026-05-31",
+    });
+  });
+
+  it("computes inclusive month bounds for a 30-day month", () => {
+    const today = new Date("2026-06-15T12:00:00Z");
+    expect(monthBounds("2026-06", today)).toEqual({
+      from: "2026-06-01",
+      to: "2026-06-30",
+    });
+  });
+
+  it("handles February in a leap year (2024 = 29 days)", () => {
+    const today = new Date("2024-02-15T12:00:00Z");
+    expect(monthBounds("2024-02", today)).toEqual({
+      from: "2024-02-01",
+      to: "2024-02-29",
+    });
+  });
+
+  it("handles February in a non-leap year (2026 = 28 days)", () => {
+    const today = new Date("2026-02-15T12:00:00Z");
+    expect(monthBounds("2026-02", today)).toEqual({
+      from: "2026-02-01",
+      to: "2026-02-28",
+    });
   });
 });
 

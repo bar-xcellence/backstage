@@ -15,6 +15,34 @@ function currentYYYYMM(today: Date): string {
   return `${y}-${m}`;
 }
 
+function toUtcDateString(date: Date): string {
+  const y = date.getUTCFullYear();
+  const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(date.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/**
+ * Resolves a `?month=` URL parameter (either `YYYY-MM` or the sentinel
+ * `"upcoming"`) into inclusive SQL date bounds for the `events.event_date`
+ * column. All math is UTC-based to match `currentYYYYMM` and the calendar-date
+ * shape of `events.event_date`, so the dashboard window stays stable across
+ * deployments regardless of process timezone.
+ */
+export function monthBounds(
+  month: string,
+  today: Date
+): { from: string; to: string | null } {
+  if (month === "upcoming") {
+    return { from: toUtcDateString(today), to: null };
+  }
+  const [y, m] = month.split("-").map(Number);
+  const from = `${y}-${String(m).padStart(2, "0")}-01`;
+  const lastDay = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const to = `${y}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+  return { from, to };
+}
+
 const ALL_DB_STATUSES: DbStatus[] = [
   "enquiry",
   "confirmed",

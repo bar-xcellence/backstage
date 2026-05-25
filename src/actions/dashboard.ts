@@ -20,6 +20,7 @@ import {
   parseFilters,
   resolveEffectiveRole,
   allowedStatusesForRole,
+  monthBounds,
   type Role,
   type DashboardFilters,
 } from "@/lib/dashboard-filters";
@@ -259,17 +260,6 @@ export type DashboardEventListResult =
   | { viewerRole: "partner"; events: PartnerEventCard[]; summary: PartnerSummary; globalEventCount: number }
   | { viewerRole: "owner"; events: OwnerEventCard[]; summary: SummaryTotals; globalEventCount: number };
 
-function monthBounds(month: string, today: Date): { from: string; to: string | null } {
-  if (month === "upcoming") {
-    const todayStr = toDateString(today);
-    return { from: todayStr, to: null };
-  }
-  const [y, m] = month.split("-").map(Number);
-  const from = `${y}-${String(m).padStart(2, "0")}-01`;
-  const lastDay = new Date(Date.UTC(y, m, 0)).getUTCDate();
-  const to = `${y}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
-  return { from, to };
-}
 
 export async function getDashboardEvents(params: {
   month?: string;

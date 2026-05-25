@@ -3,6 +3,7 @@ import type { OwnerEventCard } from "@/actions/dashboard";
 import { formatAddressLines } from "@/lib/address-format";
 import { StatusBadge } from "./status-badge";
 import type { DbStatus, DisplayStatus } from "@/lib/dashboard-status";
+import { daysUntil } from "@/lib/event-countdown";
 import Link from "next/link";
 
 type AnyStatus = DbStatus | DisplayStatus;
@@ -165,16 +166,6 @@ function formatMargin(invoice: string | null, cost: string | null): string {
   const c = parseFloat(cost);
   if (!Number.isFinite(i) || !Number.isFinite(c)) return "—";
   return formatMoney(String(i - c));
-}
-
-function daysUntil(eventDate: string, today: Date = new Date()): number {
-  const target = new Date(eventDate + "T00:00:00Z");
-  const midnight = new Date(
-    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
-  );
-  return Math.round(
-    (target.getTime() - midnight.getTime()) / (1000 * 60 * 60 * 24)
-  );
 }
 
 function countdownLabel(eventDate: string, status: DbStatus): {

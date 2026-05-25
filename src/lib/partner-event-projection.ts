@@ -9,6 +9,12 @@
  */
 
 import { toPartnerStatus, type DbStatus, type DisplayStatus } from "./dashboard-status";
+import type { events } from "@/db/schema";
+
+// The strict shape of a row selected from the `events` table — gives the
+// projection compile-time field/typo safety so renames or accidental
+// `row.venueNamne` typos fail at build instead of silently emitting undefined.
+export type EventRow = typeof events.$inferSelect;
 
 // Real columns on `events` that a partner may receive.
 //
@@ -114,28 +120,32 @@ export type PartnerEventCard = {
 /**
  * Projects a full event row (plus a computed serve count) into the partner
  * shape, dropping every field not in PARTNER_VISIBLE_DB_FIELDS.
+ *
+ * The `row` parameter is typed as `EventRow` (Drizzle's inferred select shape)
+ * so a schema rename or property typo fails at compile time rather than
+ * silently emitting undefined cast to a non-null type.
  */
 export function projectPartnerEvent(
-  row: Record<string, unknown>,
+  row: EventRow,
   serveCount: number
 ): PartnerEventCard {
   return {
-    id: row.id as string,
-    eventDate: row.eventDate as string,
-    eventType: (row.eventType as string | null) ?? null,
-    guestCount: row.guestCount as number,
+    id: row.id,
+    eventDate: row.eventDate,
+    eventType: row.eventType ?? null,
+    guestCount: row.guestCount,
     serveCount,
-    elementsSummary: (row.elementsSummary as string | null) ?? null,
-    venueName: row.venueName as string,
-    venueHallRoom: (row.venueHallRoom as string | null) ?? null,
-    addressLine1: (row.addressLine1 as string | null) ?? null,
-    addressLine2: (row.addressLine2 as string | null) ?? null,
-    city: (row.city as string | null) ?? null,
-    postcode: (row.postcode as string | null) ?? null,
-    venueTenant: (row.venueTenant as string | null) ?? null,
-    cateringPartner: (row.cateringPartner as string | null) ?? null,
+    elementsSummary: row.elementsSummary ?? null,
+    venueName: row.venueName,
+    venueHallRoom: row.venueHallRoom ?? null,
+    addressLine1: row.addressLine1 ?? null,
+    addressLine2: row.addressLine2 ?? null,
+    city: row.city ?? null,
+    postcode: row.postcode ?? null,
+    venueTenant: row.venueTenant ?? null,
+    cateringPartner: row.cateringPartner ?? null,
     status: toPartnerStatus(row.status as DbStatus),
-    lcPayout: (row.lcPayout as string | null) ?? null,
-    commissionNote: (row.commissionNote as string | null) ?? null,
+    lcPayout: row.lcPayout ?? null,
+    commissionNote: row.commissionNote ?? null,
   };
 }
