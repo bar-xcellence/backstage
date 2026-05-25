@@ -42,6 +42,33 @@ test.describe("partner read-only", () => {
     await expect(page.getByRole("button", { name: /send to lc/i })).toHaveCount(0);
   });
 
+  test("event detail hides owner-only operational sections", async ({ page }) => {
+    await signInAs(page, "partner", "/events");
+
+    const firstEventLink = page.locator('a[href^="/events/"]').first();
+    if ((await firstEventLink.count()) === 0) {
+      test.skip(true, "no partner-visible events seeded — nothing to inspect");
+      return;
+    }
+    await firstEventLink.click();
+    await page.waitForURL(/\/events\/[0-9a-f-]+/i);
+
+    // Owner-only sections (h2 headings) must not render for partner
+    await expect(page.getByRole("heading", { name: /^Times$/ })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: /^Batching$/ })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: /^Pop-up Bar$/ })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: /^Install Instructions$/ })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: /^Notes$/ })).toHaveCount(0);
+
+    // Brief-sent timestamp leaked operational signal — must not appear
+    await expect(page.getByText(/SENT TO LC/i)).toHaveCount(0);
+
+    // Raw DB workflow statuses must never reach partner
+    await expect(page.getByText(/^preparation$/i)).toHaveCount(0);
+    await expect(page.getByText(/^ready$/i)).toHaveCount(0);
+    await expect(page.getByText(/^enquiry$/i)).toHaveCount(0);
+  });
+
   test("sidebar has a Dashboard link for partner", async ({ page }) => {
     await signInAs(page, "partner", "/");
     await expect(

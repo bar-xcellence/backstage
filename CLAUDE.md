@@ -129,9 +129,11 @@ Never show "No items found." — every empty state needs:
 4. Hide sections entirely when "nothing to show" is correct (don't say "Nothing here!")
 
 ### Role Security
-- Partner (Rory) must NEVER see: `invoiceAmount`, `costAmount`, `stockReturnPolicy`, `cardPaymentPrice`, `cardPaymentCommission`
-- Partner sees confirmed+ events only — filter in `listEvents()` and `getEvent()`
-- Partner has no access to: dashboard, event creation, event editing, Send to LC, status changes
+- Partner (Rory) must NEVER see the five forbidden financial fields (`invoiceAmount`, `costAmount`, `stockReturnPolicy`, `cardPaymentPrice`, `cardPaymentCommission`) OR any column in `OWNER_ONLY_FIELDS` in `src/lib/partner-event-projection.ts` (lcSentAt, prepaidServes, stationCount, popUpBar*, batchingInstructions, staffNames, vehicleReg, lcRecipient, notesCustom, outcomeNotes, arriveTime/setupDeadline/service times, etc.).
+- Single sanitiser source of truth: `stripPartnerEvent()` in `src/lib/partner-event-sanitisation.ts`, applied by `getEvent()`, `listEvents()`, and the PDF route. Adding a column to `OWNER_ONLY_FIELDS` automatically extends the strip; the pinned classification test in `partner-event-projection.test.ts` fails until a new column is classified.
+- Partner sees confirmed+ events only — server-enforced by `allowedStatusesForRole("partner")` in `src/lib/dashboard-filters.ts` returning `["confirmed", "preparation", "ready", "delivered"]`. `parseFilters()` clamps URL `?statuses=` against this allow-list; `getDashboardEvents()` re-intersects defence-in-depth before the SQL query, and `globalEventCount` is restricted to the same envelope so partners cannot infer existence of out-of-envelope events.
+- Event detail page (`/events/[id]`): partners see the collapsed `toPartnerStatus()` label, never the raw DB status. Owner-only operational sections (Times, Batching, Pop-up Bar, Install Instructions, Notes, plus summary-bar pills for serves/stations/lcSentAt/showName) are gated on `!isPartner` — defence-in-depth on top of the server-side strip.
+- Partner has no access to: event creation, event editing, Send to LC, status changes. Partner lands on the unified dashboard at `/`.
 
 ### Testing
 - TDD: write the failing test first, then implement

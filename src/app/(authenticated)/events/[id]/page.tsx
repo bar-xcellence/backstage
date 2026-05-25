@@ -22,6 +22,21 @@ import { EventEquipment } from "@/components/events/event-equipment";
 import { EventStandardNotes } from "@/components/events/event-standard-notes";
 import { formatAddressLines } from "@/lib/address-format";
 import { STATUS_COLORS, STATUS_ORDER } from "@/lib/constants";
+import { toPartnerStatus, type DbStatus } from "@/lib/dashboard-status";
+
+const PARTNER_STATUS_LABELS: Record<string, string> = {
+  provisional: "Provisional",
+  confirmed: "Confirmed",
+  delivered: "Delivered",
+  cancelled: "Cancelled",
+};
+
+const PARTNER_STATUS_COLORS: Record<string, string> = {
+  provisional: "bg-grey/20 text-grey",
+  confirmed: "bg-cognac/20 text-cognac",
+  delivered: "bg-success/20 text-success",
+  cancelled: "bg-error/10 text-error/60",
+};
 
 function formatLcPayout(s: string | null): string {
   if (s === null) return "";
@@ -144,13 +159,29 @@ export default async function EventDetailPage({
               <h1 className="font-[family-name:var(--font-cormorant)] text-3xl font-light text-charcoal tracking-tight">
                 {event.eventName}
               </h1>
-              <span
-                className={`px-2 py-0.5 text-[10px] font-medium tracking-[0.16em] uppercase ${STATUS_COLORS[event.status] || STATUS_COLORS.enquiry}`}
-              >
-                {event.status}
-              </span>
+              {(() => {
+                if (isPartner) {
+                  const displayStatus = toPartnerStatus(
+                    event.status as DbStatus
+                  );
+                  return (
+                    <span
+                      className={`px-2 py-0.5 text-[10px] font-medium tracking-[0.16em] uppercase ${PARTNER_STATUS_COLORS[displayStatus]}`}
+                    >
+                      {PARTNER_STATUS_LABELS[displayStatus]}
+                    </span>
+                  );
+                }
+                return (
+                  <span
+                    className={`px-2 py-0.5 text-[10px] font-medium tracking-[0.16em] uppercase ${STATUS_COLORS[event.status] || STATUS_COLORS.enquiry}`}
+                  >
+                    {event.status}
+                  </span>
+                );
+              })()}
             </div>
-            {event.showName && (
+            {!isPartner && event.showName && (
               <p className="font-[family-name:var(--font-raleway)] text-sm text-grey mt-1">
                 {event.showName}
               </p>
@@ -191,15 +222,19 @@ export default async function EventDetailPage({
         {event.city && <span>{event.city}</span>}
         {event.venueHallRoom && <span>{event.venueHallRoom}</span>}
         <span>{event.guestCount} guests</span>
-        {event.prepaidServes && <span>{event.prepaidServes} serves</span>}
-        {event.stationCount && <span>{event.stationCount} stations</span>}
-        {event.popUpBar && (
+        {!isPartner && event.prepaidServes && (
+          <span>{event.prepaidServes} serves</span>
+        )}
+        {!isPartner && event.stationCount && (
+          <span>{event.stationCount} stations</span>
+        )}
+        {!isPartner && event.popUpBar && (
           <span>
             Pop-up bar
             {event.popUpBarSize ? ` · ${event.popUpBarSize}` : ""}
           </span>
         )}
-        {event.lcSentAt && (
+        {!isPartner && event.lcSentAt && (
           <span className="text-success">
             SENT TO LC{" "}
             {new Date(event.lcSentAt).toLocaleDateString("en-GB")}
@@ -213,7 +248,7 @@ export default async function EventDetailPage({
           overview: (
             <div className="space-y-6">
               {/* Times */}
-              {(event.arriveTime || event.serviceStart) && (
+              {!isPartner && (event.arriveTime || event.serviceStart) && (
                 <section>
                   <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
                     Times
@@ -283,7 +318,7 @@ export default async function EventDetailPage({
               )}
 
               {/* Batching */}
-              {event.batchingInstructions && (
+              {!isPartner && event.batchingInstructions && (
                 <section>
                   <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
                     Batching
@@ -295,7 +330,7 @@ export default async function EventDetailPage({
               )}
 
               {/* Pop-up bar */}
-              {event.popUpBar && (event.popUpBarSize || event.popUpBarBranding) && (
+              {!isPartner && event.popUpBar && (event.popUpBarSize || event.popUpBarBranding) && (
                 <section>
                   <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
                     Pop-up Bar
@@ -322,7 +357,7 @@ export default async function EventDetailPage({
               )}
 
               {/* Logistics */}
-              {event.installInstructions && (
+              {!isPartner && event.installInstructions && (
                 <section>
                   <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
                     Install Instructions
@@ -399,7 +434,7 @@ export default async function EventDetailPage({
               )}
 
               {/* Notes */}
-              {event.notesCustom && (
+              {!isPartner && event.notesCustom && (
                 <section>
                   <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
                     Notes

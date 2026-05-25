@@ -11,8 +11,14 @@
 import { toPartnerStatus, type DbStatus, type DisplayStatus } from "./dashboard-status";
 
 // Real columns on `events` that a partner may receive.
+//
+// NOTE: `eventName` is included so the event detail page (`/events/[id]`) has a
+// meaningful header for partners. The dashboard card projection doesn't render
+// it (see PartnerEventCard below), but partner-visible surfaces that DO need a
+// title can read it. `showName` stays owner-only — it's a more internal label.
 export const PARTNER_VISIBLE_DB_FIELDS = [
   "id",
+  "eventName",
   "eventDate",
   "eventType",
   "guestCount",
@@ -37,7 +43,6 @@ export const PARTNER_VISIBLE_COMPUTED_FIELDS = ["serveCount"] as const;
 // partner-safe). New owner-only columns are added here.
 export const OWNER_ONLY_FIELDS = [
   "createdBy",
-  "eventName",
   "showName",
   "arriveTime",
   "setupDeadline",

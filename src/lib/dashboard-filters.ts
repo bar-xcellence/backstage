@@ -28,11 +28,21 @@ function isDbStatus(s: string): s is DbStatus {
   return ALL_DB_STATUSES.includes(s as DbStatus);
 }
 
+/**
+ * Server-side allow-list of statuses each role may filter by. Partner is
+ * constrained to confirmed+ to match the getEvent/listEvents/PDF guards;
+ * owner/super_admin may filter by anything in the DB enum.
+ */
+export function allowedStatusesForRole(role: Role): readonly DbStatus[] {
+  if (role === "partner") return PARTNER_VISIBLE_STATUSES;
+  return ALL_DB_STATUSES;
+}
+
 export function defaultStatusesForRole(role: Role): DbStatus[] {
   if (role === "partner") {
-    // Partner default = confirmed display + provisional display
-    // (delivered + cancelled off by default per PRD §5.5)
-    return ["enquiry", "confirmed", "preparation", "ready"];
+    // Partner default = confirmed-display set (delivered toggleable per
+    // PRD §5.5). Enquiry is owner-only — see CLAUDE.md threat model.
+    return ["confirmed", "preparation", "ready"];
   }
   // Owner default = everything except cancelled
   return ["enquiry", "confirmed", "preparation", "ready", "delivered"];
@@ -53,13 +63,16 @@ export function parseFilters(
     month = currentYYYYMM(today);
   }
 
-  // Statuses
+  // Statuses — clamp role-supplied input against the per-role allow-list so
+  // partners cannot URL-craft `?statuses=enquiry,cancelled` to widen visibility.
+  const allowed = allowedStatusesForRole(role);
   let statuses: DbStatus[];
   if (params.statuses) {
     const parsed = params.statuses
       .split(",")
       .map((s) => s.trim())
-      .filter(isDbStatus);
+      .filter(isDbStatus)
+      .filter((s): s is DbStatus => allowed.includes(s));
     statuses = parsed.length > 0 ? parsed : defaultStatusesForRole(role);
   } else {
     statuses = defaultStatusesForRole(role);
