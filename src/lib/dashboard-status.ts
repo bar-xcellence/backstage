@@ -13,9 +13,25 @@ export type DisplayStatus =
   | "cancelled";
 
 export function toPartnerStatus(s: DbStatus): DisplayStatus {
-  if (s === "enquiry") return "provisional";
-  if (s === "delivered" || s === "cancelled") return s;
-  return "confirmed";
+  switch (s) {
+    case "enquiry":
+      return "provisional";
+    case "confirmed":
+    case "preparation":
+    case "ready":
+      return "confirmed";
+    case "delivered":
+      return "delivered";
+    case "cancelled":
+      return "cancelled";
+    default: {
+      // Compile-time exhaustiveness pin: a new DbStatus added to the enum
+      // without updating this mapping will fail typechecking here, instead
+      // of silently displaying as "confirmed" to partners.
+      const _exhaustive: never = s;
+      throw new Error(`Unhandled DbStatus: ${_exhaustive as string}`);
+    }
+  }
 }
 
 /**

@@ -16,17 +16,26 @@ export type SummaryTotals = {
 };
 
 // Partner-safe subset of SummaryTotals — omits invoice + brief-workflow signals.
-export type PartnerSummary = Pick<
-  SummaryTotals,
-  "eventCount" | "confirmedTotal" | "provisionalTotal"
->;
+//
+// Branded as a nominal type so that the wider `SummaryTotals` (which contains
+// owner-only `invoicedDeliveredTotal` + `briefUnsentCount`) is NOT structurally
+// assignable to `PartnerSummary`. A future caller that writes `summary: summary`
+// for the partner branch instead of `toPartnerSummary(summary)` will fail to
+// compile, closing the type-level escape hatch flagged in the security review.
+declare const partnerSummaryBrand: unique symbol;
+export type PartnerSummary = {
+  readonly eventCount: number;
+  readonly confirmedTotal: number;
+  readonly provisionalTotal: number;
+  readonly [partnerSummaryBrand]: never;
+};
 
 export function toPartnerSummary(s: SummaryTotals): PartnerSummary {
   return {
     eventCount: s.eventCount,
     confirmedTotal: s.confirmedTotal,
     provisionalTotal: s.provisionalTotal,
-  };
+  } as PartnerSummary;
 }
 
 const CONFIRMED_PLUS: ReadonlyArray<DbStatus> = [

@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { rollUpSummary, type SummaryInputEvent } from "./dashboard-summary";
+import {
+  rollUpSummary,
+  toPartnerSummary,
+  type SummaryInputEvent,
+} from "./dashboard-summary";
 
 const makeEvent = (overrides: Partial<SummaryInputEvent> = {}): SummaryInputEvent => ({
   status: "confirmed",
@@ -56,6 +60,41 @@ describe("rollUpSummary — owner totals", () => {
     ];
     const summary = rollUpSummary(events);
     expect(summary.briefUnsentCount).toBe(2);
+  });
+});
+
+describe("toPartnerSummary", () => {
+  it("returns only the three partner-visible totals — never invoice or brief signals", () => {
+    const owner = rollUpSummary([
+      {
+        status: "delivered",
+        lcPayout: "500.00",
+        invoiceAmount: "5000.00",
+        lcSentAt: null,
+      },
+      {
+        status: "confirmed",
+        lcPayout: "1000.00",
+        invoiceAmount: null,
+        lcSentAt: null,
+      },
+    ]);
+    const partner = toPartnerSummary(owner);
+
+    // The keys that exist
+    expect(partner.eventCount).toBe(2);
+    expect(partner.confirmedTotal).toBe(1000);
+    expect(partner.provisionalTotal).toBe(0);
+
+    // The keys that must not appear on the wire payload
+    const json = JSON.parse(JSON.stringify(partner));
+    expect(Object.keys(json).sort()).toEqual([
+      "confirmedTotal",
+      "eventCount",
+      "provisionalTotal",
+    ]);
+    expect(json).not.toHaveProperty("invoicedDeliveredTotal");
+    expect(json).not.toHaveProperty("briefUnsentCount");
   });
 });
 
