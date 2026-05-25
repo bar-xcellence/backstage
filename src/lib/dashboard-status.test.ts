@@ -41,14 +41,20 @@ describe("toPartnerStatus", () => {
 });
 
 describe("PARTNER_VISIBLE_STATUSES", () => {
-  it("includes all six db statuses (partner can see any status by default)", () => {
+  it("contains only confirmed+ statuses (partner cannot see enquiry or cancelled)", () => {
     expect(PARTNER_VISIBLE_STATUSES).toEqual([
-      "enquiry",
       "confirmed",
       "preparation",
       "ready",
       "delivered",
-      "cancelled",
     ]);
+  });
+
+  it("excludes enquiry (owner-only per CLAUDE.md threat model)", () => {
+    expect(PARTNER_VISIBLE_STATUSES).not.toContain("enquiry");
+  });
+
+  it("excludes cancelled (owner-only per CLAUDE.md threat model)", () => {
+    expect(PARTNER_VISIBLE_STATUSES).not.toContain("cancelled");
   });
 });

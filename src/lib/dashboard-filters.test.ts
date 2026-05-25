@@ -3,6 +3,7 @@ import {
   parseFilters,
   resolveEffectiveRole,
   defaultStatusesForRole,
+  allowedStatusesForRole,
 } from "./dashboard-filters";
 
 describe("parseFilters — month", () => {
@@ -47,7 +48,7 @@ describe("parseFilters — statuses", () => {
   it("uses role default when statuses param is missing (partner)", () => {
     const today = new Date("2026-06-15T00:00:00Z");
     const { statuses } = parseFilters({}, "partner", today);
-    expect(statuses).toEqual(["enquiry", "confirmed", "preparation", "ready"]);
+    expect(statuses).toEqual(["confirmed", "preparation", "ready"]);
   });
 
   it("parses comma-separated statuses", () => {
@@ -73,7 +74,57 @@ describe("parseFilters — statuses", () => {
   it("falls back to role default when all statuses are invalid", () => {
     const today = new Date("2026-06-15T00:00:00Z");
     const { statuses } = parseFilters({ statuses: "x,y,z" }, "partner", today);
-    expect(statuses).toEqual(["enquiry", "confirmed", "preparation", "ready"]);
+    expect(statuses).toEqual(["confirmed", "preparation", "ready"]);
+  });
+
+  it("clamps partner-supplied enquiry to role default (cannot widen via URL)", () => {
+    const today = new Date("2026-06-15T00:00:00Z");
+    const { statuses } = parseFilters(
+      { statuses: "enquiry" },
+      "partner",
+      today
+    );
+    expect(statuses).toEqual(["confirmed", "preparation", "ready"]);
+  });
+
+  it("clamps partner-supplied cancelled to role default (cannot widen via URL)", () => {
+    const today = new Date("2026-06-15T00:00:00Z");
+    const { statuses } = parseFilters(
+      { statuses: "cancelled" },
+      "partner",
+      today
+    );
+    expect(statuses).toEqual(["confirmed", "preparation", "ready"]);
+  });
+
+  it("partner can request a subset of allowed statuses", () => {
+    const today = new Date("2026-06-15T00:00:00Z");
+    const { statuses } = parseFilters(
+      { statuses: "confirmed,delivered" },
+      "partner",
+      today
+    );
+    expect(statuses).toEqual(["confirmed", "delivered"]);
+  });
+
+  it("partner mixing allowed + disallowed only keeps allowed", () => {
+    const today = new Date("2026-06-15T00:00:00Z");
+    const { statuses } = parseFilters(
+      { statuses: "enquiry,confirmed,cancelled,delivered" },
+      "partner",
+      today
+    );
+    expect(statuses).toEqual(["confirmed", "delivered"]);
+  });
+
+  it("owner is not clamped — can request any DB status", () => {
+    const today = new Date("2026-06-15T00:00:00Z");
+    const { statuses } = parseFilters(
+      { statuses: "enquiry,cancelled" },
+      "owner",
+      today
+    );
+    expect(statuses).toEqual(["enquiry", "cancelled"]);
   });
 });
 
@@ -108,12 +159,40 @@ describe("defaultStatusesForRole", () => {
     ]);
   });
 
-  it("partner: only confirmed-display + provisional-display, no delivered or cancelled", () => {
+  it("partner: confirmed-display only (no enquiry, no delivered, no cancelled)", () => {
     expect(defaultStatusesForRole("partner")).toEqual([
-      "enquiry",
       "confirmed",
       "preparation",
       "ready",
     ]);
+  });
+
+  it("partner default never contains enquiry (owner-only per threat model)", () => {
+    expect(defaultStatusesForRole("partner")).not.toContain("enquiry");
+  });
+
+  it("partner default never contains cancelled (owner-only per threat model)", () => {
+    expect(defaultStatusesForRole("partner")).not.toContain("cancelled");
+  });
+});
+
+describe("allowedStatusesForRole", () => {
+  it("partner allow-list matches the confirmed+ envelope", () => {
+    expect(allowedStatusesForRole("partner")).toEqual([
+      "confirmed",
+      "preparation",
+      "ready",
+      "delivered",
+    ]);
+  });
+
+  it("owner allow-list contains every DB status", () => {
+    const owner = allowedStatusesForRole("owner");
+    expect(owner).toContain("enquiry");
+    expect(owner).toContain("confirmed");
+    expect(owner).toContain("preparation");
+    expect(owner).toContain("ready");
+    expect(owner).toContain("delivered");
+    expect(owner).toContain("cancelled");
   });
 });

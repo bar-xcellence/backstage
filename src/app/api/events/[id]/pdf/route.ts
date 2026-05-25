@@ -15,7 +15,7 @@ import {
 import { eq } from "drizzle-orm";
 import { calculateStock } from "@/lib/stock-calculator";
 import { fetchEventStock } from "@/lib/event-stock-query";
-import { stripPartnerFinancials } from "@/lib/partner-event-sanitisation";
+import { stripPartnerEvent } from "@/lib/partner-event-sanitisation";
 import { BriefPDF } from "@/lib/pdf/brief-pdf";
 import { TextOnlyBriefPDF } from "@/lib/pdf/text-only-brief-pdf";
 import { renderBriefWithFallback } from "@/lib/pdf/render-brief-with-fallback";
@@ -122,7 +122,7 @@ export async function GET(
     });
 
     const safeEvent =
-      session.role === "partner" ? stripPartnerFinancials(event) : event;
+      session.role === "partner" ? stripPartnerEvent(event) : event;
 
     const { buffer: pdfBuffer, usedFallback } = await renderBriefWithFallback(
       () =>

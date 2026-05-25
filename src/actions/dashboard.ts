@@ -19,6 +19,7 @@ import type { DbStatus } from "@/lib/dashboard-status";
 import {
   parseFilters,
   resolveEffectiveRole,
+  allowedStatusesForRole,
   type Role,
   type DashboardFilters,
 } from "@/lib/dashboard-filters";
@@ -282,10 +283,22 @@ export async function getDashboardEvents(params: {
   const today = new Date();
   const filters: DashboardFilters = parseFilters(params, effectiveRole, today);
 
-  // Count total events globally — used for empty-state branching
+  // Defense-in-depth: re-intersect against the role allow-list inside the
+  // action even though parseFilters already clamps. A future caller that
+  // bypasses parseFilters (or a refactor that loosens it) won't widen the
+  // partner's visibility envelope.
+  const allowedStatuses = allowedStatusesForRole(effectiveRole);
+  const safeStatuses = filters.statuses.filter((s) =>
+    allowedStatuses.includes(s)
+  );
+
+  // Count total events globally — used for empty-state branching. Restricted
+  // to the role's visibility envelope so partners cannot infer the existence
+  // of events outside their allow-list (e.g. owner-private cancelled events).
   const globalCountRows = await db
     .select({ n: sql<number>`count(*)::int` })
-    .from(events);
+    .from(events)
+    .where(inArray(events.status, allowedStatuses as DbStatus[]));
   const globalEventCount = globalCountRows[0]?.n ?? 0;
 
   const { from, to } = monthBounds(filters.month, today);
@@ -296,7 +309,7 @@ export async function getDashboardEvents(params: {
     .from(events)
     .where(
       and(
-        inArray(events.status, filters.statuses),
+        inArray(events.status, safeStatuses),
         to === null
           ? sql`${events.eventDate} >= ${from}`
           : and(

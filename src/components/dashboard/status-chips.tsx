@@ -4,11 +4,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import type { DbStatus } from "@/lib/dashboard-status";
 
+// Partner sees confirmed+ events only — enquiry (provisional) and cancelled
+// are owner-only per CLAUDE.md threat model and the server-side allow-list in
+// `allowedStatusesForRole`. Adding chips for those statuses would surface them
+// in the UI but the server would still strip them, producing a confusing empty
+// state — better to keep the chip set aligned with the server envelope.
 const PARTNER_CHIPS: { label: string; status: DbStatus[]; key: string }[] = [
   { label: "Confirmed", status: ["confirmed", "preparation", "ready"], key: "confirmed" },
-  { label: "Provisional", status: ["enquiry"], key: "provisional" },
   { label: "Delivered", status: ["delivered"], key: "delivered" },
-  { label: "Cancelled", status: ["cancelled"], key: "cancelled" },
 ];
 
 const OWNER_CHIPS: { label: string; status: DbStatus[]; key: string }[] = [

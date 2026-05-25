@@ -5,7 +5,7 @@ import { events, eventContacts, lcRecipients } from "@/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { requireRole } from "@/lib/session";
 import { validateEvent } from "@/lib/event-validation";
-import { stripPartnerFinancials } from "@/lib/partner-event-sanitisation";
+import { stripPartnerEvent } from "@/lib/partner-event-sanitisation";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { generateChecklist } from "./checklists";
@@ -230,7 +230,7 @@ export async function getEvent(id: string) {
 
   const fullEvent = { ...event, contacts };
   if (session.role === "partner") {
-    return stripPartnerFinancials(fullEvent);
+    return stripPartnerEvent(fullEvent);
   }
   return fullEvent;
 }
@@ -238,17 +238,17 @@ export async function getEvent(id: string) {
 export async function listEvents() {
   const session = await requireRole("owner", "super_admin", "partner");
 
-  let allEvents = await db
+  const allEvents = await db
     .select()
     .from(events)
     .orderBy(desc(events.eventDate));
 
   if (session.role === "partner") {
-    allEvents = allEvents
+    return allEvents
       .filter((e) =>
         ["confirmed", "preparation", "ready", "delivered"].includes(e.status)
       )
-      .map(stripPartnerFinancials);
+      .map(stripPartnerEvent);
   }
 
   return allEvents;
