@@ -12,6 +12,20 @@ Bar Excellence's events preparation and dispatch system. Bespoke tool for 3 user
 - **Tests:** `npm run test -- --run` (Vitest, `src/**/*.test.ts`); `npm run test:e2e` (Playwright, `e2e/*.spec.ts` — boots `next start -p 3100` with `ENABLE_TEST_AUTH=true`)
 - **Build:** `npm run build` (must pass before shipping)
 
+## Intent Layer
+
+**Before modifying code in a subdirectory, read its `AGENTS.md` first** for local patterns and invariants.
+
+- **`src/lib/AGENTS.md`** — business logic & the partner-isolation security core (sanitisation, projection, dashboard filters, email/PDF, calculators). The most dangerous place to get wrong.
+- **`src/components/AGENTS.md`** — React UI by surface (dashboard/events/layout/settings), client/server boundary, Reserve Noir rules.
+
+### Global Invariants
+
+- `requireRole()` from `src/lib/session.ts` is the first line of every server action in `src/actions/`.
+- `src/db/schema.ts` is the single source of truth; every `events` column must be classified in `src/lib/partner-event-projection.ts` (the pinned test fails otherwise).
+- Partner isolation has one sanitiser path (`stripPartnerEvent()`) plus `!isPartner` UI gating as defence-in-depth — keep both.
+- The brief renders on four surfaces that must stay in sync — see `src/lib/AGENTS.md`.
+
 ## Project Docs
 
 | Doc | Purpose |
