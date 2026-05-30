@@ -17,16 +17,12 @@ async function firstEventDetailHref(page: Page): Promise<string | null> {
 // axe audit: assert no critical or serious violations on the key authenticated
 // surfaces. Per CLAUDE.md threat model + design system rules.
 //
-// `color-contrast` is disabled here pending a design-system review of the
-// Reserve Noir palette. The brand-defined gold accents (`bg-gold text-cream`
-// primary buttons, `text-gold` section headings on cream) test at ~3.95:1
-// against WCAG AA's 4.5:1 threshold — passes AA Large (3:1 for 18pt+ or 14pt
-// bold) but not AA Normal. Resolving this is a brand decision (darker gold,
-// charcoal text on gold, larger headings, etc.) outside QA scope. Tracked in
-// TODOS.md. Every other axe rule remains active so this scan still catches
-// landmarks, labels, ARIA, focus order, heading hierarchy, etc.
+// All WCAG 2.1 A/AA rules are enforced, including `color-contrast`. The
+// Reserve Noir gold accents were migrated to `gold-ink` (#7A5416) for text
+// and button fills (see docs/superpowers/specs/2026-05-30-gold-contrast-aa-fix-design.md);
+// bright gold (#A4731E) remains only on non-text accents (focus ring, borders).
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
-const DISABLED_RULES = ["color-contrast"];
+const DISABLED_RULES: string[] = [];
 
 function severeOnly(
   violations: Awaited<ReturnType<AxeBuilder["analyze"]>>["violations"]
