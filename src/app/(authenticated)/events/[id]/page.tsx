@@ -202,7 +202,7 @@ export default async function EventDetailPage({
               <form action={advanceStatus}>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 border border-gold text-gold font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold hover:text-cream transition-colors duration-200 min-h-[44px] cursor-pointer"
+                  className="px-5 py-2.5 border border-gold text-gold-ink font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold hover:text-cream transition-colors duration-200 min-h-[44px] cursor-pointer"
                 >
                   ADVANCE TO{" "}
                   {STATUS_ORDER[
@@ -376,7 +376,7 @@ export default async function EventDetailPage({
                   </h2>
                   {event.contacts.find((c) => c.isHost) && (
                     <div className="mb-3 pb-3 border-b border-gold/30">
-                      <span className="text-[10px] tracking-[0.16em] uppercase text-gold font-semibold">
+                      <span className="text-[10px] tracking-[0.16em] uppercase text-gold-ink font-semibold">
                         Host
                       </span>
                       <p className="font-[family-name:var(--font-cormorant)] text-lg text-charcoal mt-1">

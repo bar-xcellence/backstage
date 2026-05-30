@@ -79,7 +79,7 @@ export function StatusChips({
               "font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase px-4 py-2.5 min-h-[44px] cursor-pointer transition-colors duration-150",
               selected
                 ? "bg-charcoal text-cream border-l-2 border-gold"
-                : "border border-gold/30 text-gold hover:border-gold/60",
+                : "border border-gold/30 text-gold-ink hover:border-gold/60",
               shake ? "animate-pulse" : "",
             ].join(" ")}
           >

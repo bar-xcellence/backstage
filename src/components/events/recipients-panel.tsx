@@ -97,7 +97,7 @@ export function RecipientsPanel({
               if (next === "custom") setTo("");
               else if (savedRecipients[0]) setTo(savedRecipients[0].email);
             }}
-            className="font-[family-name:var(--font-raleway)] text-[10px] tracking-[0.16em] uppercase text-gold hover:text-gold-ink transition-colors cursor-pointer"
+            className="font-[family-name:var(--font-raleway)] text-[10px] tracking-[0.16em] uppercase text-gold-ink hover:text-gold transition-colors cursor-pointer"
           >
             {toMode === "saved" ? "Type custom" : "Pick from saved"}
           </button>

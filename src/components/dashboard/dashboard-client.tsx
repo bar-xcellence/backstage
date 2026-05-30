@@ -263,7 +263,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         {data.upcoming.length === 0 ? (
           <p className="font-[family-name:var(--font-raleway)] text-sm text-grey">
             No events in the next 14 days.{" "}
-            <Link href="/events/new" className="text-gold hover:text-gold-ink transition-colors duration-150">
+            <Link href="/events/new" className="text-gold-ink hover:text-gold transition-colors duration-150">
               Add one?
             </Link>
           </p>

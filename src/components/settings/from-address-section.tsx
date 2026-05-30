@@ -66,7 +66,7 @@ export function FromAddressSection({
         <p className="font-[family-name:var(--font-raleway)] text-xs text-grey">
           Effective: <span className="text-charcoal">{effective}</span>
           {envFallback && !value.trim() && (
-            <span className="ml-2 text-[10px] tracking-[0.16em] uppercase text-gold">
+            <span className="ml-2 text-[10px] tracking-[0.16em] uppercase text-gold-ink">
               ENV FALLBACK
             </span>
           )}

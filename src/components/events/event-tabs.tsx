@@ -62,7 +62,7 @@ export function EventTabs({
               onClick={() => setActiveTab(tab.id)}
               className={`px-5 py-3 font-[family-name:var(--font-raleway)] text-[11px] font-medium tracking-[0.16em] uppercase transition-colors duration-200 border-b-2 -mb-px cursor-pointer ${
                 isActive
-                  ? "border-gold text-gold"
+                  ? "border-gold text-gold-ink"
                   : "border-transparent text-grey hover:text-charcoal"
               }`}
             >
