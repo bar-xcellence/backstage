@@ -26,7 +26,7 @@ function partnerBadgeClass(display: DisplayStatus): string {
     "inline-flex items-center px-3 py-1.5 text-[11px] font-medium tracking-[0.18em] uppercase font-[family-name:var(--font-raleway)]";
 
   if (display === "provisional") {
-    return `${base} border border-gold/60 text-gold opacity-60`;
+    return `${base} border border-gold/60 text-gold-ink`;
   }
   if (display === "confirmed") {
     return `${base} bg-charcoal text-cream border-l-2 border-gold`;
@@ -43,7 +43,7 @@ function ownerBadgeClass(status: DbStatus): string {
     "inline-flex items-center px-3 py-1.5 text-[11px] font-medium tracking-[0.18em] uppercase font-[family-name:var(--font-raleway)]";
 
   if (status === "enquiry") {
-    return `${base} border border-gold/60 text-gold opacity-60`;
+    return `${base} border border-gold/60 text-gold-ink`;
   }
   if (status === "confirmed") {
     return `${base} bg-charcoal text-cream border-l-2 border-gold`;
@@ -52,7 +52,7 @@ function ownerBadgeClass(status: DbStatus): string {
     return `${base} bg-charcoal/80 text-cream border-l-2 border-gold/80`;
   }
   if (status === "ready") {
-    return `${base} bg-gold text-cream`;
+    return `${base} bg-gold-ink text-cream`;
   }
   if (status === "delivered") {
     return `${base} border border-grey text-grey`;

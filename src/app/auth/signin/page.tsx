@@ -83,7 +83,7 @@ export default function SignInPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-8 py-3 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 disabled:opacity-50 min-h-[44px] cursor-pointer"
+              className="w-full mt-8 py-3 bg-gold-ink text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold transition-colors duration-200 disabled:opacity-50 min-h-[44px] cursor-pointer"
             >
               {loading ? "SENDING..." : "SIGN IN"}
             </button>

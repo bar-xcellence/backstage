@@ -28,7 +28,7 @@ export function MonthHeader({
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
-      <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold">
+      <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold-ink">
         {monthLabel(month)} · {eventCount} {eventCount === 1 ? "event" : "events"}
       </p>
       <div className="flex flex-wrap items-center gap-3">

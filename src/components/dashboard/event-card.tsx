@@ -54,7 +54,7 @@ function cardOpacityClass(status: AnyStatus): string {
 }
 
 function dateClass(status: AnyStatus): string {
-  const base = "font-[family-name:var(--font-cormorant)] font-light text-gold";
+  const base = "font-[family-name:var(--font-cormorant)] font-light text-gold-ink";
   if (status === "cancelled") return `${base} line-through`;
   return base;
 }
@@ -99,7 +99,7 @@ export function EventCard(props: Props) {
 
       {event.elementsSummary && (
         <div className="mt-6">
-          <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold">
+          <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold-ink">
             Elements
           </p>
           <p className="font-[family-name:var(--font-raleway)] text-sm text-charcoal mt-2 leading-relaxed">
@@ -116,7 +116,7 @@ export function EventCard(props: Props) {
 
       {event.lcPayout && (
         <div className="mt-8">
-          <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold">
+          <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold-ink">
             LC Payout
           </p>
           <p className="font-[family-name:var(--font-cormorant)] text-[36px] font-light text-charcoal mt-1">
@@ -208,7 +208,7 @@ function OwnerFooter({ event }: { event: OwnerEventCard }) {
       {/* 4 figures, two columns on mobile, four on desktop */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3">
         <div>
-          <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold">
+          <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold-ink">
             Invoice
           </p>
           <p className="font-[family-name:var(--font-raleway)] text-base font-semibold text-charcoal mt-1">
@@ -216,7 +216,7 @@ function OwnerFooter({ event }: { event: OwnerEventCard }) {
           </p>
         </div>
         <div>
-          <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold">
+          <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold-ink">
             Cost
           </p>
           <p className="font-[family-name:var(--font-raleway)] text-base font-semibold text-charcoal mt-1">
@@ -224,7 +224,7 @@ function OwnerFooter({ event }: { event: OwnerEventCard }) {
           </p>
         </div>
         <div>
-          <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold">
+          <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold-ink">
             Margin
           </p>
           <p className="font-[family-name:var(--font-raleway)] text-base font-semibold text-charcoal mt-1">
@@ -232,7 +232,7 @@ function OwnerFooter({ event }: { event: OwnerEventCard }) {
           </p>
         </div>
         <div>
-          <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold">
+          <p className="font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase text-gold-ink">
             Payout
           </p>
           <p className="font-[family-name:var(--font-raleway)] text-base font-semibold text-charcoal mt-1">
@@ -244,10 +244,10 @@ function OwnerFooter({ event }: { event: OwnerEventCard }) {
       {/* Brief, checklist, countdown */}
       <div className="mt-4 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
         <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 font-[family-name:var(--font-raleway)] text-[13px]">
-          <span className={brief.urgent ? "text-gold font-semibold" : "text-grey"}>
+          <span className={"text-gold-ink font-semibold"}>
             Brief: {brief.text}
           </span>
-          <span className={checklistUrgent ? "text-gold font-semibold" : "text-grey"}>
+          <span className={"text-gold-ink font-semibold"}>
             Checklist: {event.checklistTotal === 0
               ? "—"
               : `${event.checklistComplete} / ${event.checklistTotal}`}
@@ -255,7 +255,7 @@ function OwnerFooter({ event }: { event: OwnerEventCard }) {
         </div>
         <span
           className={`font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.18em] uppercase ${
-            countdown.urgent ? "text-gold" : "text-charcoal"
+            "text-gold-ink"
           }`}
         >
           {countdown.text}

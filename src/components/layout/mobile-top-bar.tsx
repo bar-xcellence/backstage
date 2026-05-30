@@ -147,7 +147,7 @@ export function MobileTopBar({ user }: { user: SessionData }) {
         >
           <span
             aria-hidden="true"
-            className="w-9 h-9 bg-gold/20 text-gold flex items-center justify-center font-[family-name:var(--font-raleway)] text-xs font-medium tracking-[0.1em] uppercase"
+            className="w-9 h-9 bg-gold/20 text-cream flex items-center justify-center font-[family-name:var(--font-raleway)] text-xs font-medium tracking-[0.1em] uppercase"
           >
             {user.name.charAt(0)}
           </span>
@@ -192,7 +192,7 @@ export function MobileTopBar({ user }: { user: SessionData }) {
                       onClick={() => setOpen(false)}
                       className={`flex items-center gap-3 px-3 py-2.5 font-[family-name:var(--font-raleway)] text-[11px] font-medium tracking-[0.16em] uppercase transition-colors duration-200 min-h-[44px] ${
                         isActive
-                          ? "bg-gold/10 text-gold border-l-2 border-gold"
+                          ? "bg-gold/10 text-cream border-l-2 border-gold"
                           : "text-grey-light hover:text-cream hover:bg-cream/5 border-l-2 border-transparent"
                       }`}
                     >

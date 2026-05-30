@@ -34,7 +34,7 @@ export function ViewToggle({
         onClick={() => onChange("list")}
         className={`px-4 py-2 font-[family-name:var(--font-raleway)] text-[11px] font-medium tracking-[0.16em] uppercase transition-colors duration-200 min-h-[44px] cursor-pointer ${
           mode === "list"
-            ? "bg-gold text-cream"
+            ? "bg-gold-ink text-cream"
             : "bg-surface-low text-grey hover:text-charcoal"
         }`}
       >
@@ -44,7 +44,7 @@ export function ViewToggle({
         onClick={() => onChange("kanban")}
         className={`px-4 py-2 font-[family-name:var(--font-raleway)] text-[11px] font-medium tracking-[0.16em] uppercase transition-colors duration-200 min-h-[44px] cursor-pointer ${
           mode === "kanban"
-            ? "bg-gold text-cream"
+            ? "bg-gold-ink text-cream"
             : "bg-surface-low text-grey hover:text-charcoal"
         }`}
       >

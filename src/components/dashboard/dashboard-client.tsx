@@ -116,7 +116,7 @@ function QuickAddForm({ onCancel }: { onCancel: () => void }) {
         <button
           type="submit"
           disabled={saving}
-          className="px-6 py-2.5 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 min-h-[44px] disabled:opacity-50 cursor-pointer"
+          className="px-6 py-2.5 bg-gold-ink text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold transition-colors duration-200 min-h-[44px] disabled:opacity-50 cursor-pointer"
         >
           {saving ? "SAVING..." : "SAVE ENQUIRY"}
         </button>
@@ -150,7 +150,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         </p>
         <Link
           href="/events/new"
-          className="inline-block mt-8 px-6 py-2.5 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 min-h-[44px]"
+          className="inline-block mt-8 px-6 py-2.5 bg-gold-ink text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold transition-colors duration-200 min-h-[44px]"
         >
           ADD YOUR FIRST EVENT
         </Link>
@@ -180,7 +180,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         {!showQuickAdd && (
           <button
             onClick={() => setShowQuickAdd(true)}
-            className="px-5 py-2.5 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 min-h-[44px] cursor-pointer flex-shrink-0"
+            className="px-5 py-2.5 bg-gold-ink text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold transition-colors duration-200 min-h-[44px] cursor-pointer flex-shrink-0"
           >
             LOG NEW ENQUIRY
           </button>
@@ -263,7 +263,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         {data.upcoming.length === 0 ? (
           <p className="font-[family-name:var(--font-raleway)] text-sm text-grey">
             No events in the next 14 days.{" "}
-            <Link href="/events/new" className="text-gold hover:text-gold-ink transition-colors duration-150">
+            <Link href="/events/new" className="text-gold-ink hover:text-gold transition-colors duration-150">
               Add one?
             </Link>
           </p>
