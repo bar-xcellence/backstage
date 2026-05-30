@@ -34,7 +34,7 @@ E2E coverage (Playwright, `npm run test:e2e`) now covers the partner role bounda
 - [x] Responsive breakpoints: mobile top bar, tablet icon-only sidebar, desktop full sidebar — covered by `e2e/responsive.spec.ts` (3 viewports × dashboard + event detail, no-horizontal-scroll assertion + layout chrome at each)
 - [x] Keyboard-only navigation: all interactive elements reachable and operable — covered by `e2e/keyboard-nav.spec.ts` (Tab traversal, form-field reachability, visible focus indicator)
 - [ ] VoiceOver spot check: landmarks, headings, button labels — needs a Mac + screen reader; not automatable
-- [x] axe audit: no critical or serious violations — covered by `e2e/accessibility.spec.ts` on signin / owner+partner dashboards / events list / event detail (both roles) / settings. **`color-contrast` rule is disabled in the scan — see follow-up below.**
+- [x] axe audit: no critical or serious violations — covered by `e2e/accessibility.spec.ts` on signin / owner+partner dashboards / events list / event detail (both roles) / settings. All rules enforced including color-contrast (migration complete, see follow-up below).
 - [x] Owner PDF download: server returns a valid `%PDF-` for owner + partner — covered by `e2e/owner-pdf-download.spec.ts`
 - [ ] Owner/super_admin actual email send: Send to LC → verify message lands in inbox (requires real Resend setup, not automatable in CI)
 - [x] Partner flow: only confirmed+ events visible, event detail loads without errors, no edit/checklist/actions shown, no financial fields — covered by `e2e/partner-read-only.spec.ts`
@@ -51,8 +51,9 @@ E2E coverage (Playwright, `npm run test:e2e`) now covers the partner role bounda
 
 **Why:** The gold (`#A4731E`) is the brand accent and is used in ~10–20 places. Resolving needs a product/brand decision — options include (a) darken the gold token (e.g. to `gold-ink` `#7A5416` which already exists and tests at ~5.4:1), (b) switch button text from cream to charcoal, (c) bump heading sizes to qualify as AA Large, or (d) accept the AA Large standard for accents and update the design system spec.
 
-**Status:** Decorative text on dark backgrounds (sidebar nav, "Premium Hospitality", "Bar Excellence Events", "Backstage v1.0", "Owner / LC Partner" role labels) is already fixed via the new `--color-grey-light` (#9CA3AF) token. The remaining gold violations are the open design-system question.
-
-**Workaround:** The axe scan in `e2e/accessibility.spec.ts` disables the `color-contrast` rule with a clear comment so the suite still catches landmarks, labels, ARIA, focus order, headings, etc. — but does not flag the known brand-colour issue on every run.
+**Status:** RESOLVED 2026-05-30 — gold text/fills migrated to `gold-ink` on light
+surfaces; dark-surface nav labels to cream; bright gold retained for non-text accents.
+The axe `color-contrast` rule is re-enabled in `e2e/accessibility.spec.ts`. See
+`docs/superpowers/plans/2026-05-30-gold-contrast-aa-fix.md`.
 
 **Added:** 2026-05-25

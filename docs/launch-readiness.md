@@ -31,18 +31,14 @@ behind it lives in `docs/plans/2026-05-18-event-sheet-gap-report.md`.
 
 ---
 
-## ⚖️ Engineering decision — the one real code decision left
+## ✅ Engineering decision — resolved
 
-4. **⚖️🛠️ Brand-colour contrast (WCAG AA)** — the gold `#A4731E` fails AA (~3.95:1) on ~10–20
-   primary buttons and section-heading labels. The axe `color-contrast` rule is currently
-   **disabled** in `e2e/accessibility.spec.ts` to keep the suite green, so this is a known
-   silenced issue. Pick one and implement, then re-enable the rule:
-   - (a) darken the gold token (`gold-ink #7A5416` already exists, tests ~5.4:1), or
-   - (b) switch button text from cream → charcoal, or
-   - (c) bump heading sizes to qualify as AA-Large (3:1), or
-   - (d) formally accept AA-Large for accents and document it in the design system.
+4. **✅ Brand-colour contrast (WCAG AA)** — RESOLVED 2026-05-30. Gold text/fills migrated to
+   `gold-ink` (#7A5416) on light surfaces; dark-surface nav labels changed to `cream`; bright
+   gold retained only for non-text accents (focus ring, borders, dividers). The axe
+   `color-contrast` rule is re-enabled in `e2e/accessibility.spec.ts`.
 
-   _Detail: `TODOS.md` → "Design system: brand-colour contrast"._
+   _Detail: `docs/superpowers/plans/2026-05-30-gold-contrast-aa-fix.md`._
 
 ---
 

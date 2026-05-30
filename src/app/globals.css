@@ -6,6 +6,12 @@
   --color-cream: #FAF9F6;
   --color-gold: #A4731E;
   --color-gold-ink: #7A5416;
+  /*
+   * Gold usage rule (WCAG AA): use `gold-ink` for any TEXT or button FILL on a
+   * light surface (≈6.4:1 on cream). Bright `gold` is for non-text accents only
+   * — focus ring, borders, dividers. On dark surfaces, labels go `cream` and
+   * gold stays in the border/tint. See docs .../2026-05-30-gold-contrast-aa-fix-design.md.
+   */
   --color-grey: #6B7280;
   /*
    * AA-compliant subtle text colour for use on dark backgrounds (e.g. the
