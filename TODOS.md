@@ -1,5 +1,8 @@
 # TODOS — Backstage
 
+> **Launch gate:** the ordered, owner-tagged punch-list lives in
+> [`docs/launch-readiness.md`](docs/launch-readiness.md). This file holds the granular detail.
+
 All Phases 1–3 code is implemented on `main`. The items below are the remaining launch blockers and quality tasks.
 
 ---
