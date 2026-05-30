@@ -52,7 +52,7 @@ function ownerBadgeClass(status: DbStatus): string {
     return `${base} bg-charcoal/80 text-cream border-l-2 border-gold/80`;
   }
   if (status === "ready") {
-    return `${base} bg-gold text-cream`;
+    return `${base} bg-gold-ink text-cream`;
   }
   if (status === "delivered") {
     return `${base} border border-grey text-grey`;

@@ -31,7 +31,7 @@ export function EventsView({ events, isPartner = false }: { events: EventRow[]; 
           {!isPartner && (
             <Link
               href="/events/new"
-              className="px-6 py-2.5 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 min-h-[44px] flex items-center"
+              className="px-6 py-2.5 bg-gold-ink text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold transition-colors duration-200 min-h-[44px] flex items-center"
             >
               ADD EVENT
             </Link>
@@ -53,7 +53,7 @@ export function EventsView({ events, isPartner = false }: { events: EventRow[]; 
           {!isPartner && (
             <Link
               href="/events/new"
-              className="inline-block mt-6 px-6 py-2.5 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 min-h-[44px]"
+              className="inline-block mt-6 px-6 py-2.5 bg-gold-ink text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold transition-colors duration-200 min-h-[44px]"
             >
               CREATE YOUR FIRST EVENT
             </Link>

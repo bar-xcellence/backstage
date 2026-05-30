@@ -71,7 +71,7 @@ export function LcRecipientsSection({
             </p>
             <button
               onClick={() => setAdding(true)}
-              className="px-5 py-2.5 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 min-h-[44px] cursor-pointer"
+              className="px-5 py-2.5 bg-gold-ink text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold transition-colors duration-200 min-h-[44px] cursor-pointer"
             >
               ADD FIRST RECIPIENT
             </button>
@@ -221,7 +221,7 @@ function RecipientAddRow({
         <button
           onClick={handleSave}
           disabled={pending}
-          className="px-5 py-2 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 disabled:opacity-50 min-h-[44px] cursor-pointer"
+          className="px-5 py-2 bg-gold-ink text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold transition-colors duration-200 disabled:opacity-50 min-h-[44px] cursor-pointer"
         >
           {pending ? "SAVING..." : "SAVE"}
         </button>
@@ -285,7 +285,7 @@ function RecipientEditRow({
         <button
           onClick={handleSave}
           disabled={pending}
-          className="px-5 py-2 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 disabled:opacity-50 min-h-[44px] cursor-pointer"
+          className="px-5 py-2 bg-gold-ink text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold transition-colors duration-200 disabled:opacity-50 min-h-[44px] cursor-pointer"
         >
           {pending ? "SAVING..." : "SAVE"}
         </button>

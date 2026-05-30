@@ -87,7 +87,7 @@ export function SendToLCButton({ eventId }: { eventId: string }) {
             <button
               onClick={handleConfirmResend}
               disabled={loading}
-              className="px-5 py-2 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 disabled:opacity-50 min-h-[44px] cursor-pointer"
+              className="px-5 py-2 bg-gold-ink text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold transition-colors duration-200 disabled:opacity-50 min-h-[44px] cursor-pointer"
             >
               {loading ? "SENDING..." : "SEND AGAIN"}
             </button>
@@ -124,7 +124,7 @@ export function SendToLCButton({ eventId }: { eventId: string }) {
         <button
           onClick={handleOpenPreview}
           disabled={loading}
-          className="px-8 py-3 bg-gold text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold-ink transition-colors duration-200 disabled:opacity-50 min-h-[44px] cursor-pointer"
+          className="px-8 py-3 bg-gold-ink text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold transition-colors duration-200 disabled:opacity-50 min-h-[44px] cursor-pointer"
         >
           {loading ? "LOADING..." : "SEND TO LC"}
         </button>

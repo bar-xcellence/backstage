@@ -44,7 +44,7 @@ export default async function RecipesPage({
               href={s.value === "all" ? "/recipes" : `/recipes?season=${s.value}`}
               className={`px-4 py-1.5 font-[family-name:var(--font-raleway)] text-[11px] font-medium tracking-[0.16em] uppercase transition-colors duration-200 min-h-[36px] flex items-center ${
                 isActive
-                  ? "bg-gold text-cream"
+                  ? "bg-gold-ink text-cream"
                   : "bg-surface-low text-grey hover:text-charcoal"
               }`}
             >
