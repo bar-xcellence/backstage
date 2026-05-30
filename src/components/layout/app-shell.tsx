@@ -19,7 +19,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex flex-col md:flex-row min-h-screen">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-gold focus:text-charcoal focus:px-4 focus:py-2 focus:font-[family-name:var(--font-raleway)] focus:text-[11px] focus:font-medium focus:tracking-[0.16em] focus:uppercase"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-gold-ink focus:text-cream focus:px-4 focus:py-2 focus:font-[family-name:var(--font-raleway)] focus:text-[11px] focus:font-medium focus:tracking-[0.16em] focus:uppercase"
       >
         Skip to main content
       </a>

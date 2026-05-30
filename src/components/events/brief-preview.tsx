@@ -21,7 +21,7 @@ function Section({
 }) {
   return (
     <section className="mb-6">
-      <h3 className="font-[family-name:var(--font-cormorant)] text-lg font-light text-gold-ink tracking-tight mb-2">
+      <h3 className="font-[family-name:var(--font-cormorant)] text-lg font-light text-cream tracking-tight mb-2">
         {title}
       </h3>
       <div className="font-[family-name:var(--font-raleway)] text-sm text-cream/80 leading-relaxed">
@@ -190,7 +190,7 @@ export function BriefPreview({
             <Section title="Site Contacts">
               <div className="space-y-2">
                 {event.contacts.find((c) => c.isHost) && (
-                  <p className="text-gold-ink font-bold">
+                  <p className="text-cream font-bold">
                     Host: {event.contacts.find((c) => c.isHost)?.contactName}
                     {event.contacts.find((c) => c.isHost)?.contactPhone && (
                       <span className="text-cream/70 font-normal ml-2">
@@ -416,7 +416,7 @@ export function BriefPreview({
               <div className="space-y-3">
                 {standardNotes.map((note) => (
                   <div key={note.label}>
-                    <p className="text-[11px] font-medium tracking-[0.16em] uppercase text-gold-ink">
+                    <p className="text-[11px] font-medium tracking-[0.16em] uppercase text-cream">
                       {note.label}
                     </p>
                     <p className="whitespace-pre-line">{note.content}</p>
