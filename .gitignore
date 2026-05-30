@@ -93,3 +93,6 @@ temp/
 # Stitch design files (large binary assets)
 stitch_backstage_events_dashboard/*/code.html
 .gstack/
+
+# Visual brainstorm companion (local mockups)
+.superpowers/

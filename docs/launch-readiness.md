@@ -14,12 +14,7 @@ behind it lives in `docs/plans/2026-05-18-event-sheet-gap-report.md`.
 
 ## 🔴 Launch blockers — must clear before Murdo uses it live
 
-1. **🧑‍🍳 Remaining cocktail recipes** — 6 of ~20 seeded. The stock calculator is only as
-   accurate as the recipe data. Collect the remaining ~14 (name, ingredients with exact
-   measurements, garnishes) from Murdo and seed them.
-   _Blocks: accurate stock lists on any event using an un-seeded cocktail._
-
-2. **🛠️ Production environment + accounts** — provision in prod (Vercel):
+1. **🛠️ Production environment + accounts** — provision in prod (Vercel):
    - Required env: `DATABASE_URL`, `MAGIC_LINK_SECRET`, `SESSION_SECRET`, `RESEND_API_KEY`,
      `FROM_EMAIL`, `NEXT_PUBLIC_APP_URL`.
    - Confirm `ENABLE_TEST_AUTH` is **unset** in production (the test-signin route already
@@ -27,11 +22,12 @@ behind it lives in `docs/plans/2026-05-18-event-sheet-gap-report.md`.
    - Create real magic-link accounts for Murdo (owner), Rob (super_admin), Rory (partner).
    _Blocks: anyone logging in to the real instance._
 
-3. **🛠️ Live email send verification** — exercise Send-to-LC → Resend → real inbox once,
-   with a verified `from` domain. Confirm the brief email renders in Gmail/Outlook (dark
-   charcoal header, gold section titles). Not automatable in CI; currently unchecked in
-   `TODOS.md` Manual QA.
-   _Blocks: trusting the core "send brief to LC" action in production._
+### ✅ Cleared since first draft
+
+- **Cocktail recipes** — the 6 seeded recipes are the intended launch set. Murdo only has six
+  this season and rotates the menu per season, so the catalogue is deliberately small, not
+  partial. No longer a blocker.
+- **Live email send** — Send-to-LC → Resend verified and working. No longer a blocker.
 
 ---
 
