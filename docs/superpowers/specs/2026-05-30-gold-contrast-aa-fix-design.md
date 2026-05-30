@@ -105,3 +105,16 @@ acceptance criteria.
 - Bright gold remains on focus ring + borders.
 - `color-contrast` is re-enabled in the axe spec and the full e2e accessibility suite passes.
 - `npm run build` and `npm run test -- --run` stay green.
+
+## Outcome (2026-05-30)
+
+Gold migration complete and verified: every gold text/fill is `gold-ink` on light surfaces (or
+`cream` on dark), bright gold remains only on non-text accents, build + 220 unit tests green,
+and the **dashboards pass axe with `color-contrast` on**.
+
+The third success criterion was only **partially** met: re-enabling the rule fully revealed
+**pre-existing non-gold palette debt** (semantic status pills, 10px semantic labels, faded
+greys) that the rule had been masking — beyond this spec's gold scope and requiring their own
+brand-token decisions. By decision, the gold work lands now and `color-contrast` stays disabled
+until the follow-up resolves the rest. See
+`docs/superpowers/specs/2026-05-30-palette-contrast-followup-design.md`.

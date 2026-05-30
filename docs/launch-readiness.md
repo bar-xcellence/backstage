@@ -31,14 +31,20 @@ behind it lives in `docs/plans/2026-05-18-event-sheet-gap-report.md`.
 
 ---
 
-## ✅ Engineering decision — resolved
+## 🟡 Engineering decision — gold done, palette follow-up open
 
-4. **✅ Brand-colour contrast (WCAG AA)** — RESOLVED 2026-05-30. Gold text/fills migrated to
-   `gold-ink` (#7A5416) on light surfaces; dark-surface nav labels changed to `cream`; bright
-   gold retained only for non-text accents (focus ring, borders, dividers). The axe
-   `color-contrast` rule is re-enabled in `e2e/accessibility.spec.ts`.
+4. **Brand-colour contrast (WCAG AA)** — GOLD HALF DONE 2026-05-30. All gold text/fills
+   migrated to `gold-ink` (#7A5416) on light surfaces; dark-surface nav labels + brief-preview
+   headings → `cream`; bright gold retained only for non-text accents. Dashboards pass axe with
+   `color-contrast` on.
 
-   _Detail: `docs/superpowers/plans/2026-05-30-gold-contrast-aa-fix.md`._
+   **Still open:** re-enabling the full rule exposed pre-existing non-gold palette debt
+   (semantic status pills, 10px semantic labels, faded greys) that needs brand-token decisions.
+   `color-contrast` stays disabled until that follow-up lands — it is **not a launch blocker**
+   (no critical/serious axe failures otherwise; the gold readability issue is fixed).
+
+   _Gold: `docs/superpowers/plans/2026-05-30-gold-contrast-aa-fix.md` · Follow-up:
+   `docs/superpowers/specs/2026-05-30-palette-contrast-followup-design.md`._
 
 ---
 
