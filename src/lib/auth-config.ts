@@ -21,7 +21,7 @@ export const sessionOptions: SessionOptions = {
 
 // Only these emails can log in
 export const ALLOWED_EMAILS = [
-  "murdo@bar-excellence.app",
+  "murdo@bar-excellence.co.uk",
   "rob@roberthayford.com",
   "rory@lc-group.com",
   "roberthayford@outlook.com",

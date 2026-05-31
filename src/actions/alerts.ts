@@ -67,7 +67,7 @@ export async function checkAndSendAlerts() {
       try {
         await resend.emails.send({
           from: from.email,
-          to: "murdo@bar-excellence.app",
+          to: "murdo@bar-excellence.co.uk",
           subject: `${event.eventName} — ${incompleteCount} checklist items incomplete`,
           text: `${event.eventName} on ${event.eventDate} has ${incompleteCount} incomplete checklist items.\n\nReview at https://backstage.bar-excellence.app/events/${event.id}`,
         });
