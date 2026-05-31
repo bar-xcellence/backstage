@@ -24,6 +24,7 @@ Engineering is done; everything below is ops/config. Work top to bottom.
 | `FROM_EMAIL` | Sender for all outbound mail | Must be on a **Resend-verified domain** (see §3, §6). |
 | `NEXT_PUBLIC_APP_URL` | Base URL for magic links + email image `src` | **`https://<your-domain>`** — see §2. |
 | `ENABLE_TEST_AUTH` | Test sign-in backdoor | **Do not set in prod.** Also hard-disabled when `VERCEL_ENV=production`. |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob — cocktail reference image uploads in the recipe editor | Auto-set when a Blob store is connected to the project. |
 
 > Generate secrets: `openssl rand -base64 48`
 
