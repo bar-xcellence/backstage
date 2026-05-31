@@ -25,7 +25,7 @@ test.describe("recipe editor", () => {
     await page
       .getByRole("textbox", { name: "Ingredient amount" })
       .first()
-      .fill("50ml");
+      .fill("50");
 
     await page.getByRole("button", { name: "CREATE RECIPE" }).click();
 
@@ -53,7 +53,7 @@ test.describe("recipe editor", () => {
     await page.getByLabel("Recipe name").fill(recipeName);
     await page.getByLabel("Menu name").fill(menuName);
     await page.getByRole("textbox", { name: "Ingredient name" }).first().fill("Gin");
-    await page.getByRole("textbox", { name: "Ingredient amount" }).first().fill("45ml");
+    await page.getByRole("textbox", { name: "Ingredient amount" }).first().fill("45");
     await page.getByRole("button", { name: "CREATE RECIPE" }).click();
 
     await page.waitForURL((url) => /\/recipes\/[0-9a-f-]+$/i.test(url.pathname));
@@ -90,7 +90,7 @@ test.describe("recipe editor", () => {
     await page.getByLabel("Recipe name").fill(recipeName);
     await page.getByLabel("Menu name").fill(menuName);
     await page.getByRole("textbox", { name: "Ingredient name" }).first().fill("Vodka");
-    await page.getByRole("textbox", { name: "Ingredient amount" }).first().fill("50ml");
+    await page.getByRole("textbox", { name: "Ingredient amount" }).first().fill("50");
     await page.getByRole("button", { name: "CREATE RECIPE" }).click();
 
     await page.waitForURL((url) => /\/recipes\/[0-9a-f-]+$/i.test(url.pathname));
@@ -121,7 +121,7 @@ test.describe("recipe editor", () => {
     await page.getByLabel("Recipe name").fill(recipeName);
     await page.getByLabel("Menu name").fill(menuName);
     await page.getByRole("textbox", { name: "Ingredient name" }).first().fill("Tequila");
-    await page.getByRole("textbox", { name: "Ingredient amount" }).first().fill("60ml");
+    await page.getByRole("textbox", { name: "Ingredient amount" }).first().fill("60");
     await page.getByRole("button", { name: "CREATE RECIPE" }).click();
 
     await page.waitForURL((url) => /\/recipes\/[0-9a-f-]+$/i.test(url.pathname));

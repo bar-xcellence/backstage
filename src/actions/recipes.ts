@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { cocktails, cocktailIngredients, cocktailGarnishes } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { requireRole } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -29,10 +29,13 @@ export async function listRecipes(seasonFilter?: string) {
 export async function getRecipe(id: string) {
   await requireRole("owner", "super_admin", "partner");
 
+  // Only active recipes are reachable via the library/editor surfaces.
+  // Archived recipes (isActive=false) 404 on detail/edit and can't be
+  // duplicated; historical brief surfaces query cocktails directly, not here.
   const [recipe] = await db
     .select()
     .from(cocktails)
-    .where(eq(cocktails.id, id))
+    .where(and(eq(cocktails.id, id), eq(cocktails.isActive, true)))
     .limit(1);
 
   if (!recipe) return null;
