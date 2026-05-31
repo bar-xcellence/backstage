@@ -67,13 +67,13 @@ export default async function RecipesPage({
               href={`/recipes/${recipe.id}`}
               className="group block bg-cream border border-transparent hover:border-gold/40 transition-colors duration-200 overflow-hidden"
             >
-              {/* Image placeholder */}
-              <div className="aspect-[4/3] bg-surface-low flex items-center justify-center">
+              {/* Image — portrait 3:4 to match cocktail glass photography (avoids cropping garnish/base) */}
+              <div className="aspect-[3/4] bg-surface-low flex items-center justify-center overflow-hidden">
                 {recipe.referenceImageUrl ? (
                   <img
                     src={recipe.referenceImageUrl}
                     alt={recipe.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
                   />
                 ) : (
                   <span className="font-[family-name:var(--font-cormorant)] text-xl font-light text-grey/30">
