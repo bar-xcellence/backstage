@@ -111,6 +111,16 @@ Three new fields on `events`: `lcPayout` (numeric), `commissionNote` (text), `el
 
 Brief-surface call sites already enrich `ec.cocktail` (`send-to-lc.ts`, `api/events/[id]/pdf/route.ts`, `actions/brief-preview.ts`); no schema changes needed.
 
+### Recipe editor (owner CRUD)
+Owner/super_admin manage the cocktail library in-app (partner stays read-only):
+- Routes: `/recipes/new`, `/recipes/[id]/edit` (role-gated via `getSession()`; partner redirected to `/recipes`)
+- Actions in `src/actions/recipes.ts`: `createRecipe`, `updateRecipe` (replaces child rows — neon-http has no transactions), `archiveRecipe` (soft delete `isActive=false`, guards on existence), `duplicateRecipe` ("Copy of …", clones children via the shared `insertChildren` helper)
+- Validation: `src/lib/recipe-validation.ts` (`validateRecipeInput`, TDD) — also validates ingredient/garnish categories + units against their enums before the actions cast to DB enums
+- Reference images upload to Vercel Blob via `POST /api/recipes/upload` (role-gated `handleUpload`); needs `BLOB_READ_WRITE_TOKEN`
+- Archived recipes drop out of `listRecipes` and `getAvailableCocktails` (both filter `isActive=true`); historical events keep their cocktail rows
+- Components: `recipe-form.tsx` (dynamic ingredient/garnish rows, per-ingredient optional checkbox, `aria-label`/`htmlFor` for axe), `image-uploader.tsx`, `recipe-actions.tsx`
+- Spec/plan: `docs/superpowers/specs/2026-05-31-recipe-editor-design.md`, `docs/superpowers/plans/2026-05-31-recipe-editor.md`
+
 ### Equipment scaling rules
 `scalingRuleEnum` (in `src/db/schema.ts`) drives per-template-item scaling via `scaleEquipment()` (`src/lib/equipment-scaler.ts`):
 - `per_station` — multiplied by `stationCount`
