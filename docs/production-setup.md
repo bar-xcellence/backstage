@@ -21,8 +21,8 @@ Engineering is done; everything below is ops/config. Work top to bottom.
 | `SESSION_SECRET` | iron-session cookie encryption | ≥32 chars, random. Generate a fresh one for prod. |
 | `MAGIC_LINK_SECRET` | Signs magic-link JWTs | ≥32 chars, random. Fresh for prod. |
 | `RESEND_API_KEY` | Resend API auth | From the Resend dashboard. |
-| `FROM_EMAIL` | Sender for all outbound mail | Must be on a **Resend-verified domain** (see §3, §6). |
-| `NEXT_PUBLIC_APP_URL` | Base URL for magic links + email image `src` | **`https://<your-domain>`** — see §2. |
+| `FROM_EMAIL` | Sender for all outbound mail | **`murdo@bar-excellence.co.uk`** — the `bar-excellence.co.uk` domain must be Resend-verified (§3). |
+| `NEXT_PUBLIC_APP_URL` | Base URL for magic links + email image `src` | **`https://backstage.bar-excellence.app`** — see §2. |
 | `ENABLE_TEST_AUTH` | Test sign-in backdoor | **Do not set in prod.** Also hard-disabled when `VERCEL_ENV=production`. |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob — cocktail reference image uploads in the recipe editor | Auto-set when a Blob store is connected to the project. |
 
@@ -34,14 +34,14 @@ In `.env.local` it is `http://localhost:3000`. If that value reaches production,
 ---
 
 ## 2. `NEXT_PUBLIC_APP_URL`
-Set it to the deployed origin, e.g. `https://backstage.bar-excellence.<tld>` (see domain decision in §6).
+Set it to `https://backstage.bar-excellence.app` (the hosting subdomain — see §6).
 If unset, the app falls back to request headers (`src/lib/base-url.ts`), which Vercel proxies correctly — but setting it explicitly is safer and is required for the cocktail reference images to resolve in brief emails.
 
 ---
 
 ## 3. Resend domain verification
-1. In Resend, add and verify the sending domain (DKIM + SPF DNS records).
-2. `FROM_EMAIL` must use that verified domain (e.g. `no-reply@bar-excellence.<tld>`).
+1. In Resend, add and verify **`bar-excellence.co.uk`** (DKIM + SPF DNS records).
+2. `FROM_EMAIL` is `murdo@bar-excellence.co.uk`, which lives on that verified domain.
 3. **Until the domain is verified, no magic-link or brief emails send at all** — so this gates login.
 
 ---
@@ -70,15 +70,16 @@ The `SEED_MODE=prod` path in `src/db/seed.ts` is **additive and handoff-safe**:
 
 ---
 
-## 6. ⚠️ Domain decision (OPEN — confirm before §1–§3)
-Murdo's **mailbox** is `murdo@bar-excellence.co.uk` (`.co.uk`) — already fixed in the login allow-list, seed, and alert recipient.
+## 6. Domains (DECIDED)
+Two different domains are in play — they are intentionally not the same:
 
-Still **unconfirmed and left as `.app`** pending your call on whether the company is consolidating on `.co.uk`:
-- App/hosting subdomain referenced in docs: `backstage.bar-excellence.app`
-- `FROM_EMAIL` default: `...@bar-excellence.app`
-- The 48h-alert deep-link in `src/actions/alerts.ts:72`: `https://backstage.bar-excellence.app/...`
+| Purpose | Value |
+|---|---|
+| App / hosting subdomain | **`backstage.bar-excellence.app`** → `NEXT_PUBLIC_APP_URL=https://backstage.bar-excellence.app`. The alert deep-link in `src/actions/alerts.ts` already uses this. |
+| Outbound sender (`FROM_EMAIL`) | **`murdo@bar-excellence.co.uk`** — so the **`bar-excellence.co.uk` domain** must be Resend-verified (§3), not `.app`. |
+| Murdo's login mailbox | `murdo@bar-excellence.co.uk` (allow-list, seed, alert recipient). |
 
-Decide the canonical domain, then set the Vercel custom domain, `NEXT_PUBLIC_APP_URL`, `FROM_EMAIL`, the Resend verified domain, and the alert deep-link to match.
+So: verify `bar-excellence.co.uk` in Resend (for sending), attach `backstage.bar-excellence.app` as the Vercel custom domain (for hosting), and set `NEXT_PUBLIC_APP_URL` to the `.app` host.
 
 ---
 

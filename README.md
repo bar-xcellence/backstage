@@ -77,7 +77,7 @@ MAGIC_LINK_SECRET=<generate-a-64-char-random-string>
 
 # Email (Resend)
 RESEND_API_KEY=re_...
-FROM_EMAIL=backstage@bar-excellence.app
+FROM_EMAIL=murdo@bar-excellence.co.uk
 
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000

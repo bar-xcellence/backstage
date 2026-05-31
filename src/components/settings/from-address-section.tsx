@@ -58,7 +58,7 @@ export function FromAddressSection({
             type="email"
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            placeholder={envFallback ?? "no-reply@bar-excellence.app"}
+            placeholder={envFallback ?? "murdo@bar-excellence.co.uk"}
             className="w-full bg-cream border border-charcoal/15 px-3 py-2.5 font-[family-name:var(--font-raleway)] text-sm text-charcoal focus:outline-none focus:border-gold min-h-[44px]"
           />
         </label>
