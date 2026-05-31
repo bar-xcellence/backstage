@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getRecipe } from "@/actions/recipes";
+import { getSession } from "@/lib/session";
+import { RecipeActions } from "@/components/recipes/recipe-actions";
 
 export default async function RecipeDetailPage({
   params,
@@ -12,26 +14,33 @@ export default async function RecipeDetailPage({
 
   if (!recipe) notFound();
 
+  const session = await getSession();
+  const canEdit =
+    session?.role === "owner" || session?.role === "super_admin";
+
   return (
     <div className="max-w-3xl">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
-        <Link
-          href="/recipes"
-          className="text-grey hover:text-charcoal text-sm transition-colors duration-200"
-        >
-          &larr;
-        </Link>
-        <div>
-          <h1 className="font-[family-name:var(--font-cormorant)] text-3xl font-light text-charcoal tracking-tight">
-            {recipe.defaultMenuName}
-          </h1>
-          {recipe.defaultMenuDescription && (
-            <p className="font-[family-name:var(--font-cormorant)] text-base italic text-gold-ink/70 mt-1">
-              {recipe.defaultMenuDescription}
-            </p>
-          )}
+      <div className="flex items-start justify-between gap-4 mb-8">
+        <div className="flex items-center gap-4">
+          <Link
+            href="/recipes"
+            className="text-grey hover:text-charcoal text-sm transition-colors duration-200"
+          >
+            &larr;
+          </Link>
+          <div>
+            <h1 className="font-[family-name:var(--font-cormorant)] text-3xl font-light text-charcoal tracking-tight">
+              {recipe.defaultMenuName}
+            </h1>
+            {recipe.defaultMenuDescription && (
+              <p className="font-[family-name:var(--font-cormorant)] text-base italic text-gold-ink/70 mt-1">
+                {recipe.defaultMenuDescription}
+              </p>
+            )}
+          </div>
         </div>
+        {canEdit && <RecipeActions id={recipe.id} />}
       </div>
 
       {/* Meta */}

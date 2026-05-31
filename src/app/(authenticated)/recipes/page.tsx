@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listRecipes } from "@/actions/recipes";
+import { getSession } from "@/lib/session";
 
 const SEASONS = [
   { label: "ALL", value: "all" },
@@ -26,13 +27,24 @@ export default async function RecipesPage({
 }) {
   const { season } = await searchParams;
   const recipes = await listRecipes(season);
+  const session = await getSession();
 
   return (
     <div>
       {/* Header */}
-      <h1 className="font-[family-name:var(--font-cormorant)] text-3xl font-light text-charcoal tracking-tight mb-6">
-        Recipe Library
-      </h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="font-[family-name:var(--font-cormorant)] text-3xl font-light text-charcoal tracking-tight">
+          Recipe Library
+        </h1>
+        {session && (session.role === "owner" || session.role === "super_admin") && (
+          <Link
+            href="/recipes/new"
+            className="px-5 py-2.5 bg-gold-ink text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold transition-colors duration-200 min-h-[44px] flex items-center"
+          >
+            New recipe
+          </Link>
+        )}
+      </div>
 
       {/* Season filter */}
       <div className="flex gap-2 mb-8">
