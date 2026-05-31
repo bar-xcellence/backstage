@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test";
 
 export const TEST_USERS = {
-  owner: "murdo@bar-excellence.app",
+  owner: "murdo@bar-excellence.co.uk",
   superAdmin: "rob@roberthayford.com",
   partner: "rory@lc-group.com",
 } as const;
