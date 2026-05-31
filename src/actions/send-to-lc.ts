@@ -16,6 +16,7 @@ import {
   resolveSendRecipients,
 } from "@/lib/lc-email";
 import { buildBriefEmailHtml } from "@/lib/brief-email-template";
+import { resolveBaseUrl } from "@/lib/base-url";
 import { fetchEventStandardNotes } from "@/lib/event-standard-notes-query";
 import { revalidatePath } from "next/cache";
 
@@ -143,7 +144,14 @@ export async function sendToLC(
 
   const standardNotes = await fetchEventStandardNotes(eventId);
 
-  const html = buildBriefEmailHtml(event, eventCocktails, stock, standardNotes);
+  const baseUrl = await resolveBaseUrl();
+  const html = buildBriefEmailHtml(
+    event,
+    eventCocktails,
+    stock,
+    standardNotes,
+    baseUrl
+  );
 
   const result = await sendWithRetry({
     from: from.email,

@@ -4,6 +4,7 @@ import type { calculateStock } from "@/lib/stock-calculator";
 import { escapeHtml } from "./lc-email";
 import { stripWorkaroundMarkers } from "./notes-sanitization";
 import { formatAddressLines } from "./address-format";
+import { absolutiseUrl } from "./base-url";
 import type { EventStandardNote } from "./event-standard-notes-query";
 
 type EventWithContacts = NonNullable<Awaited<ReturnType<typeof getEvent>>>;
@@ -14,7 +15,8 @@ export function buildBriefEmailHtml(
   event: EventWithContacts,
   eventCocktails: EventCocktails,
   stock: Stock,
-  standardNotes: EventStandardNote[]
+  standardNotes: EventStandardNote[],
+  baseUrl: string | null = null
 ): string {
   const section = (title: string, content: string) =>
     content
@@ -58,7 +60,7 @@ export function buildBriefEmailHtml(
         ? `<br><span style="font-size: 12px; color: #6B7280;">Straw: ${escapeHtml(c.strawType)}</span>`
         : "";
       const refImage = c?.referenceImageUrl
-        ? `<br><img src="${escapeHtml(c.referenceImageUrl)}" alt="${escapeHtml(ec.menuName)} reference" style="max-width: 240px; margin-top: 8px;">`
+        ? `<br><img src="${escapeHtml(absolutiseUrl(c.referenceImageUrl, baseUrl))}" alt="${escapeHtml(ec.menuName)} reference" style="max-width: 240px; margin-top: 8px;">`
         : "";
 
       return `
