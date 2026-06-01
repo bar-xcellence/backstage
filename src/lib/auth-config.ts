@@ -25,4 +25,5 @@ export const ALLOWED_EMAILS = [
   "rob@roberthayford.com",
   "rory@lc-group.com",
   "roberthayford@outlook.com",
+  "murdo@hacien.com", // Murdo's partner (read-only LC view) account for testing
 ] as const;

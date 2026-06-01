@@ -62,6 +62,8 @@ async function seed() {
     { email: "murdo@bar-excellence.co.uk", name: "Murdo", role: "owner" as const },
     { email: "rob@roberthayford.com", name: "Rob", role: "super_admin" as const },
     { email: "rory@lc-group.com", name: "Rory", role: "partner" as const },
+    // Murdo's own read-only partner account, so he can preview the LC view.
+    { email: "murdo@hacien.com", name: "Murdo (LC view)", role: "partner" as const },
   ];
   // The partner test account is dev-only — never seed it into production.
   if (!PROD) {
