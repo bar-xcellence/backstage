@@ -38,6 +38,11 @@ export async function checkAndSendAlerts() {
     return;
   }
 
+  // Runs outside a request (cron), so resolve from env, not request headers.
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
+    "https://backstage.bar-excellence.app";
+
   const eventIds = within48.map((e) => e.id);
   const incompleteItems = await db
     .select({ eventId: eventChecklists.eventId })
@@ -67,9 +72,9 @@ export async function checkAndSendAlerts() {
       try {
         await resend.emails.send({
           from: from.email,
-          to: "murdo@bar-excellence.app",
+          to: "murdo@bar-excellence.co.uk",
           subject: `${event.eventName} — ${incompleteCount} checklist items incomplete`,
-          text: `${event.eventName} on ${event.eventDate} has ${incompleteCount} incomplete checklist items.\n\nReview at https://backstage.bar-excellence.app/events/${event.id}`,
+          text: `${event.eventName} on ${event.eventDate} has ${incompleteCount} incomplete checklist items.\n\nReview at ${appUrl}/events/${event.id}`,
         });
 
         await db

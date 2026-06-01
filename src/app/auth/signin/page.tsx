@@ -71,7 +71,7 @@ export default function SignInPage() {
               autoFocus
               autoComplete="email"
               className="w-full px-4 py-3 bg-transparent border-b-2 border-outline/15 text-charcoal font-[family-name:var(--font-raleway)] text-sm focus:border-gold focus:outline-none transition-colors duration-200 placeholder:text-grey/50"
-              placeholder="murdo@bar-excellence.app"
+              placeholder="murdo@bar-excellence.co.uk"
             />
 
             {error && (

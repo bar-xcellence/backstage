@@ -21,6 +21,13 @@ import {
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql);
 
+// Production bootstrap mode (SEED_MODE=prod): seeds only real, handoff-safe data
+// — the 3 real users, default LC recipient, from_email, the real cocktail recipes,
+// standard notes and equipment templates. It SKIPS the destructive cleanup, the
+// "Rob (Partner test)" fixture user, and the two fictional fixture events.
+// Intended to run ONCE against a freshly-migrated, empty production database.
+const PROD = process.env.SEED_MODE === "prod";
+
 async function cleanup() {
   console.log("Cleaning existing seed data...");
   await db.delete(eventEquipment);
@@ -40,23 +47,33 @@ async function cleanup() {
 }
 
 async function seed() {
-  await cleanup();
+  if (PROD) {
+    console.log(
+      "SEED_MODE=prod — additive bootstrap; skipping destructive cleanup. Run only against an empty, migrated DB."
+    );
+  } else {
+    await cleanup();
+  }
   console.log("Seeding database...");
 
   // ── Users ──────────────────────────────────────────
   console.log("Seeding users...");
+  const userRows = [
+    { email: "murdo@bar-excellence.co.uk", name: "Murdo", role: "owner" as const },
+    { email: "rob@roberthayford.com", name: "Rob", role: "super_admin" as const },
+    { email: "rory@lc-group.com", name: "Rory", role: "partner" as const },
+  ];
+  // The partner test account is dev-only — never seed it into production.
+  if (!PROD) {
+    userRows.push({
+      email: "roberthayford@outlook.com",
+      name: "Rob (Partner test)",
+      role: "partner" as const,
+    });
+  }
   const insertedUsers = await db
     .insert(users)
-    .values([
-      { email: "murdo@bar-excellence.app", name: "Murdo", role: "owner" },
-      { email: "rob@roberthayford.com", name: "Rob", role: "super_admin" },
-      { email: "rory@lc-group.com", name: "Rory", role: "partner" },
-      {
-        email: "roberthayford@outlook.com",
-        name: "Rob (Partner test)",
-        role: "partner",
-      },
-    ])
+    .values(userRows)
     .onConflictDoNothing()
     .returning({ id: users.id, email: users.email });
 
@@ -65,7 +82,7 @@ async function seed() {
     ? insertedUsers
     : await db.select({ id: users.id, email: users.email }).from(users);
   const userIdByEmail = new Map(allUsers.map((u) => [u.email, u.id]));
-  const murdoId = userIdByEmail.get("murdo@bar-excellence.app")!;
+  const murdoId = userIdByEmail.get("murdo@bar-excellence.co.uk")!;
 
   // ── LC Recipients ──────────────────────────────────
   console.log("Seeding LC recipients...");
@@ -109,6 +126,7 @@ async function seed() {
       strawType: "Black short cardboard",
       category: "Signature",
       isNonAlcoholic: false,
+      referenceImageUrl: "/images/cocktails/spiced_passionstar.webp",
       ingredients: [
         { ingredientName: "Spiced Rum", ingredientCategory: "spirit" as const, amount: "25", unit: "ml" as const, brand: null, sortOrder: 0 },
         { ingredientName: "Passionfruit Puree", ingredientCategory: "puree" as const, amount: "25", unit: "ml" as const, brand: "Boiron", sortOrder: 1 },
@@ -134,6 +152,7 @@ async function seed() {
       straw: false,
       category: "Signature",
       isNonAlcoholic: false,
+      referenceImageUrl: "/images/cocktails/springtime_clover_club.webp",
       notes: "Source PDF menu description mentions 'cloudy apple' but the spec lists no apple juice — seeded without apple. Flag in gap report.",
       ingredients: [
         { ingredientName: "Gin", ingredientCategory: "spirit" as const, amount: "25", unit: "ml" as const, brand: null, sortOrder: 0 },
@@ -187,6 +206,7 @@ async function seed() {
       strawType: "Black short cardboard",
       category: "Signature",
       isNonAlcoholic: false,
+      referenceImageUrl: "/images/cocktails/spiced_passionstar_summer.webp",
       notes: "Sister recipe of Spiced Passionstar (35ml rum vs 25ml).",
       ingredients: [
         { ingredientName: "Spiced Rum", ingredientCategory: "spirit" as const, amount: "35", unit: "ml" as const, brand: null, sortOrder: 0 },
@@ -213,6 +233,7 @@ async function seed() {
       straw: false,
       category: "Signature",
       isNonAlcoholic: false,
+      referenceImageUrl: "/images/cocktails/summertime_clover_club.webp",
       notes: "Sister recipe of Springtime Clover Club (35ml gin vs 25ml).",
       ingredients: [
         { ingredientName: "Gin", ingredientCategory: "spirit" as const, amount: "35", unit: "ml" as const, brand: null, sortOrder: 0 },
@@ -240,6 +261,7 @@ async function seed() {
       straw: false,
       category: "Signature",
       isNonAlcoholic: false,
+      referenceImageUrl: "/images/cocktails/mango_orange_blossom_marg.webp",
       notes: "Source menu description mentions 'orange blossom' but spec has no orange blossom water — seeded as listed in spec. Flag in gap report.",
       ingredients: [
         { ingredientName: "Tequila Blanco", ingredientCategory: "spirit" as const, amount: "25", unit: "ml" as const, brand: null, sortOrder: 0 },
@@ -374,6 +396,15 @@ async function seed() {
   }
 
   // ── Events ─────────────────────────────────────────
+  // Fixture events are dev-only. In production we hand Murdo a clean slate and
+  // he creates real events in the app.
+  if (PROD) {
+    console.log(
+      "\nProduction seed complete — real users, LC recipient, from_email, recipes, notes & equipment templates. No fixture events."
+    );
+    return;
+  }
+
   console.log("Seeding events...");
 
   // ── Event 1: Heathrow Masterclass ──

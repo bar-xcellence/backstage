@@ -12,6 +12,11 @@ const emptyStock: StockResult = {
   warnings: [],
 };
 
+// The first arg is the full EventWithContacts shape. These tests only exercise
+// a handful of fields, so we keep a minimal fixture and assert its type rather
+// than enumerate every column (which silently drifts as the schema grows).
+type BriefEvent = Parameters<typeof buildBriefEmailHtml>[0];
+
 const baseEvent = {
   eventName: "Test Event",
   showName: null,
@@ -37,7 +42,7 @@ const baseEvent = {
   parkingInstructions: null,
   accessRoute: null,
   notesCustom: null,
-};
+} as unknown as BriefEvent;
 
 describe("buildBriefEmailHtml", () => {
   it("escapes ampersands in the event name", () => {
@@ -69,7 +74,7 @@ describe("buildBriefEmailHtml", () => {
       {
         ...baseEvent,
         notesCustom: "Line 1 <b>bold</b>\nLine 2 & more",
-      },
+      } as BriefEvent,
       [],
       emptyStock,
       []
@@ -86,10 +91,14 @@ describe("buildBriefEmailHtml", () => {
         contacts: [
           {
             id: "c1",
+            eventId: "e1",
             contactName: "Alice <admin>",
             contactRole: "Chef & Owner",
             contactPhone: "+44",
             contactEmail: null,
+            isPrimary: false,
+            isHost: false,
+            sortOrder: 0,
           },
         ],
       },
@@ -187,6 +196,42 @@ describe("buildBriefEmailHtml", () => {
     );
     expect(html).toContain("https://example.com/clockwork.jpg");
     expect(html).toContain("<img");
+  });
+
+  it("absolutises a relative reference image URL against baseUrl for email (Spec H)", () => {
+    const cocktail = [
+      {
+        id: "ec1",
+        menuName: "Spiced Passionstar",
+        menuDescription: null,
+        stationNumber: null,
+        servesAllocated: 50,
+        cocktail: {
+          iceType: null,
+          iceAmountG: null,
+          straw: false,
+          strawType: null,
+          referenceImageUrl: "/images/cocktails/spiced_passionstar.webp",
+        },
+        ingredients: [],
+        garnishes: [],
+      },
+    ] as unknown as Parameters<typeof buildBriefEmailHtml>[1];
+
+    const html = buildBriefEmailHtml(
+      baseEvent,
+      cocktail,
+      emptyStock,
+      [],
+      "https://backstage.example.com"
+    );
+    expect(html).toContain(
+      'src="https://backstage.example.com/images/cocktails/spiced_passionstar.webp"'
+    );
+
+    // Without a baseUrl, the relative path is left intact (graceful degrade).
+    const htmlNoBase = buildBriefEmailHtml(baseEvent, cocktail, emptyStock, []);
+    expect(htmlNoBase).toContain('src="/images/cocktails/spiced_passionstar.webp"');
   });
 
   it("omits ice/straw lines when fields are absent (Spec H)", () => {
@@ -419,7 +464,7 @@ describe("buildBriefEmailHtml", () => {
       ...baseEvent,
       notesCustom:
         "Real note for LC.\n\nWORKAROUND[substitution-stock]: 4 bottles non-alc gin.",
-    };
+    } as BriefEvent;
     const html = buildBriefEmailHtml(eventWithMarkers, [], emptyStock, []);
     expect(html).not.toContain("WORKAROUND[");
     expect(html).toContain("Real note for LC.");

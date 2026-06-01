@@ -11,22 +11,7 @@ import {
 } from "@/lib/auth";
 import { createSession, destroySession } from "@/lib/session";
 import { getFromEmail } from "@/lib/lc-email";
-import { headers } from "next/headers";
-
-async function resolveBaseUrl(): Promise<string | null> {
-  const envUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
-  if (envUrl) return envUrl.replace(/\/$/, "");
-
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host");
-  if (!host) return null;
-  const proto =
-    h.get("x-forwarded-proto") ??
-    (host.startsWith("localhost") || host.startsWith("127.0.0.1")
-      ? "http"
-      : "https");
-  return `${proto}://${host}`;
-}
+import { resolveBaseUrl } from "@/lib/base-url";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

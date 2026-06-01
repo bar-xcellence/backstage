@@ -12,7 +12,7 @@ describe("Magic Link Tokens", () => {
   describe("createMagicLinkToken", () => {
     it("creates a valid JWT with 3 parts", async () => {
       const token = await createMagicLinkToken(
-        "murdo@bar-excellence.app",
+        "murdo@bar-excellence.co.uk",
         TEST_SECRET
       );
       expect(token).toBeTruthy();
@@ -24,16 +24,16 @@ describe("Magic Link Tokens", () => {
   describe("verifyMagicLinkToken", () => {
     it("verifies a valid token and returns the email", async () => {
       const token = await createMagicLinkToken(
-        "murdo@bar-excellence.app",
+        "murdo@bar-excellence.co.uk",
         TEST_SECRET
       );
       const result = await verifyMagicLinkToken(token, TEST_SECRET);
-      expect(result.email).toBe("murdo@bar-excellence.app");
+      expect(result.email).toBe("murdo@bar-excellence.co.uk");
     });
 
     it("rejects an expired token", async () => {
       const token = await createMagicLinkToken(
-        "murdo@bar-excellence.app",
+        "murdo@bar-excellence.co.uk",
         TEST_SECRET,
         "0s"
       );
@@ -45,7 +45,7 @@ describe("Magic Link Tokens", () => {
 
     it("rejects a tampered token", async () => {
       const token = await createMagicLinkToken(
-        "murdo@bar-excellence.app",
+        "murdo@bar-excellence.co.uk",
         TEST_SECRET
       );
       const tampered = token.slice(0, -5) + "xxxxx";
@@ -56,7 +56,7 @@ describe("Magic Link Tokens", () => {
 
     it("rejects a token signed with a different secret", async () => {
       const token = await createMagicLinkToken(
-        "murdo@bar-excellence.app",
+        "murdo@bar-excellence.co.uk",
         TEST_SECRET
       );
       await expect(
@@ -68,7 +68,7 @@ describe("Magic Link Tokens", () => {
 
 describe("isAllowedEmail", () => {
   it("accepts known emails", () => {
-    expect(isAllowedEmail("murdo@bar-excellence.app")).toBe(true);
+    expect(isAllowedEmail("murdo@bar-excellence.co.uk")).toBe(true);
     expect(isAllowedEmail("rob@roberthayford.com")).toBe(true);
   });
 
@@ -78,11 +78,11 @@ describe("isAllowedEmail", () => {
   });
 
   it("is case-insensitive", () => {
-    expect(isAllowedEmail("MURDO@BAR-EXCELLENCE.APP")).toBe(true);
+    expect(isAllowedEmail("MURDO@BAR-EXCELLENCE.CO.UK")).toBe(true);
     expect(isAllowedEmail("Rob@RobertHayford.com")).toBe(true);
   });
 
   it("trims whitespace", () => {
-    expect(isAllowedEmail("  murdo@bar-excellence.app  ")).toBe(true);
+    expect(isAllowedEmail("  murdo@bar-excellence.co.uk  ")).toBe(true);
   });
 });
