@@ -14,6 +14,7 @@ import { CocktailSelector } from "@/components/events/cocktail-selector";
 import { StockList } from "@/components/events/stock-list";
 import { SendToLCButton } from "@/components/events/send-to-lc-button";
 import { DownloadPDFButton } from "@/components/events/download-pdf-button";
+import { DeleteEventButton } from "@/components/events/delete-event-button";
 import { getEventChecklist } from "@/actions/checklists";
 import { EventChecklist } from "@/components/events/event-checklist";
 import { getEventEquipment, getEquipmentTemplates } from "@/actions/equipment";
@@ -23,6 +24,7 @@ import { EventStandardNotes } from "@/components/events/event-standard-notes";
 import { formatAddressLines } from "@/lib/address-format";
 import { STATUS_COLORS, STATUS_ORDER } from "@/lib/constants";
 import { toPartnerStatus, type DbStatus } from "@/lib/dashboard-status";
+import { canDeleteEvent } from "@/lib/event-deletion";
 
 const PARTNER_STATUS_LABELS: Record<string, string> = {
   provisional: "Provisional",
@@ -234,6 +236,11 @@ export default async function EventDetailPage({
                   {STATUS_ORDER[statusIndex + 1].toUpperCase()}
                 </button>
               </form>
+            )}
+
+            {/* Delete (duplicate/junk) — not for completed events */}
+            {canDeleteEvent(event.status as DbStatus) && (
+              <DeleteEventButton eventId={id} eventName={event.eventName} />
             )}
           </div>
         )}
