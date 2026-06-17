@@ -470,4 +470,28 @@ describe("buildBriefEmailHtml", () => {
     expect(html).toContain("Real note for LC.");
     expect(html).toContain("4 bottles non-alc gin.");
   });
+
+  it("renders an Equipment section listing item names and quantities", () => {
+    const html = buildBriefEmailHtml(baseEvent, [], emptyStock, [], null, [
+      { itemName: "Speedpour", quantity: 12 },
+      { itemName: "Cocktail shaker (3-piece)", quantity: 2 },
+    ]);
+    expect(html).toContain("Equipment");
+    expect(html).toContain("Speedpour");
+    expect(html).toContain("Cocktail shaker (3-piece)");
+    expect(html).toContain("12");
+  });
+
+  it("omits the Equipment section entirely when no equipment is attached", () => {
+    const html = buildBriefEmailHtml(baseEvent, [], emptyStock, [], null, []);
+    expect(html).not.toContain(">Equipment<");
+  });
+
+  it("escapes HTML in equipment item names", () => {
+    const html = buildBriefEmailHtml(baseEvent, [], emptyStock, [], null, [
+      { itemName: "Jigger <2cl & 4cl>", quantity: 4 },
+    ]);
+    expect(html).toContain("Jigger &lt;2cl &amp; 4cl&gt;");
+    expect(html).not.toContain("Jigger <2cl & 4cl>");
+  });
 });

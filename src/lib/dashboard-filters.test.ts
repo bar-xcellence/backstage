@@ -234,11 +234,14 @@ describe("monthBounds", () => {
 
 describe("allowedStatusesForRole", () => {
   it("partner allow-list matches the confirmed+ envelope", () => {
+    // Includes "completed" — the terminal post-delivery state partners still
+    // see (rendered as "delivered"); see PARTNER_VISIBLE_STATUSES.
     expect(allowedStatusesForRole("partner")).toEqual([
       "confirmed",
       "preparation",
       "ready",
       "delivered",
+      "completed",
     ]);
   });
 

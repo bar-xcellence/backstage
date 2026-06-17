@@ -125,6 +125,13 @@ Three new fields on `events`: `lcPayout` (numeric), `commissionNote` (text), `el
 
 Brief-surface call sites already enrich `ec.cocktail` (`send-to-lc.ts`, `api/events/[id]/pdf/route.ts`, `actions/brief-preview.ts`); no schema changes needed.
 
+### Equipment + overview on the brief
+The brief (Download PDF + Send to LC email + in-app preview) previously omitted the event's **equipment** entirely and rendered a thinner "What" than the email. Both are now on all four brief surfaces (`brief-email-template.ts`, `pdf/brief-pdf.tsx`, `pdf/text-only-brief-pdf.tsx`, `components/events/brief-preview.tsx`):
+- **Equipment** — the `eventEquipment` rows (itemName × quantity) render as their own section after the stock sections. Fetched at the three brief call sites: PDF route (inline `db.select` matching its direct-query style), `send-to-lc.ts` and `brief-preview.ts` (via `getEventEquipment()`). `buildBriefEmailHtml` gained an optional 6th param `equipment = []`; `BriefPDF`/`TextOnlyBriefPDF` gained a required `equipment` prop; `BriefPreviewData` gained `equipment`.
+- **Overview parity** — eventType / serviceType / `flairRequired` / `dryIce` are now in the "What" section of both PDFs and the preview (the email already had them). In the partner-accessible PDF route these come from `stripPartnerEvent(event)`, so the owner-only ones (`serviceType`/`flairRequired`/`dryIce`) null out and the guards render nothing — no partner leak. Equipment is intentionally partner-visible (already shown unconditionally on the event detail Equipment tab; `getEventEquipment()` allows the partner role) and is a separate table, so it is not part of the `partner-event-projection.ts` classification.
+
+Cocktails and the stock list were already wired and render when populated — they appear empty only when an event has zero cocktails (stock derives from cocktails).
+
 ### Recipe editor (owner CRUD)
 Owner/super_admin manage the cocktail library in-app (partner stays read-only):
 - Routes: `/recipes/new`, `/recipes/[id]/edit` (role-gated via `getSession()`; partner redirected to `/recipes`)

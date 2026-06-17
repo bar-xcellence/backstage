@@ -22,13 +22,18 @@ describe("toPartnerStatus", () => {
     expect(toPartnerStatus("cancelled")).toBe("cancelled");
   });
 
-  it("covers all six db statuses (exhaustiveness pin)", () => {
+  it("maps completed to delivered (terminal post-delivery state)", () => {
+    expect(toPartnerStatus("completed")).toBe("delivered");
+  });
+
+  it("covers all seven db statuses (exhaustiveness pin)", () => {
     const allStatuses: DbStatus[] = [
       "enquiry",
       "confirmed",
       "preparation",
       "ready",
       "delivered",
+      "completed",
       "cancelled",
     ];
     const displayStatuses = new Set<DisplayStatus>(
@@ -42,11 +47,15 @@ describe("toPartnerStatus", () => {
 
 describe("PARTNER_VISIBLE_STATUSES", () => {
   it("contains only confirmed+ statuses (partner cannot see enquiry or cancelled)", () => {
+    // "completed" is the terminal post-delivery state; it maps to the
+    // partner-visible "delivered" display, and the /completed page renders for
+    // partners — so it stays in the confirmed+ envelope.
     expect(PARTNER_VISIBLE_STATUSES).toEqual([
       "confirmed",
       "preparation",
       "ready",
       "delivered",
+      "completed",
     ]);
   });
 

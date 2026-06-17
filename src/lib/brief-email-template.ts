@@ -1,5 +1,6 @@
 import type { getEvent } from "@/actions/events";
 import type { getEventCocktails } from "@/actions/event-cocktails";
+import type { getEventEquipment } from "@/actions/equipment";
 import type { calculateStock } from "@/lib/stock-calculator";
 import { escapeHtml } from "./lc-email";
 import { stripWorkaroundMarkers } from "./notes-sanitization";
@@ -10,13 +11,15 @@ import type { EventStandardNote } from "./event-standard-notes-query";
 type EventWithContacts = NonNullable<Awaited<ReturnType<typeof getEvent>>>;
 type EventCocktails = Awaited<ReturnType<typeof getEventCocktails>>;
 type Stock = ReturnType<typeof calculateStock>;
+type Equipment = Awaited<ReturnType<typeof getEventEquipment>>;
 
 export function buildBriefEmailHtml(
   event: EventWithContacts,
   eventCocktails: EventCocktails,
   stock: Stock,
   standardNotes: EventStandardNote[],
-  baseUrl: string | null = null
+  baseUrl: string | null = null,
+  equipment: Equipment = []
 ): string {
   const section = (title: string, content: string) =>
     content
@@ -170,6 +173,16 @@ export function buildBriefEmailHtml(
           .join("<br>")
       : "";
 
+  const equipmentContent =
+    equipment.length > 0
+      ? equipment
+          .map(
+            (e) =>
+              `${escapeHtml(e.itemName)} &times; ${escapeHtml(e.quantity)}`
+          )
+          .join("<br>")
+      : "";
+
   const standardNotesHtml = standardNotes
     .map((n) =>
       section(n.label, escapeHtml(n.content).replace(/\n/g, "<br>"))
@@ -215,6 +228,7 @@ export function buildBriefEmailHtml(
           ${section("Ice", iceContent)}
           ${section("Straws", strawsContent)}
           ${section("Per-Event Stock", consumablesContent)}
+          ${section("Equipment", equipmentContent)}
           ${standardNotesHtml}
           ${section("Notes", notesContent)}
         </table>
