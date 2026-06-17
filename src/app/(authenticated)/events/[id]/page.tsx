@@ -99,6 +99,7 @@ export default async function EventDetailPage({
   });
 
   const stock = calculateStock(stockInput);
+  const statusIndex = STATUS_ORDER.indexOf(event.status);
 
   const spiritCount = new Set(
     eventCocktails.flatMap((ec) =>
@@ -125,6 +126,11 @@ export default async function EventDetailPage({
     if (currentIndex < STATUS_ORDER.length - 1) {
       await updateEventStatus(id, STATUS_ORDER[currentIndex + 1]);
     }
+  };
+
+  const markAsCompleted = async () => {
+    "use server";
+    await updateEventStatus(id, "completed");
   };
 
   const tabs = [
@@ -197,17 +203,35 @@ export default async function EventDetailPage({
             {/* Send to LC */}
             <SendToLCButton eventId={id} />
 
+            {/* Mark as completed */}
+            {event.status === "completed" ? (
+              <button
+                type="button"
+                disabled
+                className="px-5 py-2.5 bg-success text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase transition-colors duration-200 min-h-[44px] cursor-default opacity-80"
+              >
+                COMPLETED
+              </button>
+            ) : (
+              <form action={markAsCompleted}>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-success text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-success/80 transition-colors duration-200 min-h-[44px] cursor-pointer"
+                >
+                  MARK AS COMPLETED
+                </button>
+              </form>
+            )}
+
             {/* Advance status */}
-            {STATUS_ORDER.indexOf(event.status) < STATUS_ORDER.length - 1 && (
+            {statusIndex >= 0 && statusIndex < STATUS_ORDER.length - 1 && (
               <form action={advanceStatus}>
                 <button
                   type="submit"
                   className="px-5 py-2.5 border border-gold text-gold-ink font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold hover:text-cream transition-colors duration-200 min-h-[44px] cursor-pointer"
                 >
                   ADVANCE TO{" "}
-                  {STATUS_ORDER[
-                    STATUS_ORDER.indexOf(event.status) + 1
-                  ].toUpperCase()}
+                  {STATUS_ORDER[statusIndex + 1].toUpperCase()}
                 </button>
               </form>
             )}

@@ -4,6 +4,7 @@ export const STATUS_COLORS: Record<string, string> = {
   preparation: "bg-gold/20 text-gold-ink",
   ready: "bg-botanical/20 text-botanical",
   delivered: "bg-success/20 text-success",
+  completed: "bg-success/20 text-success",
   cancelled: "bg-error/10 text-error/60",
 };
 

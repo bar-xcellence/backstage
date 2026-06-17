@@ -45,6 +45,9 @@ secrets/
 # Cursor agent debug logs (API may append under .cursor/)
 .cursor/*.log
 
+# Superpowers (local agent skill state)
+.superpowers/
+
 # IDE
 .vscode/
 .idea/

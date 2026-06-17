@@ -12,6 +12,20 @@ Bar Excellence's events preparation and dispatch system. Bespoke tool for 3 user
 - **Tests:** `npm run test -- --run` (Vitest, `src/**/*.test.ts`); `npm run test:e2e` (Playwright, `e2e/*.spec.ts` — boots `next start -p 3100` with `ENABLE_TEST_AUTH=true`)
 - **Build:** `npm run build` (must pass before shipping)
 
+## Intent Layer
+
+**Before modifying code in a subdirectory, read its `AGENTS.md` first** for local patterns and invariants.
+
+- **`src/lib/AGENTS.md`** — business logic & the partner-isolation security core (sanitisation, projection, dashboard filters, email/PDF, calculators). The most dangerous place to get wrong.
+- **`src/components/AGENTS.md`** — React UI by surface (dashboard/events/layout/settings), client/server boundary, Reserve Noir rules.
+
+### Global Invariants
+
+- `requireRole()` from `src/lib/session.ts` is the first line of every server action in `src/actions/`.
+- `src/db/schema.ts` is the single source of truth; every `events` column must be classified in `src/lib/partner-event-projection.ts` (the pinned test fails otherwise).
+- Partner isolation has one sanitiser path (`stripPartnerEvent()`) plus `!isPartner` UI gating as defence-in-depth — keep both.
+- The brief renders on four surfaces that must stay in sync — see `src/lib/AGENTS.md`.
+
 ## Project Docs
 
 | Doc | Purpose |
@@ -116,7 +130,7 @@ Owner/super_admin manage the cocktail library in-app (partner stays read-only):
 - Routes: `/recipes/new`, `/recipes/[id]/edit` (role-gated via `getSession()`; partner redirected to `/recipes`)
 - Actions in `src/actions/recipes.ts`: `createRecipe`, `updateRecipe` (replaces child rows — neon-http has no transactions), `archiveRecipe` (soft delete `isActive=false`, guards on existence), `duplicateRecipe` ("Copy of …", clones children via the shared `insertChildren` helper)
 - Validation: `src/lib/recipe-validation.ts` (`validateRecipeInput`, TDD) — also validates ingredient/garnish categories + units against their enums before the actions cast to DB enums
-- Reference images upload to Vercel Blob via `POST /api/recipes/upload` (role-gated `handleUpload`); needs `BLOB_READ_WRITE_TOKEN`
+- Reference images upload to UploadThing via `/api/uploadthing` endpoint `recipeImage` (role-gated); needs `UPLOADTHING_TOKEN`
 - Archived recipes drop out of `listRecipes` and `getAvailableCocktails` (both filter `isActive=true`); historical events keep their cocktail rows
 - Components: `recipe-form.tsx` (dynamic ingredient/garnish rows, per-ingredient optional checkbox, `aria-label`/`htmlFor` for axe), `image-uploader.tsx`, `recipe-actions.tsx`
 - Spec/plan: `docs/superpowers/specs/2026-05-31-recipe-editor-design.md`, `docs/superpowers/plans/2026-05-31-recipe-editor.md`

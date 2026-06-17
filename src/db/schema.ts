@@ -20,6 +20,7 @@ export const eventStatusEnum = pgEnum("event_status", [
   "preparation",
   "ready",
   "delivered",
+  "completed",
   "cancelled",
 ]);
 
