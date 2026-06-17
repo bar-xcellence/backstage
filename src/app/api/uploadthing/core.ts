@@ -6,7 +6,7 @@ const f = createUploadthing();
 export const uploadRouter = {
   recipeImage: f({
     image: {
-      maxFileSize: "5MB",
+      maxFileSize: "8MB",
       maxFileCount: 1,
     },
   })
