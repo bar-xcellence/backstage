@@ -30,7 +30,7 @@ It is a bespoke tool for a small, fixed set of users (the owner, a super admin, 
 | ORM | Drizzle ORM |
 | Email | Resend (`@react-email/components` for templates) |
 | PDF | `@react-pdf/renderer` |
-| File storage | Vercel Blob (`@vercel/blob`) — cocktail reference images |
+| File storage | UploadThing (`uploadthing`) — cocktail reference images |
 | Drag & drop | `@hello-pangea/dnd` |
 | Tables | `@tanstack/react-table` |
 | Testing | Vitest (unit) + Playwright (E2E) |
@@ -102,9 +102,8 @@ FROM_EMAIL=murdo@bar-excellence.co.uk
 # App — hosting subdomain (prod: https://backstage.bar-excellence.app)
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-# Vercel Blob — required for cocktail reference image uploads in the recipe editor.
-# Auto-set on Vercel when a Blob store is connected; for local dev: `vercel env pull`.
-BLOB_READ_WRITE_TOKEN=
+# UploadThing — required for cocktail reference image uploads in the recipe editor.
+UPLOADTHING_TOKEN=
 ```
 
 > `FROM_EMAIL` is a fallback. In production the outbound sender is read from the `app_settings.from_email` row (managed via `/settings`); the env var only applies when that setting is empty. The same goes for the LC recipient — `lc_recipients` rows drive the at-send picker.

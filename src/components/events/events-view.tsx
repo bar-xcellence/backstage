@@ -16,18 +16,35 @@ interface EventRow {
   lcSentAt: Date | null;
 }
 
-export function EventsView({ events, isPartner = false }: { events: EventRow[]; isPartner?: boolean }) {
-  const [viewMode, setViewMode] = useViewMode();
+type ViewMode = "list" | "kanban";
+
+export function EventsView({
+  events,
+  isPartner = false,
+  title = "Events",
+  lockedViewMode,
+  emptyTitle,
+  emptyDescription,
+}: {
+  events: EventRow[];
+  isPartner?: boolean;
+  title?: string;
+  lockedViewMode?: ViewMode;
+  emptyTitle?: string;
+  emptyDescription?: string;
+}) {
+  const [storedViewMode, setViewMode] = useViewMode();
+  const viewMode = lockedViewMode ?? storedViewMode;
 
   return (
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-8 gap-4 flex-wrap">
         <h1 className="font-[family-name:var(--font-cormorant)] text-3xl font-light text-charcoal tracking-tight">
-          Events
+          {title}
         </h1>
         <div className="flex items-center gap-3">
-          <ViewToggle mode={viewMode} onChange={setViewMode} />
+          {!lockedViewMode && <ViewToggle mode={viewMode} onChange={setViewMode} />}
           {!isPartner && (
             <Link
               href="/events/new"
@@ -43,14 +60,15 @@ export function EventsView({ events, isPartner = false }: { events: EventRow[]; 
       {events.length === 0 ? (
         <div className="text-center py-16">
           <h2 className="font-[family-name:var(--font-cormorant)] text-2xl font-light text-charcoal">
-            {isPartner ? "No upcoming events" : "No events yet"}
+            {emptyTitle ?? (isPartner ? "No upcoming events" : "No events yet")}
           </h2>
           <p className="font-[family-name:var(--font-raleway)] text-sm text-grey mt-2 max-w-md mx-auto">
-            {isPartner
-              ? "Briefs will appear here once Murdo confirms them. You\u2019ll see event details, cocktail specs, and stock lists for all confirmed events."
-              : "Create your first event to get started with Backstage."}
+            {emptyDescription ??
+              (isPartner
+                ? "Briefs will appear here once Murdo confirms them. You\u2019ll see event details, cocktail specs, and stock lists for all confirmed events."
+                : "Create your first event to get started with Backstage.")}
           </p>
-          {!isPartner && (
+          {!isPartner && !emptyDescription && (
             <Link
               href="/events/new"
               className="inline-block mt-6 px-6 py-2.5 bg-gold-ink text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold transition-colors duration-200 min-h-[44px]"

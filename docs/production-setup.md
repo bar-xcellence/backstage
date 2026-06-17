@@ -24,7 +24,7 @@ Engineering is done; everything below is ops/config. Work top to bottom.
 | `FROM_EMAIL` | Sender for all outbound mail | **`murdo@bar-excellence.co.uk`** — the `bar-excellence.co.uk` domain must be Resend-verified (§3). |
 | `NEXT_PUBLIC_APP_URL` | Base URL for magic links + email image `src` | **`https://backstage.bar-excellence.app`** — see §2. |
 | `ENABLE_TEST_AUTH` | Test sign-in backdoor | **Do not set in prod.** Also hard-disabled when `VERCEL_ENV=production`. |
-| `BLOB_READ_WRITE_TOKEN` | Vercel Blob — cocktail reference image uploads in the recipe editor | Auto-set when a Blob store is connected to the project. |
+| `UPLOADTHING_TOKEN` | UploadThing — cocktail reference image uploads in the recipe editor | From the UploadThing dashboard. |
 
 > Generate secrets: `openssl rand -base64 48`
 

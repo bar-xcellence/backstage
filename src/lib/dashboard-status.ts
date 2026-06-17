@@ -4,6 +4,7 @@ export type DbStatus =
   | "preparation"
   | "ready"
   | "delivered"
+  | "completed"
   | "cancelled";
 
 export type DisplayStatus =
@@ -21,6 +22,7 @@ export function toPartnerStatus(s: DbStatus): DisplayStatus {
     case "ready":
       return "confirmed";
     case "delivered":
+    case "completed":
       return "delivered";
     case "cancelled":
       return "cancelled";
@@ -50,4 +52,5 @@ export const PARTNER_VISIBLE_STATUSES: readonly DbStatus[] = [
   "preparation",
   "ready",
   "delivered",
+  "completed",
 ];

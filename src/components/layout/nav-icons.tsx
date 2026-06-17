@@ -37,6 +37,16 @@ export function EventsIcon({ className }: IconProps) {
   );
 }
 
+export function CompletedIcon({ className }: IconProps) {
+  return (
+    <svg {...baseProps} className={className}>
+      <rect x="2.5" y="4" width="15" height="13.5" />
+      <line x1="2.5" y1="8" x2="17.5" y2="8" />
+      <polyline points="6,12 8.5,14.5 14,10" />
+    </svg>
+  );
+}
+
 export function RecipesIcon({ className }: IconProps) {
   return (
     <svg {...baseProps} className={className}>

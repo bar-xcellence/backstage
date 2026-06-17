@@ -17,6 +17,7 @@ const OWNER_LABELS: Record<DbStatus, string> = {
   preparation: "Preparation",
   ready: "Ready",
   delivered: "Delivered",
+  completed: "Completed",
   cancelled: "Cancelled",
 };
 
@@ -54,7 +55,7 @@ function ownerBadgeClass(status: DbStatus): string {
   if (status === "ready") {
     return `${base} bg-gold-ink text-cream`;
   }
-  if (status === "delivered") {
+  if (status === "delivered" || status === "completed") {
     return `${base} border border-grey text-grey`;
   }
   // cancelled
