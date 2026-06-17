@@ -132,6 +132,9 @@ The brief (Download PDF + Send to LC email + in-app preview) previously omitted 
 
 Cocktails and the stock list were already wired and render when populated — they appear empty only when an event has zero cocktails (stock derives from cocktails).
 
+### Deleting events (owner)
+Owner/super_admin can permanently delete an event (e.g. a duplicate enquiry). `deleteEvent(id)` in `src/actions/events.ts` `db.delete`s the row; the six child tables (contacts, cocktails, equipment, standard notes, stock, checklist) all `onDelete: "cascade"`, so no orphans and no transaction needed. The deletion policy is the pure `canDeleteEvent(status)` / `deleteBlockedReason(status)` in `src/lib/event-deletion.ts` (TDD'd): deletable for every status **except `completed`** (completed events are protected finished records on `/completed`). Both the action guard and the UI gate use `canDeleteEvent` — single source of truth. `DeleteEventButton` (`components/events/delete-event-button.tsx`) is a client confirm-modal rendered in the event-detail header inside the `!isPartner` block; on success it redirects to `/events`. Partners never see it and the action is owner-gated. Spec: `docs/superpowers/specs/2026-06-17-delete-event-design.md`.
+
 ### Recipe editor (owner CRUD)
 Owner/super_admin manage the cocktail library in-app (partner stays read-only):
 - Routes: `/recipes/new`, `/recipes/[id]/edit` (role-gated via `getSession()`; partner redirected to `/recipes`)

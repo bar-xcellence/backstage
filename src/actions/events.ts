@@ -5,6 +5,8 @@ import { events, eventContacts, lcRecipients } from "@/db/schema";
 import { eq, desc, and, type SQL } from "drizzle-orm";
 import { requireRole } from "@/lib/session";
 import { validateEvent } from "@/lib/event-validation";
+import { canDeleteEvent, deleteBlockedReason } from "@/lib/event-deletion";
+import type { DbStatus } from "@/lib/dashboard-status";
 import { stripPartnerEvent } from "@/lib/partner-event-sanitisation";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -295,4 +297,36 @@ export async function updateEventStatus(id: string, status: string) {
   revalidatePath("/events");
   revalidatePath("/completed");
   revalidatePath(`/events/${id}`);
+}
+
+/**
+ * Permanently delete an event and (via FK cascade) its cocktails, equipment,
+ * stock, contacts, standard notes and checklist. Owner/super_admin only.
+ * Blocked for `completed` events — see canDeleteEvent.
+ */
+export async function deleteEvent(
+  id: string
+): Promise<{ success?: boolean; error?: string }> {
+  await requireRole("owner", "super_admin");
+
+  const [event] = await db
+    .select({ status: events.status })
+    .from(events)
+    .where(eq(events.id, id))
+    .limit(1);
+
+  if (!event) return { error: "Event not found" };
+
+  const status = event.status as DbStatus;
+  if (!canDeleteEvent(status)) {
+    return { error: deleteBlockedReason(status) ?? "Cannot delete this event" };
+  }
+
+  await db.delete(events).where(eq(events.id, id));
+
+  revalidatePath("/events");
+  revalidatePath("/completed");
+  revalidatePath("/");
+  revalidatePath(`/events/${id}`);
+  return { success: true };
 }
