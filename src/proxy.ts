@@ -9,6 +9,7 @@ const PUBLIC_PATHS = [
   "/auth/verify",
   "/auth/test-signin",
   "/api/auth",
+  "/api/uploadthing",
 ];
 
 export async function proxy(request: NextRequest) {

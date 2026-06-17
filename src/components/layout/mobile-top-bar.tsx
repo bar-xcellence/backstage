@@ -7,6 +7,7 @@ import { signOut } from "@/actions/auth";
 import type { SessionData } from "@/lib/auth-config";
 import {
   DashboardIcon,
+  CompletedIcon,
   EventsIcon,
   HamburgerIcon,
   RecipesIcon,
@@ -23,6 +24,7 @@ interface NavItem {
 const ownerNav: NavItem[] = [
   { label: "DASHBOARD", href: "/", Icon: DashboardIcon },
   { label: "EVENTS", href: "/events", Icon: EventsIcon },
+  { label: "COMPLETED", href: "/completed", Icon: CompletedIcon },
   { label: "RECIPES", href: "/recipes", Icon: RecipesIcon },
   { label: "SETTINGS", href: "/settings", Icon: SettingsIcon },
 ];

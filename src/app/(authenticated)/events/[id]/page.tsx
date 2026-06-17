@@ -127,6 +127,11 @@ export default async function EventDetailPage({
     }
   };
 
+  const markAsCompleted = async () => {
+    "use server";
+    await updateEventStatus(id, "completed");
+  };
+
   const tabs = [
     { id: "overview", label: "Overview" },
     { id: "cocktails", label: `Cocktails (${eventCocktails.length})` },
@@ -196,6 +201,18 @@ export default async function EventDetailPage({
 
             {/* Send to LC */}
             <SendToLCButton eventId={id} />
+
+            {/* Mark as completed */}
+            {event.status !== "completed" && (
+              <form action={markAsCompleted}>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-success text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-success/80 transition-colors duration-200 min-h-[44px] cursor-pointer"
+                >
+                  MARK AS COMPLETED
+                </button>
+              </form>
+            )}
 
             {/* Advance status */}
             {STATUS_ORDER.indexOf(event.status) < STATUS_ORDER.length - 1 && (

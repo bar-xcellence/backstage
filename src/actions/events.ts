@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { events, eventContacts, lcRecipients } from "@/db/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, type SQL } from "drizzle-orm";
 import { requireRole } from "@/lib/session";
 import { validateEvent } from "@/lib/event-validation";
 import { stripPartnerEvent } from "@/lib/partner-event-sanitisation";
@@ -193,6 +193,7 @@ export async function updateEvent(
           | "preparation"
           | "ready"
           | "delivered"
+          | "completed"
           | "cancelled") || undefined,
       updatedAt: new Date(),
     })
@@ -217,7 +218,7 @@ export async function getEvent(id: string) {
   // Partner can only see confirmed+ events
   if (
     session.role === "partner" &&
-    !["confirmed", "preparation", "ready", "delivered"].includes(event.status)
+    !["confirmed", "preparation", "ready", "delivered", "completed"].includes(event.status)
   ) {
     return null;
   }
@@ -235,18 +236,33 @@ export async function getEvent(id: string) {
   return fullEvent;
 }
 
-export async function listEvents() {
+type EventStatus =
+  | "enquiry"
+  | "confirmed"
+  | "preparation"
+  | "ready"
+  | "delivered"
+  | "completed"
+  | "cancelled";
+
+export async function listEvents(options: { status?: EventStatus } = {}) {
   const session = await requireRole("owner", "super_admin", "partner");
+
+  const filters: SQL[] = [];
+  if (options.status) {
+    filters.push(eq(events.status, options.status));
+  }
 
   const allEvents = await db
     .select()
     .from(events)
+    .where(filters.length > 0 ? and(...filters) : undefined)
     .orderBy(desc(events.eventDate));
 
   if (session.role === "partner") {
     return allEvents
       .filter((e) =>
-        ["confirmed", "preparation", "ready", "delivered"].includes(e.status)
+        ["confirmed", "preparation", "ready", "delivered", "completed"].includes(e.status)
       )
       .map(stripPartnerEvent);
   }
@@ -254,7 +270,7 @@ export async function listEvents() {
   return allEvents;
 }
 
-const VALID_STATUSES = ["enquiry", "confirmed", "preparation", "ready", "delivered", "cancelled"] as const;
+const VALID_STATUSES = ["enquiry", "confirmed", "preparation", "ready", "delivered", "completed", "cancelled"] as const;
 
 export async function updateEventStatus(id: string, status: string) {
   await requireRole("owner", "super_admin");
@@ -277,5 +293,6 @@ export async function updateEventStatus(id: string, status: string) {
   }
 
   revalidatePath("/events");
+  revalidatePath("/completed");
   revalidatePath(`/events/${id}`);
 }
