@@ -61,19 +61,30 @@ export default async function EventDetailPage({
   const session = await getSession();
   if (!session) redirect("/auth/signin");
   const isPartner = session.role === "partner";
-  const event = await getEvent(id);
+  // Fire all independent fetchers concurrently — each neon-http query is a
+  // separate HTTPS round-trip, so a serial waterfall multiplies latency by the
+  // query count. One parallel wave keeps total time ~= the slowest fetcher.
+  const [
+    event,
+    eventCocktails,
+    availableCocktails,
+    checklist,
+    equipment,
+    templates,
+    allStandardNotes,
+    eventNotes,
+  ] = await Promise.all([
+    getEvent(id),
+    getEventCocktails(id),
+    canManageEventCocktails(session.role) ? getAvailableCocktails() : Promise.resolve([]),
+    isPartner ? Promise.resolve([]) : getEventChecklist(id),
+    getEventEquipment(id),
+    isPartner ? Promise.resolve([]) : getEquipmentTemplates(),
+    getStandardNotes(),
+    getEventStandardNotes(id),
+  ]);
 
   if (!event) notFound();
-
-  const eventCocktails = await getEventCocktails(id);
-  const availableCocktails = canManageEventCocktails(session.role)
-    ? await getAvailableCocktails()
-    : [];
-  const checklist = isPartner ? [] : await getEventChecklist(id);
-  const equipment = await getEventEquipment(id);
-  const templates = isPartner ? [] : await getEquipmentTemplates();
-  const allStandardNotes = await getStandardNotes();
-  const eventNotes = await getEventStandardNotes(id);
 
   // Calculate stock from selected cocktails
   const stockInput = eventCocktails.map((ec) => {
