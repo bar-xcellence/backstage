@@ -47,6 +47,7 @@ describe("PARTNER_VISIBLE_STATUSES", () => {
       "preparation",
       "ready",
       "delivered",
+      "completed",
     ]);
   });
 

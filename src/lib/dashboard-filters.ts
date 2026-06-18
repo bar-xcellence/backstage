@@ -49,6 +49,7 @@ const ALL_DB_STATUSES: DbStatus[] = [
   "preparation",
   "ready",
   "delivered",
+  "completed",
   "cancelled",
 ];
 

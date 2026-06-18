@@ -239,6 +239,7 @@ describe("allowedStatusesForRole", () => {
       "preparation",
       "ready",
       "delivered",
+      "completed",
     ]);
   });
 
@@ -249,6 +250,7 @@ describe("allowedStatusesForRole", () => {
     expect(owner).toContain("preparation");
     expect(owner).toContain("ready");
     expect(owner).toContain("delivered");
+    expect(owner).toContain("completed");
     expect(owner).toContain("cancelled");
   });
 });
