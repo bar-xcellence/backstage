@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# Pre-push gate: run the TypeScript check that `next build` (and therefore
+# Vercel) runs, so build-breaking type errors are caught locally instead of
+# in CI. `pnpm test` (Vitest) does NOT typecheck the app — this fills that gap.
+#
+# Bypass once with:  git push --no-verify
+# Wired up automatically by the package.json "prepare" script (core.hooksPath).
+
+echo "▶ pre-push: typechecking (tsc --noEmit)…"
+
+if ! pnpm run --silent typecheck; then
+  echo
+  echo "✗ pre-push blocked: TypeScript errors above would fail the Vercel build."
+  echo "  Fix them, or bypass with: git push --no-verify"
+  exit 1
+fi
+
+echo "✓ typecheck passed — pushing."

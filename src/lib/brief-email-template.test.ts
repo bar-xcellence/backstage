@@ -473,8 +473,22 @@ describe("buildBriefEmailHtml", () => {
 
   it("renders an Equipment section listing item names and quantities", () => {
     const html = buildBriefEmailHtml(baseEvent, [], emptyStock, [], null, [
-      { itemName: "Speedpour", quantity: 12 },
-      { itemName: "Cocktail shaker (3-piece)", quantity: 2 },
+      {
+        id: "eq1",
+        eventId: "e1",
+        itemName: "Speedpour",
+        quantity: 12,
+        isFromTemplate: false,
+        sortOrder: 0,
+      },
+      {
+        id: "eq2",
+        eventId: "e1",
+        itemName: "Cocktail shaker (3-piece)",
+        quantity: 2,
+        isFromTemplate: false,
+        sortOrder: 1,
+      },
     ]);
     expect(html).toContain("Equipment");
     expect(html).toContain("Speedpour");
@@ -489,7 +503,14 @@ describe("buildBriefEmailHtml", () => {
 
   it("escapes HTML in equipment item names", () => {
     const html = buildBriefEmailHtml(baseEvent, [], emptyStock, [], null, [
-      { itemName: "Jigger <2cl & 4cl>", quantity: 4 },
+      {
+        id: "eq1",
+        eventId: "e1",
+        itemName: "Jigger <2cl & 4cl>",
+        quantity: 4,
+        isFromTemplate: false,
+        sortOrder: 0,
+      },
     ]);
     expect(html).toContain("Jigger &lt;2cl &amp; 4cl&gt;");
     expect(html).not.toContain("Jigger <2cl & 4cl>");

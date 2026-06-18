@@ -106,7 +106,7 @@ export function Sidebar({ user }: { user: SessionData }) {
             aria-label="Sign out"
             className="flex items-center justify-center lg:justify-start text-grey-light text-[10px] font-medium tracking-[0.16em] uppercase hover:text-cream transition-colors duration-200 cursor-pointer min-h-[44px] min-w-[44px]"
           >
-            <span className="hidden lg:inline">SIGN OUT</span>
+            <span className="hidden lg:inline text-rose-500 hover:text-rose-600">SIGN OUT</span>
             <SignOutIcon className="lg:hidden" />
           </button>
         </form>
