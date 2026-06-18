@@ -11,8 +11,9 @@ import {
   cocktailIngredients,
   cocktailGarnishes,
   eventContacts,
+  eventEquipment,
 } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 import { calculateStock } from "@/lib/stock-calculator";
 import { fetchEventStock } from "@/lib/event-stock-query";
 import { stripPartnerEvent } from "@/lib/partner-event-sanitisation";
@@ -90,6 +91,13 @@ export async function GET(
 
     const standardNotes = await fetchEventStandardNotes(id);
 
+    // Fetch equipment
+    const equipment = await db
+      .select()
+      .from(eventEquipment)
+      .where(eq(eventEquipment.eventId, id))
+      .orderBy(asc(eventEquipment.sortOrder));
+
     // Calculate stock
     const totalServes =
       (event.prepaidServes || 0) + (event.cardPaymentServes || 0);
@@ -127,11 +135,11 @@ export async function GET(
     const { buffer: pdfBuffer, usedFallback } = await renderBriefWithFallback(
       () =>
         renderToBuffer(
-          BriefPDF({ event: safeEvent, contacts, cocktails: enrichedCocktails, stock, standardNotes })
+          BriefPDF({ event: safeEvent, contacts, cocktails: enrichedCocktails, stock, standardNotes, equipment })
         ),
       () =>
         renderToBuffer(
-          TextOnlyBriefPDF({ event: safeEvent, contacts, cocktails: enrichedCocktails, stock, standardNotes })
+          TextOnlyBriefPDF({ event: safeEvent, contacts, cocktails: enrichedCocktails, stock, standardNotes, equipment })
         )
     );
 

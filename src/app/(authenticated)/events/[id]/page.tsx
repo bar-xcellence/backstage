@@ -14,6 +14,7 @@ import { CocktailSelector } from "@/components/events/cocktail-selector";
 import { StockList } from "@/components/events/stock-list";
 import { SendToLCButton } from "@/components/events/send-to-lc-button";
 import { DownloadPDFButton } from "@/components/events/download-pdf-button";
+import { DeleteEventButton } from "@/components/events/delete-event-button";
 import { getEventChecklist } from "@/actions/checklists";
 import { EventChecklist } from "@/components/events/event-checklist";
 import { getEventEquipment, getEquipmentTemplates } from "@/actions/equipment";
@@ -23,6 +24,7 @@ import { EventStandardNotes } from "@/components/events/event-standard-notes";
 import { formatAddressLines } from "@/lib/address-format";
 import { STATUS_COLORS, STATUS_ORDER } from "@/lib/constants";
 import { toPartnerStatus, type DbStatus } from "@/lib/dashboard-status";
+import { canDeleteEvent } from "@/lib/event-deletion";
 
 const PARTNER_STATUS_LABELS: Record<string, string> = {
   provisional: "Provisional",
@@ -59,19 +61,30 @@ export default async function EventDetailPage({
   const session = await getSession();
   if (!session) redirect("/auth/signin");
   const isPartner = session.role === "partner";
-  const event = await getEvent(id);
+  // Fire all independent fetchers concurrently — each neon-http query is a
+  // separate HTTPS round-trip, so a serial waterfall multiplies latency by the
+  // query count. One parallel wave keeps total time ~= the slowest fetcher.
+  const [
+    event,
+    eventCocktails,
+    availableCocktails,
+    checklist,
+    equipment,
+    templates,
+    allStandardNotes,
+    eventNotes,
+  ] = await Promise.all([
+    getEvent(id),
+    getEventCocktails(id),
+    canManageEventCocktails(session.role) ? getAvailableCocktails() : Promise.resolve([]),
+    isPartner ? Promise.resolve([]) : getEventChecklist(id),
+    getEventEquipment(id),
+    isPartner ? Promise.resolve([]) : getEquipmentTemplates(),
+    getStandardNotes(),
+    getEventStandardNotes(id),
+  ]);
 
   if (!event) notFound();
-
-  const eventCocktails = await getEventCocktails(id);
-  const availableCocktails = canManageEventCocktails(session.role)
-    ? await getAvailableCocktails()
-    : [];
-  const checklist = isPartner ? [] : await getEventChecklist(id);
-  const equipment = await getEventEquipment(id);
-  const templates = isPartner ? [] : await getEquipmentTemplates();
-  const allStandardNotes = await getStandardNotes();
-  const eventNotes = await getEventStandardNotes(id);
 
   // Calculate stock from selected cocktails
   const stockInput = eventCocktails.map((ec) => {
@@ -234,6 +247,11 @@ export default async function EventDetailPage({
                   {STATUS_ORDER[statusIndex + 1].toUpperCase()}
                 </button>
               </form>
+            )}
+
+            {/* Delete (duplicate/junk) — not for completed events */}
+            {canDeleteEvent(event.status as DbStatus) && (
+              <DeleteEventButton eventId={id} eventName={event.eventName} />
             )}
           </div>
         )}

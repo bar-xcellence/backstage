@@ -112,6 +112,7 @@ interface BriefPDFProps {
   }>;
   stock: StockResult;
   standardNotes: EventStandardNote[];
+  equipment: Array<{ itemName: string; quantity: number }>;
 }
 
 export function BriefPDF({
@@ -120,6 +121,7 @@ export function BriefPDF({
   cocktails,
   stock,
   standardNotes,
+  equipment,
 }: BriefPDFProps) {
   return (
     <Document>
@@ -150,11 +152,24 @@ export function BriefPDF({
 
         {/* 3. What */}
         <Text style={s.sectionTitle}>What</Text>
+        {(event.eventType || event.serviceType) && (
+          <Text style={s.text}>
+            {event.eventType ? (event.eventType as string).replace("_", " ") : ""}
+            {event.eventType && event.serviceType ? " — " : ""}
+            {event.serviceType
+              ? (event.serviceType as string).replace("_", " / ")
+              : ""}
+          </Text>
+        )}
         <Text style={s.text}>
           {(event.staffCount as number) || "TBC"} staff,{" "}
           {(event.prepaidServes as number) || "TBC"} serves,{" "}
           {(event.stationCount as number) || "TBC"} stations
         </Text>
+        {event.flairRequired && (
+          <Text style={s.text}>Flair bartending required</Text>
+        )}
+        {event.dryIce && <Text style={s.text}>Dry ice required</Text>}
         {event.popUpBar && (
           <Text style={s.text}>
             Pop-up bar
@@ -344,6 +359,19 @@ export function BriefPDF({
                   {c.totalQuantity} {c.unit}
                   {c.totalQuantity === 1 ? "" : "s"}
                 </Text>
+              </View>
+            ))}
+          </>
+        )}
+
+        {/* 12f. Equipment */}
+        {equipment.length > 0 && (
+          <>
+            <Text style={s.sectionTitle}>Equipment</Text>
+            {equipment.map((e, i) => (
+              <View key={i} style={s.row}>
+                <Text style={s.text}>{e.itemName}</Text>
+                <Text style={[s.text, s.bold]}>{e.quantity}</Text>
               </View>
             ))}
           </>

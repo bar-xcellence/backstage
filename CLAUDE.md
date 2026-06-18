@@ -13,6 +13,20 @@ Bar Excellence's events preparation and dispatch system. Bespoke tool for 3 user
 - **Tests:** `pnpm test -- --run` (Vitest, `src/**/*.test.ts`); `pnpm test:e2e` (Playwright, `e2e/*.spec.ts` — boots `next start -p 3100` with `ENABLE_TEST_AUTH=true`)
 - **Build:** `pnpm build` (must pass before shipping)
 
+## Intent Layer
+
+**Before modifying code in a subdirectory, read its `AGENTS.md` first** for local patterns and invariants.
+
+- **`src/lib/AGENTS.md`** — business logic & the partner-isolation security core (sanitisation, projection, dashboard filters, email/PDF, calculators). The most dangerous place to get wrong.
+- **`src/components/AGENTS.md`** — React UI by surface (dashboard/events/layout/settings), client/server boundary, Reserve Noir rules.
+
+### Global Invariants
+
+- `requireRole()` from `src/lib/session.ts` is the first line of every server action in `src/actions/`.
+- `src/db/schema.ts` is the single source of truth; every `events` column must be classified in `src/lib/partner-event-projection.ts` (the pinned test fails otherwise).
+- Partner isolation has one sanitiser path (`stripPartnerEvent()`) plus `!isPartner` UI gating as defence-in-depth — keep both.
+- The brief renders on four surfaces that must stay in sync — see `src/lib/AGENTS.md`.
+
 ## Project Docs
 
 | Doc | Purpose |
@@ -112,6 +126,16 @@ Three new fields on `events`: `lcPayout` (numeric), `commissionNote` (text), `el
 
 Brief-surface call sites already enrich `ec.cocktail` (`send-to-lc.ts`, `api/events/[id]/pdf/route.ts`, `actions/brief-preview.ts`); no schema changes needed.
 
+### Equipment + overview on the brief
+The brief (Download PDF + Send to LC email + in-app preview) previously omitted the event's **equipment** entirely and rendered a thinner "What" than the email. Both are now on all four brief surfaces (`brief-email-template.ts`, `pdf/brief-pdf.tsx`, `pdf/text-only-brief-pdf.tsx`, `components/events/brief-preview.tsx`):
+- **Equipment** — the `eventEquipment` rows (itemName × quantity) render as their own section after the stock sections. Fetched at the three brief call sites: PDF route (inline `db.select` matching its direct-query style), `send-to-lc.ts` and `brief-preview.ts` (via `getEventEquipment()`). `buildBriefEmailHtml` gained an optional 6th param `equipment = []`; `BriefPDF`/`TextOnlyBriefPDF` gained a required `equipment` prop; `BriefPreviewData` gained `equipment`.
+- **Overview parity** — eventType / serviceType / `flairRequired` / `dryIce` are now in the "What" section of both PDFs and the preview (the email already had them). In the partner-accessible PDF route these come from `stripPartnerEvent(event)`, so the owner-only ones (`serviceType`/`flairRequired`/`dryIce`) null out and the guards render nothing — no partner leak. Equipment is intentionally partner-visible (already shown unconditionally on the event detail Equipment tab; `getEventEquipment()` allows the partner role) and is a separate table, so it is not part of the `partner-event-projection.ts` classification.
+
+Cocktails and the stock list were already wired and render when populated — they appear empty only when an event has zero cocktails (stock derives from cocktails).
+
+### Deleting events (owner)
+Owner/super_admin can permanently delete an event (e.g. a duplicate enquiry). `deleteEvent(id)` in `src/actions/events.ts` `db.delete`s the row; the six child tables (contacts, cocktails, equipment, standard notes, stock, checklist) all `onDelete: "cascade"`, so no orphans and no transaction needed. The deletion policy is the pure `canDeleteEvent(status)` / `deleteBlockedReason(status)` in `src/lib/event-deletion.ts` (TDD'd): deletable for every status **except `completed`** (completed events are protected finished records on `/completed`). Both the action guard and the UI gate use `canDeleteEvent` — single source of truth. `DeleteEventButton` (`components/events/delete-event-button.tsx`) is a client confirm-modal rendered in the event-detail header inside the `!isPartner` block; on success it redirects to `/events`. Partners never see it and the action is owner-gated. Spec: `docs/superpowers/specs/2026-06-17-delete-event-design.md`.
+
 ### Recipe editor (owner CRUD)
 Owner/super_admin manage the cocktail library in-app (partner stays read-only):
 - Routes: `/recipes/new`, `/recipes/[id]/edit` (role-gated via `getSession()`; partner redirected to `/recipes`)
@@ -175,3 +199,4 @@ This helps future sessions avoid repeating the same mistakes.
 | 2026-04-16 | Dashboard revenue counted all events, not just delivered | Filter missed `status === "delivered"` condition | Added delivered-only filter to revenue calculation |
 | 2026-04-16 | `"use server"` file exposed `checkAndSendAlerts` as callable action | Every export in a `"use server"` file becomes a server action | Removed `"use server"` directive — file is only imported by `dashboard.ts` |
 | 2026-04-16 | `STATUS_ORDER` with `as const` broke `indexOf(event.status)` | Readonly tuple `.indexOf()` expects literal union, not `string` | Removed `as const` — DB status comes as plain `string` |
+| 2026-06-17 | 2–3s lag on every button press (BUG THREE) | Vercel functions ran in the default `iad1` (US-East) while Neon is `eu-west-2` (London) — each `neon-http` query is its own HTTPS round-trip (~85ms transatlantic), ×~20 sequential queries per render, re-run on every `revalidatePath`. Local (compute near DB) was ~14ms/query, ~200ms/render; prod ~2–3s. | Pinned region to `lhr1` in `vercel.json` (co-locate with DB); parallelized the event-page fetchers and the `getEventCocktails` N+1 with `Promise.all` (waterfall → one wave). Warm render dropped ~200ms → ~75ms locally. **Pattern: fetch independent data concurrently; keep serverless compute in the DB's region.** |

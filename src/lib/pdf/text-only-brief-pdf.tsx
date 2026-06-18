@@ -50,12 +50,13 @@ interface TextOnlyBriefPDFProps {
   }>;
   stock: StockResult;
   standardNotes: EventStandardNote[];
+  equipment: Array<{ itemName: string; quantity: number }>;
 }
 
 /**
  * Minimal text-only fallback brief. No images, no React PDF complex layout —
  * used when the full BriefPDF render fails (e.g. memory constraints on
- * Vercel serverless). Includes cocktail specs and stock list so the
+ * Vercel serverless). Includes cocktail specs, stock list and equipment so the
  * bartending team has the operational data they need even in fallback mode.
  */
 export function TextOnlyBriefPDF({
@@ -64,6 +65,7 @@ export function TextOnlyBriefPDF({
   cocktails,
   stock,
   standardNotes,
+  equipment,
 }: TextOnlyBriefPDFProps) {
   return (
     <Document>
@@ -79,12 +81,27 @@ export function TextOnlyBriefPDF({
         <Text style={s.text}>Date: {event.eventDate as string}</Text>
         <Text style={s.text}>Venue: {formatAddressLines(event).join(", ")}</Text>
         <Text style={s.text}>Guests: {event.guestCount as number}</Text>
+        {(event.eventType || event.serviceType) && (
+          <Text style={s.text}>
+            {event.eventType
+              ? `Type: ${(event.eventType as string).replace("_", " ")}`
+              : ""}
+            {event.eventType && event.serviceType ? " — " : ""}
+            {event.serviceType
+              ? `Service: ${(event.serviceType as string).replace("_", " / ")}`
+              : ""}
+          </Text>
+        )}
         {event.stationCount ? (
           <Text style={s.text}>Stations: {event.stationCount as number}</Text>
         ) : null}
         {event.staffCount ? (
           <Text style={s.text}>Staff: {event.staffCount as number}</Text>
         ) : null}
+        {event.flairRequired ? (
+          <Text style={s.text}>Flair bartending required</Text>
+        ) : null}
+        {event.dryIce ? <Text style={s.text}>Dry ice required</Text> : null}
         {event.popUpBar ? (
           <>
             <Text style={s.text}>
@@ -275,6 +292,18 @@ export function TextOnlyBriefPDF({
                   {c.totalQuantity} {c.unit}
                   {c.totalQuantity === 1 ? "" : "s"}
                 </Text>
+              </View>
+            ))}
+          </>
+        )}
+
+        {equipment.length > 0 && (
+          <>
+            <Text style={s.heading}>Equipment</Text>
+            {equipment.map((e, idx) => (
+              <View key={idx} style={s.row}>
+                <Text style={s.text}>{e.itemName}</Text>
+                <Text style={s.text}>{e.quantity}</Text>
               </View>
             ))}
           </>

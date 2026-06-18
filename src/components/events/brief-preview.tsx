@@ -46,8 +46,15 @@ export function BriefPreview({
   onCancel,
   loading,
 }: BriefPreviewProps) {
-  const { event, cocktails, stock, defaultTo, savedRecipients, autoCcEmails } =
-    data;
+  const {
+    event,
+    cocktails,
+    stock,
+    equipment,
+    defaultTo,
+    savedRecipients,
+    autoCcEmails,
+  } = data;
 
   const [recipients, setRecipients] = useState<BriefSendRecipients>({
     to: defaultTo ?? "",
@@ -154,6 +161,25 @@ export function BriefPreview({
                 {line}
               </p>
             ))}
+          </Section>
+
+          {/* What */}
+          <Section title="What">
+            {(event.eventType || event.serviceType) && (
+              <p>
+                {event.eventType?.replace("_", " ")}
+                {event.eventType && event.serviceType ? " — " : ""}
+                {event.serviceType?.replace("_", " / ")}
+              </p>
+            )}
+            <p className={event.eventType || event.serviceType ? "mt-1" : ""}>
+              {event.staffCount ?? "TBC"} staff, {event.prepaidServes ?? "TBC"}{" "}
+              serves, {event.stationCount ?? "TBC"} stations
+            </p>
+            {event.flairRequired && (
+              <p className="mt-1">Flair bartending required</p>
+            )}
+            {event.dryIce && <p>Dry ice required</p>}
           </Section>
 
           {/* Pop-up bar */}
@@ -378,6 +404,19 @@ export function BriefPreview({
                   ))}
                 </div>
               )}
+            </Section>
+          )}
+
+          {/* Equipment */}
+          {equipment.length > 0 && (
+            <Section title="Equipment">
+              <ul className="space-y-0.5">
+                {equipment.map((e) => (
+                  <li key={e.id} className="text-cream/60 text-xs">
+                    {e.itemName} &mdash; {e.quantity}
+                  </li>
+                ))}
+              </ul>
             </Section>
           )}
 

@@ -5,6 +5,7 @@ import { lcRecipients } from "@/db/schema";
 import { eq, asc } from "drizzle-orm";
 import { getEvent } from "./events";
 import { getEventCocktails } from "./event-cocktails";
+import { getEventEquipment } from "./equipment";
 import { calculateStock } from "@/lib/stock-calculator";
 import { fetchEventStock } from "@/lib/event-stock-query";
 import { requireRole } from "@/lib/session";
@@ -27,6 +28,7 @@ export interface BriefPreviewData {
   cocktails: Awaited<ReturnType<typeof getEventCocktails>>;
   stock: ReturnType<typeof calculateStock>;
   standardNotes: EventStandardNote[];
+  equipment: Awaited<ReturnType<typeof getEventEquipment>>;
   defaultTo: string | null;
   savedRecipients: SavedRecipientOption[];
   autoCcEmails: string[];
@@ -75,6 +77,7 @@ export async function getBriefPreview(
     stationCount: event.stationCount,
   });
   const standardNotes = await fetchEventStandardNotes(eventId);
+  const equipment = await getEventEquipment(eventId);
 
   const savedRows = await db
     .select()
@@ -103,6 +106,7 @@ export async function getBriefPreview(
     cocktails,
     stock,
     standardNotes,
+    equipment,
     defaultTo,
     savedRecipients,
     autoCcEmails,

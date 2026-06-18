@@ -80,26 +80,28 @@ export async function getEventCocktails(eventId: string) {
     .where(eq(eventCocktails.eventId, eventId))
     .orderBy(eventCocktails.sortOrder);
 
-  // For each selected cocktail, get the full recipe with ingredients
+  // For each selected cocktail, get the full recipe with ingredients. The three
+  // per-cocktail reads are independent, so run them concurrently — each is its
+  // own neon-http round-trip and serial awaits would triple the latency.
   const enriched = await Promise.all(
     selected.map(async (ec) => {
-      const [cocktail] = await db
-        .select()
-        .from(cocktails)
-        .where(eq(cocktails.id, ec.cocktailId))
-        .limit(1);
-
-      const ingredients = await db
-        .select()
-        .from(cocktailIngredients)
-        .where(eq(cocktailIngredients.cocktailId, ec.cocktailId))
-        .orderBy(cocktailIngredients.sortOrder);
-
-      const garnishes = await db
-        .select()
-        .from(cocktailGarnishes)
-        .where(eq(cocktailGarnishes.cocktailId, ec.cocktailId))
-        .orderBy(cocktailGarnishes.sortOrder);
+      const [[cocktail], ingredients, garnishes] = await Promise.all([
+        db
+          .select()
+          .from(cocktails)
+          .where(eq(cocktails.id, ec.cocktailId))
+          .limit(1),
+        db
+          .select()
+          .from(cocktailIngredients)
+          .where(eq(cocktailIngredients.cocktailId, ec.cocktailId))
+          .orderBy(cocktailIngredients.sortOrder),
+        db
+          .select()
+          .from(cocktailGarnishes)
+          .where(eq(cocktailGarnishes.cocktailId, ec.cocktailId))
+          .orderBy(cocktailGarnishes.sortOrder),
+      ]);
 
       return {
         ...ec,

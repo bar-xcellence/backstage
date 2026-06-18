@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { Resend } from "resend";
 import { requireRole } from "@/lib/session";
 import { getEventCocktails } from "./event-cocktails";
+import { getEventEquipment } from "./equipment";
 import { getEvent } from "./events";
 import { calculateStock } from "@/lib/stock-calculator";
 import { fetchEventStock } from "@/lib/event-stock-query";
@@ -143,6 +144,7 @@ export async function sendToLC(
   });
 
   const standardNotes = await fetchEventStandardNotes(eventId);
+  const equipment = await getEventEquipment(eventId);
 
   const baseUrl = await resolveBaseUrl();
   const html = buildBriefEmailHtml(
@@ -150,7 +152,8 @@ export async function sendToLC(
     eventCocktails,
     stock,
     standardNotes,
-    baseUrl
+    baseUrl,
+    equipment
   );
 
   const result = await sendWithRetry({
