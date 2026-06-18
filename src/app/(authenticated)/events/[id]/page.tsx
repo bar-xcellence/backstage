@@ -140,12 +140,12 @@ export default async function EventDetailPage({
     { id: "equipment", label: `Equipment (${equipment.length})` },
     ...(!isPartner
       ? [
-          {
-            id: "checklist",
-            label: `Checklist (${checklist.filter((c) => c.isCompleted).length}/${checklist.length})`,
-          },
-          { id: "edit", label: "Edit" },
-        ]
+        {
+          id: "checklist",
+          label: `Checklist (${checklist.filter((c) => c.isCompleted).length}/${checklist.length})`,
+        },
+        { id: "edit", label: "Edit" },
+      ]
       : []),
   ];
 
@@ -162,7 +162,7 @@ export default async function EventDetailPage({
           </Link>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="font-[family-name:var(--font-cormorant)] text-3xl font-light text-charcoal tracking-tight">
+              <h1 className="font-(family-name:--font-cormorant) text-3xl font-light text-charcoal tracking-tight">
                 {event.eventName}
               </h1>
               {(() => {
@@ -188,7 +188,7 @@ export default async function EventDetailPage({
               })()}
             </div>
             {!isPartner && event.showName && (
-              <p className="font-[family-name:var(--font-raleway)] text-sm text-grey mt-1">
+              <p className="font-(family-name:--font-raleway) text-sm text-grey mt-1">
                 {event.showName}
               </p>
             )}
@@ -208,7 +208,7 @@ export default async function EventDetailPage({
               <button
                 type="button"
                 disabled
-                className="px-5 py-2.5 bg-success text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase transition-colors duration-200 min-h-[44px] cursor-default opacity-80"
+                className="px-5 py-2.5 bg-success text-cream font-(family-name:--font-raleway) text-[11px] font-semibold tracking-[0.16em] uppercase transition-colors duration-200 min-h-[44px] cursor-default opacity-80"
               >
                 COMPLETED
               </button>
@@ -216,7 +216,7 @@ export default async function EventDetailPage({
               <form action={markAsCompleted}>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-success text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-success/80 transition-colors duration-200 min-h-[44px] cursor-pointer"
+                  className="px-5 py-2.5 bg-success text-cream font-(family-name:--font-raleway) text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-success/80 transition-colors duration-200 min-h-[44px] cursor-pointer"
                 >
                   MARK AS COMPLETED
                 </button>
@@ -228,7 +228,7 @@ export default async function EventDetailPage({
               <form action={advanceStatus}>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 border border-gold text-gold-ink font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold hover:text-cream transition-colors duration-200 min-h-[44px] cursor-pointer"
+                  className="px-5 py-2.5 border border-gold text-gold-ink font-(family-name:--font-raleway) text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold hover:text-cream transition-colors duration-200 min-h-[44px] cursor-pointer"
                 >
                   ADVANCE TO{" "}
                   {STATUS_ORDER[statusIndex + 1].toUpperCase()}
@@ -240,7 +240,7 @@ export default async function EventDetailPage({
       </div>
 
       {/* Summary bar */}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-1 py-4 mb-6 border-b border-outline/15 font-[family-name:var(--font-raleway)] text-[11px] tracking-[0.16em] uppercase text-grey">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-1 py-4 mb-6 border-b border-outline/15 font-(family-name:--font-raleway) text-[11px] tracking-[0.16em] uppercase text-grey">
         <span>{event.eventDate}</span>
         <span>{event.venueName}</span>
         {event.city && <span>{event.city}</span>}
@@ -277,7 +277,7 @@ export default async function EventDetailPage({
                   <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
                     Times
                   </h2>
-                  <div className="flex flex-wrap gap-x-8 gap-y-2 font-[family-name:var(--font-raleway)] text-sm text-gold-ink">
+                  <div className="flex flex-wrap gap-x-8 gap-y-2 font-(family-name:--font-raleway) text-sm text-gold-ink">
                     {event.arriveTime && (
                       <div>
                         <span className="text-[10px] tracking-[0.18em] uppercase text-grey block">
@@ -329,17 +329,17 @@ export default async function EventDetailPage({
                 event.postcode ||
                 event.venueTenant ||
                 event.cateringPartner) && (
-                <section>
-                  <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
-                    Location
-                  </h2>
-                  <div className="font-[family-name:var(--font-raleway)] text-sm text-gold-ink leading-relaxed space-y-0.5">
-                    {formatAddressLines(event).map((line, i) => (
-                      <p key={i}>{line}</p>
-                    ))}
-                  </div>
-                </section>
-              )}
+                  <section>
+                    <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
+                      Location
+                    </h2>
+                    <div className="font-(family-name:--font-raleway) text-sm text-gold-ink leading-relaxed space-y-0.5">
+                      {formatAddressLines(event).map((line, i) => (
+                        <p key={i}>{line}</p>
+                      ))}
+                    </div>
+                  </section>
+                )}
 
               {/* Batching */}
               {!isPartner && event.batchingInstructions && (
@@ -347,7 +347,7 @@ export default async function EventDetailPage({
                   <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
                     Batching
                   </h2>
-                  <p className="font-[family-name:var(--font-raleway)] text-sm text-gold-ink leading-relaxed whitespace-pre-wrap">
+                  <p className="font-(family-name:--font-raleway) text-sm text-gold-ink leading-relaxed whitespace-pre-wrap">
                     {event.batchingInstructions}
                   </p>
                 </section>
@@ -359,7 +359,7 @@ export default async function EventDetailPage({
                   <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
                     Pop-up Bar
                   </h2>
-                  <div className="font-[family-name:var(--font-raleway)] text-sm text-gold-ink leading-relaxed space-y-1">
+                  <div className="font-(family-name:--font-raleway) text-sm text-gold-ink leading-relaxed space-y-1">
                     {event.popUpBarSize && (
                       <p>
                         <span className="text-[10px] tracking-[0.18em] uppercase text-grey mr-2">
@@ -386,7 +386,7 @@ export default async function EventDetailPage({
                   <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
                     Install Instructions
                   </h2>
-                  <p className="font-[family-name:var(--font-raleway)] text-sm text-gold-ink leading-relaxed whitespace-pre-wrap">
+                  <p className="font-(family-name:--font-raleway) text-sm text-gold-ink leading-relaxed whitespace-pre-wrap">
                     {event.installInstructions}
                   </p>
                 </section>
@@ -406,7 +406,7 @@ export default async function EventDetailPage({
                       <p className="font-[family-name:var(--font-cormorant)] text-lg text-charcoal mt-1">
                         {event.contacts.find((c) => c.isHost)?.contactName}
                         {event.contacts.find((c) => c.isHost)?.contactPhone && (
-                          <span className="text-gold-ink text-sm font-[family-name:var(--font-raleway)] ml-3">
+                          <span className="text-gold-ink text-sm font-(family-name:--font-raleway) ml-3">
                             {event.contacts.find((c) => c.isHost)?.contactPhone}
                           </span>
                         )}
@@ -419,7 +419,7 @@ export default async function EventDetailPage({
                         key={c.id}
                         className="flex items-center gap-4 py-2 border-b border-outline/10"
                       >
-                        <span className="font-[family-name:var(--font-raleway)] text-sm text-charcoal font-semibold">
+                        <span className="font-(family-name:--font-raleway) text-sm text-charcoal font-semibold">
                           {c.contactName}
                         </span>
                         {c.contactRole && (
@@ -444,7 +444,7 @@ export default async function EventDetailPage({
                   <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
                     LC Payout
                   </h2>
-                  <div className="font-[family-name:var(--font-raleway)] leading-relaxed">
+                  <div className="font-(family-name:--font-raleway) leading-relaxed">
                     <p className="font-[family-name:var(--font-cormorant)] text-3xl font-light text-charcoal">
                       {formatLcPayout(event.lcPayout)}
                     </p>
@@ -463,7 +463,7 @@ export default async function EventDetailPage({
                   <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-3">
                     Notes
                   </h2>
-                  <p className="font-[family-name:var(--font-raleway)] text-sm text-gold-ink leading-relaxed whitespace-pre-wrap">
+                  <p className="font-(family-name:--font-raleway) text-sm text-gold-ink leading-relaxed whitespace-pre-wrap">
                     {event.notesCustom}
                   </p>
                 </section>

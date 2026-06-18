@@ -16,7 +16,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen">
+    <div className="flex min-h-screen flex-col md:h-screen md:flex-row md:overflow-hidden">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-gold-ink focus:text-cream focus:px-4 focus:py-2 focus:font-[family-name:var(--font-raleway)] focus:text-[11px] focus:font-medium focus:tracking-[0.16em] focus:uppercase"
@@ -28,7 +28,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       <main
         id="main"
         tabIndex={-1}
-        className="flex-1 bg-cream px-4 md:px-6 py-8 lg:px-8 overflow-auto focus:outline-none"
+        className="flex-1 bg-cream px-4 py-8 focus:outline-none md:h-screen md:overflow-y-auto md:px-6 lg:px-8"
       >
         {children}
       </main>
