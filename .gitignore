@@ -84,11 +84,10 @@ temp/
 *.tmp
 *.bak
 
-# Package manager locks (keep only one)
-# Uncomment the ones you DON'T use:
-# package-lock.json
-# yarn.lock
-# pnpm-lock.yaml
+# Package manager locks — this project uses pnpm (see packageManager field).
+# Ignore the others so a stray npm/yarn install can't commit a second lockfile.
+package-lock.json
+yarn.lock
 
 # Stitch design files (large binary assets)
 stitch_backstage_events_dashboard/*/code.html

@@ -9,8 +9,9 @@ Bar Excellence's events preparation and dispatch system. Bespoke tool for 3 user
 - **Auth:** Custom magic link (Resend + iron-session), NOT Auth.js. See `src/lib/session.ts`
 - **Role check:** Always use `requireRole()` from `src/lib/session.ts` in every server action
 - **Schema:** `src/db/schema.ts` — single source of truth for all tables
-- **Tests:** `npm run test -- --run` (Vitest, `src/**/*.test.ts`); `npm run test:e2e` (Playwright, `e2e/*.spec.ts` — boots `next start -p 3100` with `ENABLE_TEST_AUTH=true`)
-- **Build:** `npm run build` (must pass before shipping)
+- **Package manager:** pnpm (pinned via `packageManager` in `package.json`). Use `pnpm install` / `pnpm run …` — do NOT run `npm install` (it creates a second lockfile, which is gitignored). Dev server: `pnpm dev` (`next dev -p 3344`).
+- **Tests:** `pnpm test -- --run` (Vitest, `src/**/*.test.ts`); `pnpm test:e2e` (Playwright, `e2e/*.spec.ts` — boots `next start -p 3100` with `ENABLE_TEST_AUTH=true`)
+- **Build:** `pnpm build` (must pass before shipping)
 
 ## Project Docs
 
@@ -149,7 +150,7 @@ Never show "No items found." — every empty state needs:
 - TDD: write the failing test first, then implement
 - Business logic tests in `src/lib/*.test.ts`
 - Schema tests in `src/db/schema.test.ts`
-- Test command: `npm run test -- --run`
+- Test command: `pnpm test -- --run`
 
 ### Git
 - Commit after each logical unit of work
