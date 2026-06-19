@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0">
+  <diagram name="Backstage Architecture">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- TITLE -->
+        <mxCell id="title" value="Backstage — Events Preparation &amp; Dispatch (Bar Excellence)" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#1a1a1a;" vertex="1" parent="1">
+          <mxGeometry x="40" y="10" width="900" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Next.js 16 App Router · React 19 · TypeScript · Tailwind v4 · Drizzle ORM · NeonDB" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="900" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- BAND A: USERS -->
+        <mxCell id="bandA" value="USERS &amp; ROLES" style="swimlane;startSize=28;html=1;horizontal=1;fontSize=12;fontStyle=1;fontColor=#5a3d7a;fillColor=#f3effa;strokeColor=#9673a6;verticalAlign=top;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="1400" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="a1" value="Murdo&#xa;Owner" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" vertex="1" parent="bandA">
+          <mxGeometry x="40" y="45" width="260" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" value="Rob&#xa;Super Admin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" vertex="1" parent="bandA">
+          <mxGeometry x="330" y="45" width="260" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" value="Rory @ LC&#xa;Partner — read-only" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" vertex="1" parent="bandA">
+          <mxGeometry x="620" y="45" width="280" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- BAND B: AUTH -->
+        <mxCell id="bandB" value="AUTHENTICATION &amp; SESSION  —  custom magic link + iron-session (NOT Auth.js)" style="swimlane;startSize=28;html=1;horizontal=1;fontSize=12;fontStyle=1;fontColor=#7a5a00;fillColor=#fdf8ec;strokeColor=#d6b656;verticalAlign=top;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="1400" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="b1" value="proxy.ts&#xa;route guard / redirect" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="bandB">
+          <mxGeometry x="40" y="48" width="300" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="b2" value="/auth/signin · /auth/verify&#xa;Resend magic-link email" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="bandB">
+          <mxGeometry x="380" y="48" width="320" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="b3" value="session.ts — getSession() / requireRole()&#xa;first line of every server action" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;" vertex="1" parent="bandB">
+          <mxGeometry x="740" y="48" width="360" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- BAND C: ROUTES -->
+        <mxCell id="bandC" value="NEXT.JS APP ROUTER  —  Pages &amp; API Routes" style="swimlane;startSize=28;html=1;horizontal=1;fontSize=12;fontStyle=1;fontColor=#2a5a8a;fillColor=#eef4fb;strokeColor=#6c8ebf;verticalAlign=top;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="370" width="1400" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" value="/ — Dashboard&#xa;role-aware shell" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="bandC">
+          <mxGeometry x="40" y="45" width="260" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" value="/events · /events/[id] · /new&#xa;event detail + brief" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="bandC">
+          <mxGeometry x="330" y="45" width="300" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="c3" value="/recipes · /new · /[id]/edit&#xa;cocktail library CRUD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="bandC">
+          <mxGeometry x="660" y="45" width="280" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="c4" value="/settings&#xa;owner only" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="bandC">
+          <mxGeometry x="40" y="120" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="c5" value="/completed&#xa;finished records" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="bandC">
+          <mxGeometry x="250" y="120" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="c6" value="/api/events/[id]/pdf&#xa;brief PDF download" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;" vertex="1" parent="bandC">
+          <mxGeometry x="460" y="120" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="c7" value="/api/uploadthing&#xa;image upload endpoint" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;" vertex="1" parent="bandC">
+          <mxGeometry x="730" y="120" width="210" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- BAND D: SERVER ACTIONS -->
+        <mxCell id="bandD" value="SERVER ACTIONS  —  src/actions ·  requireRole() first → mutate → revalidatePath()" style="swimlane;startSize=28;html=1;horizontal=1;fontSize=12;fontStyle=1;fontColor=#2a6a3a;fillColor=#eef7ec;strokeColor=#82b366;verticalAlign=top;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="600" width="1400" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="d1" value="events.ts&#xa;CRUD · delete" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="bandD">
+          <mxGeometry x="40" y="45" width="180" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="d2" value="dashboard.ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="bandD">
+          <mxGeometry x="240" y="45" width="160" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="d3" value="send-to-lc.ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;" vertex="1" parent="bandD">
+          <mxGeometry x="420" y="45" width="160" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="d4" value="recipes.ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="bandD">
+          <mxGeometry x="600" y="45" width="160" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="d5" value="brief-preview.ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="bandD">
+          <mxGeometry x="780" y="45" width="160" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="d6" value="equipment · checklists · event-cocktails · standard-notes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="bandD">
+          <mxGeometry x="40" y="105" width="430" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="d7" value="lc-recipients · app-settings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="bandD">
+          <mxGeometry x="490" y="105" width="250" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="d8" value="auth.ts · alerts.ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="bandD">
+          <mxGeometry x="760" y="105" width="180" height="48" as="geometry" />
+        </mxCell>
+
+        <!-- BAND E: BUSINESS LOGIC / SECURITY -->
+        <mxCell id="bandE" value="BUSINESS LOGIC &amp; SECURITY CORE  —  src/lib" style="swimlane;startSize=28;html=1;horizontal=1;fontSize=12;fontStyle=1;fontColor=#8a3a3a;fillColor=#fbeeee;strokeColor=#b85450;verticalAlign=top;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="800" width="1400" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="🔒 PARTNER ISOLATION&#xa;stripPartnerEvent() · partner-event-projection · dashboard-filters&#xa;single sanitiser path + !isPartner UI gating" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;" vertex="1" parent="bandE">
+          <mxGeometry x="40" y="45" width="430" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="BRIEF — 4 surfaces kept in sync&#xa;in-app preview · email HTML · visual PDF · text-only PDF" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1;" vertex="1" parent="bandE">
+          <mxGeometry x="490" y="45" width="470" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="lc-email&#xa;getFromEmail()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=11;" vertex="1" parent="bandE">
+          <mxGeometry x="980" y="45" width="180" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="Calculators — stock-calculator · equipment-scaler&#xa;dashboard-summary / status · event-countdown" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="bandE">
+          <mxGeometry x="40" y="135" width="520" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="Helpers — address-format · validation · role-permissions · event-deletion" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=11;" vertex="1" parent="bandE">
+          <mxGeometry x="580" y="135" width="580" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- BAND F: DATA -->
+        <mxCell id="bandF" value="DATA LAYER" style="swimlane;startSize=28;html=1;horizontal=1;fontSize=12;fontStyle=1;fontColor=#444444;fillColor=#f0f0f0;strokeColor=#666666;verticalAlign=top;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1040" width="1400" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="f1" value="Drizzle ORM&#xa;neon-http (no transactions)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="bandF">
+          <mxGeometry x="40" y="42" width="280" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="f2" value="NeonDB · Postgres (eu-west-2 / lhr1)&#xa;16 tables — events + 15 child tables&#xa;schema.ts = single source of truth" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="bandF">
+          <mxGeometry x="400" y="35" width="360" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- EXTERNAL SERVICES -->
+        <mxCell id="extResend" value="Resend&#xa;transactional email&#xa;(magic links + brief)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1480" y="260" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="extUpload" value="UploadThing&#xa;recipe / reference&#xa;image hosting" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1480" y="450" width="180" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- SPINE EDGES (vertical backbone) -->
+        <mxCell id="sp1" value="sign in" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#666666;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="bandA" target="bandB">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sp2" value="authorised request" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#666666;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="bandB" target="bandC">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sp3" value="invoke / mutate" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#666666;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="bandC" target="bandD">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sp4" value="compute / sanitise" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#666666;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="bandD" target="bandE">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sp5" value="query (Promise.all)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#666666;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="bandE" target="bandF">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sp6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;startArrow=none;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="f1" target="f2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- CROSS-CUTTING EDGES -->
+        <mxCell id="x1" value="magic link" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b85450;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="b2" target="extResend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2" value="send brief" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b85450;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="d3" target="extResend">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1450" y="693" />
+              <mxPoint x="1450" y="320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x3" value="image upload" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d79b00;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="c7" target="extUpload">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x4" value="builds brief" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d79b00;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="d3" target="e2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x5" value="renders PDF" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d79b00;exitX=0.9;exitY=1;exitDx=0;exitDy=0;entryX=0.85;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="c6" target="e2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1320" y="780" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="x6" value="strips before send" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b85450;exitX=0.1;exitY=1;exitDx=0;exitDy=0;entryX=0.1;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="d1" target="e1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

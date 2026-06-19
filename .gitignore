@@ -98,3 +98,9 @@ stitch_backstage_events_dashboard/*/code.html
 
 # Visual brainstorm companion (local mockups)
 .superpowers/
+
+# draw.io diagram exports — regenerable from the .drawio source, keep them out of git
+docs/architecture.drawio.png
+docs/architecture.png
+docs/architecture.pdf
+docs/architecture.svg
