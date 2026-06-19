@@ -1,8 +1,7 @@
 import { db } from "@/db";
 import { appSettings } from "@/db/schema";
 import { eq } from "drizzle-orm";
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { EMAIL_PATTERN } from "./recipient-validation";
 
 export const FROM_EMAIL_SETTING_KEY = "from_email";
 

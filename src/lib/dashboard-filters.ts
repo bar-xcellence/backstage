@@ -122,6 +122,3 @@ export function resolveEffectiveRole(
   }
   return sessionRole;
 }
-
-// Re-exported for callers that need the partner-visible status list
-export { PARTNER_VISIBLE_STATUSES };

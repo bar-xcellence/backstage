@@ -1,6 +1,5 @@
 import { FROM_EMAIL_SETTING_KEY } from "./lc-email";
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { EMAIL_PATTERN } from "./recipient-validation";
 
 /**
  * Pure validator for app_settings values, keyed by setting name.

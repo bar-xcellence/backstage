@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import type { SavedRecipientOption } from "@/actions/brief-preview";
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { EMAIL_PATTERN } from "@/lib/recipient-validation";
 
 export interface RecipientsPanelProps {
   to: string;
