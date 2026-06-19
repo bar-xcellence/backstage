@@ -170,6 +170,53 @@ describe("buildBriefEmailHtml", () => {
     expect(html).toContain("Black short cardboard");
   });
 
+  it("renders per-cocktail garnishes in the spec (sync invariant)", () => {
+    const html = buildBriefEmailHtml(
+      baseEvent,
+      [
+        {
+          id: "ec1",
+          menuName: "Spiced Passionstar",
+          menuDescription: null,
+          stationNumber: 1,
+          servesAllocated: 50,
+          ingredients: [],
+          garnishes: [
+            {
+              id: "g1",
+              garnishName: "Passionfruit quarter",
+              quantity: "1",
+              quantityUnit: "piece",
+              garnishCategory: "fruit",
+              sortOrder: 0,
+            },
+            {
+              id: "g2",
+              garnishName: "Pineapple leaf",
+              quantity: "1",
+              quantityUnit: "piece",
+              garnishCategory: "botanical",
+              sortOrder: 1,
+            },
+            {
+              id: "g3",
+              garnishName: "Edible gold dust",
+              quantity: "1",
+              quantityUnit: "pinch",
+              garnishCategory: "decorative",
+              sortOrder: 2,
+            },
+          ],
+        },
+      ] as unknown as Parameters<typeof buildBriefEmailHtml>[1],
+      emptyStock,
+      []
+    );
+    expect(html).toContain("Passionfruit quarter");
+    expect(html).toContain("Pineapple leaf");
+    expect(html).toContain("Edible gold dust");
+  });
+
   it("renders per-cocktail reference image when URL set (Spec H)", () => {
     const html = buildBriefEmailHtml(
       baseEvent,

@@ -312,6 +312,17 @@ export function BriefPreview({
                         ))}
                       </ul>
                     )}
+                    {ec.garnishes.length > 0 && (
+                      <p className="text-cream/60 text-xs italic mt-1">
+                        Garnish:{" "}
+                        {ec.garnishes
+                          .map(
+                            (g) =>
+                              `${g.quantity} ${g.quantityUnit} ${g.garnishName}`
+                          )
+                          .join(", ")}
+                      </p>
+                    )}
                     {ec.cocktail?.iceType && (
                       <p className="text-cream/50 text-xs mt-1">
                         Ice: {ec.cocktail.iceType}

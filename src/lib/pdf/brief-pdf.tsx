@@ -255,6 +255,11 @@ export function BriefPDF({
                     {ing.brand ? ` (${ing.brand})` : ""}
                   </Text>
                 ))}
+                {c.garnishes.map((g, j) => (
+                  <Text key={j} style={s.text}>
+                    {`${g.quantity as number} ${g.quantityUnit as string} ${g.garnishName as string} (garnish)`}
+                  </Text>
+                ))}
                 {c.cocktail?.iceType && (
                   <Text style={s.text}>
                     Ice: {c.cocktail.iceType}
