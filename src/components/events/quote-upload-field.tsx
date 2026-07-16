@@ -81,7 +81,10 @@ export function QuoteUploadField() {
       />
 
       {blobUrl && fileName ? (
-        <div className="flex items-center gap-4 min-h-[44px]">
+        // The styled label unmounts in this state, so carry the focus
+        // indicator here — the sr-only input stays in the tab order and would
+        // otherwise be focusable with nothing visible to show for it.
+        <div className="flex items-center gap-4 min-h-[44px] border-b-2 border-transparent peer-focus-visible:border-gold transition-colors duration-200">
           <span className="font-[family-name:var(--font-raleway)] text-sm text-charcoal truncate">
             {fileName}{" "}
             <span className="text-grey text-xs">
