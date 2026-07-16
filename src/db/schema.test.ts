@@ -8,6 +8,7 @@ import {
   eventCocktails,
   eventContacts,
   eventChecklists,
+  eventFiles,
 } from "./schema";
 
 describe("Database Schema", () => {
@@ -139,6 +140,19 @@ describe("Database Schema", () => {
       expect(eventChecklists.label).toBeDefined();
       expect(eventChecklists.isCompleted).toBeDefined();
       expect(eventChecklists.isCustom).toBeDefined();
+    });
+  });
+
+  describe("event_files table", () => {
+    it("has required columns", () => {
+      const columns = Object.keys(eventFiles);
+      expect(columns).toContain("id");
+      expect(columns).toContain("eventId");
+      expect(columns).toContain("category");
+      expect(columns).toContain("fileName");
+      expect(columns).toContain("blobUrl");
+      expect(columns).toContain("fileSize");
+      expect(columns).toContain("uploadedAt");
     });
   });
 });

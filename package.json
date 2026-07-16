@@ -23,6 +23,7 @@
     "@react-pdf/renderer": "^4.5.1",
     "@tanstack/react-table": "^8.21.3",
     "@uploadthing/react": "^7.3.3",
+    "@vercel/blob": "^2.6.1",
     "drizzle-orm": "^0.45.2",
     "iron-session": "^8.0.4",
     "jose": "^6.2.2",

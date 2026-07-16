@@ -1,11 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { QuoteUploadField } from "@/components/events/quote-upload-field";
 
 interface EventFormProps {
   action: (formData: FormData) => Promise<{ errors?: string[] } | void>;
   defaultValues?: Record<string, string | number | null>;
   submitLabel?: string;
+  /** New-enquiry only. The edit form leaves this off — post-creation uploads
+   *  go through the Files tab, which covers every category. */
+  showQuoteUpload?: boolean;
 }
 
 function FormField({
@@ -85,6 +89,7 @@ export function EventForm({
   action,
   defaultValues = {},
   submitLabel = "CREATE EVENT",
+  showQuoteUpload = false,
 }: EventFormProps) {
   const [errors, setErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -365,6 +370,16 @@ export function EventForm({
           />
         </div>
       </section>
+
+      {/* Quote (new enquiry only) */}
+      {showQuoteUpload && (
+        <section>
+          <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-light text-charcoal tracking-tight mb-4">
+            Quote
+          </h2>
+          <QuoteUploadField />
+        </section>
+      )}
 
       {/* Submit */}
       <div className="flex justify-end pt-4">

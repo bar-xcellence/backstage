@@ -24,7 +24,7 @@ export default async function NewEventPage() {
         </h1>
       </div>
 
-      <EventForm action={createEvent} />
+      <EventForm action={createEvent} showQuoteUpload />
     </div>
   );
 }

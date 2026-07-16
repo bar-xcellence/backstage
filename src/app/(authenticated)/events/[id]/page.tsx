@@ -21,6 +21,8 @@ import { getEventEquipment, getEquipmentTemplates } from "@/actions/equipment";
 import { getStandardNotes, getEventStandardNotes } from "@/actions/standard-notes";
 import { EventEquipment } from "@/components/events/event-equipment";
 import { EventStandardNotes } from "@/components/events/event-standard-notes";
+import { getEventFiles } from "@/actions/event-files";
+import { EventFiles } from "@/components/events/event-files";
 import { formatAddressLines } from "@/lib/address-format";
 import { STATUS_COLORS, STATUS_ORDER } from "@/lib/constants";
 import { toPartnerStatus, type DbStatus } from "@/lib/dashboard-status";
@@ -73,6 +75,7 @@ export default async function EventDetailPage({
     templates,
     allStandardNotes,
     eventNotes,
+    files,
   ] = await Promise.all([
     getEvent(id),
     getEventCocktails(id),
@@ -82,6 +85,8 @@ export default async function EventDetailPage({
     isPartner ? Promise.resolve([]) : getEquipmentTemplates(),
     getStandardNotes(),
     getEventStandardNotes(id),
+    // Owner-only: getEventFiles requireRole()s and would throw for a partner.
+    isPartner ? Promise.resolve([]) : getEventFiles(id),
   ]);
 
   if (!event) notFound();
@@ -157,6 +162,7 @@ export default async function EventDetailPage({
           id: "checklist",
           label: `Checklist (${checklist.filter((c) => c.isCompleted).length}/${checklist.length})`,
         },
+        { id: "files", label: `Files (${files.length})` },
         { id: "edit", label: "Edit" },
       ]
       : []),
@@ -528,6 +534,7 @@ export default async function EventDetailPage({
                 eventStatus={event.status}
               />
             ),
+            files: <EventFiles eventId={id} files={files} />,
             edit: (
               <EventForm
                 action={updateWithId}
