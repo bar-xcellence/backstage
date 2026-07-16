@@ -31,7 +31,6 @@ export async function POST(request: Request): Promise<NextResponse> {
           allowedContentTypes: ["application/pdf", "image/jpeg", "image/png"],
           maximumSizeInBytes: MAX_EVENT_FILE_BYTES,
           addRandomSuffix: true,
-          tokenPayload: JSON.stringify({ userId: session.userId }),
         };
       },
     });

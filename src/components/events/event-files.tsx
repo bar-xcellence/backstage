@@ -40,6 +40,9 @@ export function EventFiles({
   const uploadingRef = useRef(false);
   const [category, setCategory] = useState<EventFileCategory>("quote");
   const [uploading, setUploading] = useState(false);
+  // A 16MB artwork PDF on venue wifi takes long enough that a static
+  // "Uploading…" reads as a hang — and a reload orphans the blob.
+  const [progress, setProgress] = useState(0);
   const [pendingDelete, setPendingDelete] = useState<EventFileRow | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,8 +63,10 @@ export function EventFiles({
 
     uploadingRef.current = true;
     setUploading(true);
+    setProgress(0);
     try {
       const blob = await upload(`event-files/${file.name}`, file, {
+        onUploadProgress: ({ percentage }) => setProgress(percentage),
         // LOAD-BEARING: `access` cannot be pinned server-side in the upload
         // token — the browser decides it, and the blob's hostname derives from
         // it. This line is the ONLY place these files are made private. These
@@ -136,7 +141,7 @@ export function EventFiles({
           disabled={uploading}
           className="px-6 py-2.5 bg-gold-ink text-cream font-[family-name:var(--font-raleway)] text-[11px] font-semibold tracking-[0.16em] uppercase hover:bg-gold transition-colors duration-200 disabled:opacity-50 min-h-[44px] cursor-pointer"
         >
-          {uploading ? "Uploading…" : "Upload file"}
+          {uploading ? `Uploading… ${Math.round(progress)}%` : "Upload file"}
         </button>
         <p className="font-[family-name:var(--font-raleway)] text-xs text-grey sm:mb-3">
           PDF, JPG or PNG, up to 16MB

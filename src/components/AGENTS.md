@@ -11,6 +11,8 @@ from the Reserve Noir design system.
 - `dashboard/dashboard-view.tsx` / `dashboard-client.tsx` — owner KPI + actions queue; `event-card.tsx` (owner footer panel) vs partner non-interactive cards
 - `events/event-form.tsx` — the single create/edit form (captures all Spec D/E/G/H/J/K fields)
 - `events/brief-preview.tsx` — slide-over brief + `recipients-panel.tsx` at-send picker → `send-to-lc-button.tsx`
+- `events/event-files.tsx` — owner-only Files tab (quotes, LC invoices, floor plans, menus, artwork);
+  `events/quote-upload-field.tsx` — the create-only Quote PDF slot on `event-form.tsx`
 - `settings/from-address-section.tsx`, `settings/lc-recipients-section.tsx` — owner/super_admin only
 
 ## Contracts & Invariants
@@ -19,6 +21,10 @@ from the Reserve Noir design system.
   `../lib/`; here you additionally gate owner-only UI on `!isPartner` (Times, Batching, Pop-up Bar,
   Install Instructions, Notes, serves/stations/lcSentAt/showName summary pills). This is
   defence-in-depth on top of the server strip — keep both.
+- **`access: "private"` in the two `upload()` calls is load-bearing, not boilerplate.** It cannot be
+  pinned server-side (the browser decides it; the blob hostname derives from it), so that literal is
+  the only place these files are made private. Flipping it to `"public"` puts client quotes and LC
+  invoices on unauthenticated URLs. Both call sites carry a comment saying so — leave them.
 - **Partner cards are non-interactive** and show only partner-visible fields + `lcPayout`,
   `commissionNote`, `elementsSummary`. Partner sees the collapsed `toPartnerStatus()` label only.
 - **Session must be a plain object before crossing into a Client Component** (spread it) — an

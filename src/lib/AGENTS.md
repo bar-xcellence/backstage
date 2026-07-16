@@ -15,6 +15,8 @@ call into here — this is where the rules live, so it is the most dangerous pla
 - `lc-email.ts` — async `getFromEmail()` (DB-first, env fallback), `resolveLCEmail()`
 - `brief-email-template.ts`, `pdf/` — the brief surfaces (must stay in sync — see Anti-patterns)
 - `equipment-scaler.ts`, `stock-calculator.ts`, `address-format.ts`, `event-countdown.ts` — domain calculators
+- `event-file-validation.ts` — `validateEventFileInput()`, the category enum + labels, `MAX_EVENT_FILE_BYTES`
+- `file-size-format.ts` — `formatFileSize()` (kept out of the client components so both importers stay pure)
 
 ## Contracts & Invariants
 - **Partner must NEVER see** the five forbidden financial fields (`invoiceAmount`, `costAmount`,
@@ -22,6 +24,12 @@ call into here — this is where the rules live, so it is the most dangerous pla
 - **Every `events` column is classified** into exactly one of `PARTNER_VISIBLE_DB_FIELDS`,
   `PARTNER_STRIPPED_FIELDS`, or `OWNER_ONLY_FIELDS` in `partner-event-projection.ts`. Adding a
   column without classifying it **fails `partner-event-projection.test.ts`** — this is the tripwire.
+- **The pinned tripwire only covers `events` columns.** `event_files` (quote/LC-invoice/floor-plan/menu
+  /artwork uploads) is a **separate table**, so `partner-event-projection.test.ts` says nothing about it
+  and a green suite is NOT evidence it's safe. Its isolation is hand-enforced: `requireRole("owner",
+  "super_admin")` on all three actions in `actions/event-files.ts` (**including the read**), the same
+  check in `/api/event-files/[id]` next to the `get()` call, and `!isPartner` gating on the tab + panel.
+  If you make any of these files partner-visible, none of the existing tests will stop you getting it wrong.
 - **One sanitiser, one path:** all partner-facing event reads go through `stripPartnerEvent()`.
   Don't write a second stripping function — extend `OWNER_ONLY_FIELDS` and the strip follows.
 - **Status collapse happens at the projection boundary:** raw DB statuses (`enquiry`/`preparation`/`ready`)

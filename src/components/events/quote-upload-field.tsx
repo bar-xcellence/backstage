@@ -26,6 +26,8 @@ export function QuoteUploadField() {
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [fileSize, setFileSize] = useState(0);
   const [uploading, setUploading] = useState(false);
+  // See event-files.tsx — a static "Uploading…" reads as a hang on a big file.
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   async function handleFile(file: File) {
@@ -42,8 +44,10 @@ export function QuoteUploadField() {
 
     uploadingRef.current = true;
     setUploading(true);
+    setProgress(0);
     try {
       const blob = await upload(`event-files/${file.name}`, file, {
+        onUploadProgress: ({ percentage }) => setProgress(percentage),
         // LOAD-BEARING: `access` cannot be pinned server-side in the upload
         // token — the browser decides it, and the blob's hostname derives from
         // it. This line is the ONLY place these files are made private. This is
@@ -121,7 +125,7 @@ export function QuoteUploadField() {
           className="flex items-center justify-center w-full px-3 py-6 bg-surface-low border-b-2 border-outline/15 text-grey font-[family-name:var(--font-raleway)] text-sm cursor-pointer hover:border-gold peer-focus-visible:border-gold transition-colors duration-200 text-center min-h-[44px]"
         >
           {uploading
-            ? "Uploading…"
+            ? `Uploading… ${Math.round(progress)}%`
             : "Click to upload the quote you sent the client (PDF, ≤16MB)"}
         </label>
       )}
