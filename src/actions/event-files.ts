@@ -60,8 +60,12 @@ export async function deleteEventFile(id: string): Promise<{ error?: string }> {
 
   try {
     await del(file.blobUrl);
-  } catch {
-    // Blob already gone — still remove the row.
+  } catch (e) {
+    // del() is idempotent on a missing blob, so this only fires on a network
+    // or auth failure. Drop the row anyway — a stuck row the owner can't clear
+    // is worse than an orphaned blob in a private store, which nothing can
+    // reach. Logged so the orphan is at least traceable.
+    console.error("Failed to delete blob", file.blobUrl, e);
   }
 
   await db.delete(eventFiles).where(eq(eventFiles.id, id));
