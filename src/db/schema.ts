@@ -106,6 +106,15 @@ export const scalingRuleEnum = pgEnum("scaling_rule", [
   "per_guest",
 ]);
 
+export const eventFileCategoryEnum = pgEnum("event_file_category", [
+  "quote",
+  "lc_invoice",
+  "floor_plan",
+  "menu",
+  "artwork",
+  "other",
+]);
+
 // ── Users ──────────────────────────────────────────────
 
 export const users = pgTable("users", {
@@ -337,6 +346,23 @@ export const eventEquipment = pgTable("event_equipment", {
   sortOrder: integer("sort_order").default(0).notNull(),
 });
 
+// ── Event Files ───────────────────────────────────────
+// Owner-only documents (quotes, LC invoices, floor plans, menus, artwork)
+// stored in a PRIVATE Vercel Blob store. Never partner-visible — enforced in
+// actions/routes, not via partner-event-projection (separate table).
+
+export const eventFiles = pgTable("event_files", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  eventId: uuid("event_id")
+    .references(() => events.id, { onDelete: "cascade" })
+    .notNull(),
+  category: eventFileCategoryEnum("category").notNull(),
+  fileName: text("file_name").notNull(),
+  blobUrl: text("blob_url").notNull(),
+  fileSize: integer("file_size").notNull(),
+  uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+});
+
 // ── Standard Notes ────────────────────────────────────
 
 export const standardNotes = pgTable("standard_notes", {
@@ -409,6 +435,7 @@ export const eventsRelations = relations(events, ({ many, one }) => ({
   cocktails: many(eventCocktails),
   checklists: many(eventChecklists),
   equipment: many(eventEquipment),
+  files: many(eventFiles),
   standardNotes: many(eventStandardNotes),
   stock: many(eventStock),
   createdByUser: one(users, {
@@ -510,6 +537,13 @@ export const eventEquipmentRelations = relations(
     }),
   })
 );
+
+export const eventFilesRelations = relations(eventFiles, ({ one }) => ({
+  event: one(events, {
+    fields: [eventFiles.eventId],
+    references: [events.id],
+  }),
+}));
 
 export const standardNotesRelations = relations(
   standardNotes,
