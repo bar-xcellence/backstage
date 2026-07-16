@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 import { formatFileSize } from "@/lib/file-size-format";
+import { MAX_EVENT_FILE_BYTES } from "@/lib/event-file-validation";
 
 // The quote Murdo emails the client, captured at enquiry time. Uploads to
 // private Blob storage immediately on selection and exposes the result as
@@ -29,8 +30,17 @@ export function QuoteUploadField() {
 
   async function handleFile(file: File) {
     if (uploadingRef.current) return;
-    uploadingRef.current = true;
     setError(null);
+
+    // Check before uploading, not after — see event-files.tsx.
+    if (file.size > MAX_EVENT_FILE_BYTES) {
+      setError(
+        `${file.name} is ${formatFileSize(file.size)} — the limit is ${formatFileSize(MAX_EVENT_FILE_BYTES)}.`
+      );
+      return;
+    }
+
+    uploadingRef.current = true;
     setUploading(true);
     try {
       const blob = await upload(`event-files/${file.name}`, file, {

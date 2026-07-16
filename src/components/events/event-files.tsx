@@ -7,6 +7,7 @@ import { formatFileSize } from "@/lib/file-size-format";
 import {
   EVENT_FILE_CATEGORIES,
   EVENT_FILE_CATEGORY_LABELS,
+  MAX_EVENT_FILE_BYTES,
   type EventFileCategory,
 } from "@/lib/event-file-validation";
 
@@ -45,8 +46,19 @@ export function EventFiles({
 
   async function handleFile(file: File) {
     if (uploadingRef.current) return;
-    uploadingRef.current = true;
     setError(null);
+
+    // Check before uploading, not after: the token caps size server-side, but
+    // hitting that means pushing the whole file first and getting an SDK error
+    // back. Menu artwork is routinely over the limit.
+    if (file.size > MAX_EVENT_FILE_BYTES) {
+      setError(
+        `${file.name} is ${formatFileSize(file.size)} — the limit is ${formatFileSize(MAX_EVENT_FILE_BYTES)}.`
+      );
+      return;
+    }
+
+    uploadingRef.current = true;
     setUploading(true);
     try {
       const blob = await upload(`event-files/${file.name}`, file, {
