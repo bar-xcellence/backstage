@@ -6,6 +6,9 @@ import { db } from "@/db";
 import { eventFiles } from "@/db/schema";
 import { getSession } from "@/lib/session";
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 // Build an RFC 6266 Content-Disposition. The filename is user-supplied at
 // upload (browser `file.name`), so it can hold anything the OS allows.
 // Node's Headers rejects CR/LF (no header injection possible here) but also
@@ -34,6 +37,12 @@ export async function GET(
   }
 
   const { id } = await params;
+
+  // A stale or mistyped link would otherwise reach Postgres as a bad uuid cast
+  // and surface as a 500 rather than a 404.
+  if (!UUID_PATTERN.test(id)) {
+    return NextResponse.json({ error: "File not found" }, { status: 404 });
+  }
 
   const [file] = await db
     .select()
