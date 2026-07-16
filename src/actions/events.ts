@@ -3,6 +3,7 @@
 import { db } from "@/db";
 import { events, eventContacts, lcRecipients, eventFiles } from "@/db/schema";
 import { eq, desc, and, type SQL } from "drizzle-orm";
+import { del } from "@vercel/blob";
 import { requireRole } from "@/lib/session";
 import { validateEvent } from "@/lib/event-validation";
 import { validateEventFileInput } from "@/lib/event-file-validation";
@@ -359,6 +360,29 @@ export async function deleteEvent(
   const status = event.status as DbStatus;
   if (!canDeleteEvent(status)) {
     return { error: deleteBlockedReason(status) ?? "Cannot delete this event" };
+  }
+
+  // Deleting the event row cascades the event_files rows away but leaves their
+  // blobs in storage. Delete those first: the URLs only exist on the rows we're
+  // about to drop, so doing it the other way round would lose them forever if
+  // the process died in between. Runs after the status guard — an event that
+  // can't be deleted must keep its files.
+  const files = await db
+    .select({ blobUrl: eventFiles.blobUrl })
+    .from(eventFiles)
+    .where(eq(eventFiles.eventId, id));
+
+  if (files.length > 0) {
+    try {
+      // One request — del() posts the whole array in a single call.
+      await del(files.map((f) => f.blobUrl));
+    } catch (e) {
+      // del() is idempotent on a missing blob, so this only fires on a network
+      // or auth failure. Delete the event anyway — a stuck event the owner
+      // can't clear is worse than orphaned blobs in a private store, which
+      // nothing can reach. Logged so the orphans are at least traceable.
+      console.error("Failed to delete blobs for event", id, e);
+    }
   }
 
   await db.delete(events).where(eq(events.id, id));
