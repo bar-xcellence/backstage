@@ -194,21 +194,33 @@ export function EventFiles({
                   key={file.id}
                   className="flex items-center gap-4 min-h-[44px]"
                 >
-                  {isImage(file.fileName) ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={`/api/event-files/${file.id}`}
-                      alt=""
-                      className="w-11 h-11 object-cover border border-outline/15 shrink-0"
-                    />
-                  ) : (
-                    <span
-                      aria-hidden="true"
-                      className="w-11 h-11 flex items-center justify-center border border-outline/15 text-grey text-[10px] font-[family-name:var(--font-raleway)] tracking-[0.16em] shrink-0"
-                    >
-                      PDF
-                    </span>
-                  )}
+                  {/* The icon links to the same file as the name and opens a
+                      new tab too — clicking the thumbnail is the natural
+                      gesture. aria-hidden + tabIndex -1 so it's a mouse
+                      convenience, not a duplicate/unlabelled link for
+                      keyboard and screen-reader users; the filename link
+                      beside it is the real, labelled control. */}
+                  <a
+                    href={`/api/event-files/${file.id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-hidden="true"
+                    tabIndex={-1}
+                    className="shrink-0"
+                  >
+                    {isImage(file.fileName) ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`/api/event-files/${file.id}`}
+                        alt=""
+                        className="w-11 h-11 object-cover border border-outline/15 hover:border-gold transition-colors duration-200"
+                      />
+                    ) : (
+                      <span className="w-11 h-11 flex items-center justify-center border border-outline/15 text-grey text-[10px] font-[family-name:var(--font-raleway)] tracking-[0.16em] hover:border-gold transition-colors duration-200">
+                        PDF
+                      </span>
+                    )}
+                  </a>
                   <a
                     href={`/api/event-files/${file.id}`}
                     target="_blank"
