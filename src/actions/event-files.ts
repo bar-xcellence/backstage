@@ -40,8 +40,17 @@ export async function addEventFile(
 export async function getEventFiles(eventId: string) {
   await requireRole("owner", "super_admin");
 
+  // Deliberately narrowed: a bare select() would serialise blobUrl into the
+  // client payload. Nothing renders it — the UI reads files through
+  // /api/event-files/[id] — so it should never leave the server.
   return db
-    .select()
+    .select({
+      id: eventFiles.id,
+      category: eventFiles.category,
+      fileName: eventFiles.fileName,
+      fileSize: eventFiles.fileSize,
+      uploadedAt: eventFiles.uploadedAt,
+    })
     .from(eventFiles)
     .where(eq(eventFiles.eventId, eventId))
     .orderBy(asc(eventFiles.uploadedAt));
