@@ -1,10 +1,11 @@
 "use server";
 
 import { db } from "@/db";
-import { events, eventContacts, lcRecipients } from "@/db/schema";
+import { events, eventContacts, lcRecipients, eventFiles } from "@/db/schema";
 import { eq, desc, and, type SQL } from "drizzle-orm";
 import { requireRole } from "@/lib/session";
 import { validateEvent } from "@/lib/event-validation";
+import { validateEventFileInput } from "@/lib/event-file-validation";
 import { canDeleteEvent, deleteBlockedReason } from "@/lib/event-deletion";
 import type { DbStatus } from "@/lib/dashboard-status";
 import { stripPartnerEvent } from "@/lib/partner-event-sanitisation";
@@ -108,6 +109,44 @@ export async function createEvent(
       status: "enquiry",
     })
     .returning({ id: events.id });
+
+  // Quote uploaded on the new-enquiry form (Spec: event files). The blob is
+  // already in storage; this attaches it to the event that now exists.
+  //
+  // Deliberately non-fatal: a bad quote never blocks event creation, and the
+  // insert runs before redirect() below (which throws NEXT_REDIRECT), so it is
+  // never skipped. Every failure path logs — the client generates this
+  // metadata itself, so a rejection here means something is genuinely wrong,
+  // and a silently vanishing quote is the one outcome Murdo would not notice.
+  // Worst case he re-uploads from the Files tab.
+  const quoteBlobUrl = (formData.get("quoteBlobUrl") as string) || null;
+  if (quoteBlobUrl) {
+    const quoteInput = {
+      category: "quote",
+      fileName: (formData.get("quoteFileName") as string) || "",
+      blobUrl: quoteBlobUrl,
+      fileSize: Number(formData.get("quoteFileSize")) || 0,
+    };
+    const quoteErrors = validateEventFileInput(quoteInput);
+    if (quoteErrors.length > 0) {
+      console.error(
+        `Dropped quote upload for event ${event.id}:`,
+        quoteErrors.join(", ")
+      );
+    } else {
+      try {
+        await db.insert(eventFiles).values({
+          eventId: event.id,
+          category: "quote",
+          fileName: quoteInput.fileName.trim(),
+          blobUrl: quoteInput.blobUrl,
+          fileSize: quoteInput.fileSize,
+        });
+      } catch (e) {
+        console.error(`Failed to attach quote to event ${event.id}:`, e);
+      }
+    }
+  }
 
   revalidatePath("/events");
   redirect(`/events/${event.id}`);
