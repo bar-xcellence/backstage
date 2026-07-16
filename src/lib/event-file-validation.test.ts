@@ -64,6 +64,19 @@ describe("validateEventFileInput", () => {
     ).toContain(sizeError);
   });
 
+  // Pins the constant to a literal: every other size assertion is relative to
+  // MAX_EVENT_FILE_BYTES, so a drift would pass silently and widen the upload
+  // token route's maximumSizeInBytes.
+  it("pins the maximum file size to 16MB", () => {
+    expect(MAX_EVENT_FILE_BYTES).toBe(16 * 1024 * 1024);
+    expect(
+      validateEventFileInput({ ...valid, fileSize: 16 * 1024 * 1024 })
+    ).toEqual([]);
+    expect(
+      validateEventFileInput({ ...valid, fileSize: 16 * 1024 * 1024 + 1 })
+    ).toContain("File must be between 1 byte and 16MB");
+  });
+
   it("has a display label for every category", () => {
     for (const category of EVENT_FILE_CATEGORIES) {
       expect(EVENT_FILE_CATEGORY_LABELS[category]).toBeTruthy();
